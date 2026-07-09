@@ -1,0 +1,127 @@
+@import "tailwindcss";
+
+@theme {
+  --color-ink: #2c1810;
+  --color-ink-light: #5c3d2e;
+  --color-red-seal: #cc0000;
+  --color-red-seal-light: #e63946;
+  --color-paper-light: #f5e6c8;
+  --color-paper-aged: #e8d5a3;
+  --color-paper-worn: #d4b896;
+  --color-paper-dark: #c4a87c;
+  --color-gold: #b8860b;
+  --font-serif: "Noto Serif SC", "STSong", "SimSun", "Source Han Serif SC", serif;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: var(--font-serif);
+  background-color: #faf6f0;
+  color: var(--color-ink);
+  min-height: 100vh;
+}
+
+#app {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.vintage-paper {
+  background-color: var(--color-paper-light);
+  background-image:
+    radial-gradient(ellipse at 50% 0%, rgba(139, 90, 43, 0.05) 0%, transparent 60%),
+    linear-gradient(to bottom, rgba(232, 213, 163, 0.3) 0%, transparent 10%, transparent 90%, rgba(212, 184, 150, 0.3) 100%);
+  border: 1px solid rgba(139, 90, 43, 0.15);
+  box-shadow:
+    0 2px 4px rgba(0, 0, 0, 0.06),
+    0 8px 24px rgba(0, 0, 0, 0.04);
+}
+
+.vintage-text {
+  color: var(--color-ink);
+  font-family: var(--font-serif);
+  line-height: 2;
+  letter-spacing: 0.05em;
+}
+
+.remittance-highlight {
+  color: var(--color-red-seal);
+  font-weight: 600;
+}
+
+.vertical-text {
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #8b4513, #a0522d);
+  color: #fff;
+  padding: 0.75rem 2rem;
+  border-radius: 0.5rem;
+  font-size: 1.125rem;
+  font-family: var(--font-serif);
+  cursor: pointer;
+  border: none;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(139, 69, 19, 0.3);
+}
+
+.btn-primary:hover {
+  background: linear-gradient(135deg, #6b3410, #8b4513);
+  box-shadow: 0 4px 12px rgba(139, 69, 19, 0.4);
+  transform: translateY(-1px);
+}
+
+.btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.btn-secondary {
+  background: transparent;
+  color: var(--color-ink);
+  padding: 0.6rem 1.5rem;
+  border-radius: 0.5rem;
+  font-size: 1rem;
+  font-family: var(--font-serif);
+  cursor: pointer;
+  border: 1px solid rgba(139, 69, 19, 0.3);
+  transition: all 0.2s ease;
+}
+
+.btn-secondary:hover {
+  background: rgba(139, 69, 19, 0.05);
+  border-color: rgba(139, 69, 19, 0.5);
+}
+
+.page-enter-active,
+.page-leave-active {
+  transition: opacity 0.3s ease;
+}
+
+.page-enter-from,
+.page-leave-to {
+  opacity: 0;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(139, 69, 19, 0.2);
+  border-radius: 3px;
+}
