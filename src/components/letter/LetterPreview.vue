@@ -19,22 +19,9 @@ const formattedContent = computed(() => {
 
 <template>
   <div class="vintage-paper rounded-xl p-6 md:p-10">
-    <!-- Title -->
-    <div class="text-center mb-8">
-      <h2 class="text-2xl font-serif font-bold text-ink tracking-widest">侨 批</h2>
-      <div class="w-16 h-px bg-ink/20 mx-auto mt-2"></div>
-    </div>
-
-    <!-- Content with typewriter effect for streaming -->
+    <!-- Content -->
     <div
-      v-if="store.isGenerating"
-      class="vintage-text whitespace-pre-line text-base md:text-lg"
-      v-html="formattedContent"
-    ></div>
-
-    <!-- Finished content -->
-    <div
-      v-else
+      v-if="store.isGenerating || displayContent"
       class="vintage-text whitespace-pre-line text-base md:text-lg"
       v-html="formattedContent"
     ></div>

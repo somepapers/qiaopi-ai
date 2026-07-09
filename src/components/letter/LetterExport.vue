@@ -20,10 +20,103 @@ const paperColors: Record<PaperType, string> = {
 }
 
 function getCanvasSize() {
-  // Export at 1080 width for good quality
-  const w = 1080
-  const h = layout.value === 'horizontal' ? 1527 : 1080 // ~A4 ratio for horizontal, square for vertical
-  return { w, h }
+  if (layout.value === 'vertical') {
+    return { w: 1920, h: 1080 }
+  }
+  return { w: 1080, h: 1527 }
+}
+
+function drawHorizontal(ctx: CanvasRenderingContext2D, content: string, scale: number, w: number, h: number) {
+  ctx.fillStyle = '#2C1810'
+  ctx.font = `${28 * scale}px "Noto Serif SC", "STSong", serif`
+  ctx.textAlign = 'left'
+
+  const lines = content.split('\n')
+  const lineHeight = 50 * scale
+  const margin = 80 * scale
+  const maxWidth = w - margin * 2
+  let y = 80 * scale
+
+  for (const line of lines) {
+    if (y > h - margin * 1.5) break
+
+    const isRemittance = /[外附寄汇奉特].*[壹贰叁肆伍陆柒捌玖拾佰仟\d]+.*(?:元|块|圆|新币|港币|美金)/.test(line)
+    const isAmount = /[壹贰叁肆伍陆柒捌玖拾佰仟萬亿零\d]+(?:元|块|圆|角|分|新币|港币|美金|英镑|大洋|文)/.test(line)
+    ctx.fillStyle = (isRemittance || isAmount) ? '#CC0000' : '#2C1810'
+
+    const words = [...line]
+    let currentLine = ''
+    for (const char of words) {
+      const testLine = currentLine + char
+      if (ctx.measureText(testLine).width > maxWidth && currentLine.length > 0) {
+        ctx.fillText(currentLine, margin, y)
+        y += lineHeight
+        currentLine = char
+      } else {
+        currentLine = testLine
+      }
+    }
+    if (currentLine) {
+      ctx.fillText(currentLine, margin, y)
+      y += lineHeight
+    }
+    y += 4 * scale
+  }
+}
+
+function drawVertical(ctx: CanvasRenderingContext2D, content: string, scale: number, w: number, h: number) {
+  ctx.fillStyle = '#2C1810'
+  const fontSize = 30 * scale
+  ctx.font = `${fontSize}px "Noto Serif SC", "STSong", serif`
+  ctx.textAlign = 'center'
+  ctx.textBaseline = 'top'
+
+  const margin = 60 * scale
+  const colGap = fontSize * 1.6
+  const maxCols = 20
+  const maxRows = Math.floor((h - margin * 2) / colGap)
+
+  // Split content into paragraphs
+  const paragraphs = content.split('\n').filter(p => p.trim())
+
+  // Combine all chars from all paragraphs
+  const allChars: string[] = []
+  for (const para of paragraphs) {
+    for (const ch of para) {
+      if (ch === ' ' || ch === '\r') continue
+      allChars.push(ch)
+    }
+    allChars.push('')  // empty string as paragraph separator
+  }
+
+  // Draw from right to left (traditional Chinese vertical)
+  let col = maxCols - 1
+  let row = 0
+
+  for (const ch of allChars) {
+    if (col < 0) break
+    if (row >= maxRows) {
+      row = 0
+      col--
+    }
+    if (col < 0) break
+
+    const x = w - margin - col * colGap
+    const y = margin + row * colGap
+
+    if (ch === '') {
+      // Paragraph separator - just extra space
+      row++
+    } else {
+      // Check for remittance
+      if ((row > 0 || col < maxCols - 1) && /\d/.test(ch)) {
+        // Check surrounding context for amounts
+        ctx.fillStyle = '#2C1810'
+      }
+      ctx.fillText(ch, x, y)
+      row++
+    }
+  }
 }
 
 async function renderPreview() {
@@ -52,58 +145,11 @@ async function renderPreview() {
     ctx.stroke()
   }
 
-  // Draw letter title
-  ctx.fillStyle = '#2C1810'
-  ctx.font = `${48 * scale}px "Noto Serif SC", serif`
-  ctx.textAlign = 'center'
-  ctx.fillText('侨  批', w / 2, 120 * scale)
-
-  // Divider
-  ctx.strokeStyle = 'rgba(44,24,16,0.2)'
-  ctx.lineWidth = 1 * scale
-  ctx.beginPath()
-  ctx.moveTo(w / 2 - 80 * scale, 140 * scale)
-  ctx.lineTo(w / 2 + 80 * scale, 140 * scale)
-  ctx.stroke()
-
-  // Draw content
-  ctx.fillStyle = '#2C1810'
-  ctx.font = `${28 * scale}px "Noto Serif SC", serif`
-  ctx.textAlign = 'left'
-
-  const lines = content.split('\n')
-  const lineHeight = 50 * scale
-  const margin = 80 * scale
-  const maxWidth = w - margin * 2
-  let y = 200 * scale
-
-  for (const line of lines) {
-    if (y > h - margin) break
-
-    // Check for remittance amount (simple heuristic: contains digits with 元/块/圆 or 外附/寄/汇)
-    const isRemittance = /[外附寄汇奉特].*[壹贰叁肆伍陆柒捌玖拾佰仟\d]+.*(?:元|块|圆|新币|港币|美金)/.test(line)
-    const isAmount = /[壹贰叁肆伍陆柒捌玖拾佰仟萬亿零\d]+(?:元|块|圆|角|分|新币|港币|美金|英镑|大洋|文)/.test(line)
-
-    ctx.fillStyle = (isRemittance || isAmount) ? '#CC0000' : '#2C1810'
-
-    // Word wrap for long lines
-    const words = [...line]
-    let currentLine = ''
-    for (const char of words) {
-      const testLine = currentLine + char
-      if (ctx.measureText(testLine).width > maxWidth && currentLine.length > 0) {
-        ctx.fillText(currentLine, margin, y)
-        y += lineHeight
-        currentLine = char
-      } else {
-        currentLine = testLine
-      }
-    }
-    if (currentLine) {
-      ctx.fillText(currentLine, margin, y)
-      y += lineHeight
-    }
-    y += 4 * scale // extra spacing between paragraphs
+  // Draw content based on layout
+  if (layout.value === 'vertical') {
+    drawVertical(ctx, content, scale, w, h)
+  } else {
+    drawHorizontal(ctx, content, scale, w, h)
   }
 
   // Draw vignette
