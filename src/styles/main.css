@@ -10,7 +10,14 @@
   --color-paper-worn: #d4b896;
   --color-paper-dark: #c4a87c;
   --color-gold: #b8860b;
-  --font-serif: "Noto Serif SC", "STSong", "SimSun", "Source Han Serif SC", serif;
+  --font-serif: "Noto Serif SC", "STSong", "SimSun", "Source Han Serif SC", "PingFang SC", "Microsoft YaHei", serif;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  overflow-x: hidden;
 }
 
 * {
@@ -24,10 +31,12 @@ body {
   background-color: #faf6f0;
   color: var(--color-ink);
   min-height: 100vh;
+  width: 100%;
 }
 
 #app {
   min-height: 100vh;
+  width: 100%;
   display: flex;
   flex-direction: column;
 }
