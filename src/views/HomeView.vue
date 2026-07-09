@@ -13,7 +13,7 @@ import { useRouter } from 'vue-router'
       <p class="text-lg md:text-xl text-ink-light font-serif mb-2">
         传承百年侨批，AI续写家书
       </p>
-      <p class="text-sm text-ink/40 font-serif max-w-md mx-auto">
+      <p class="text-sm text-ink/40 font-serif max-w-md mx-auto leading-loose">
         侨批，又称"银信"，是海外华侨寄回家乡的家书与汇款凭证，
         2013年入选联合国教科文组织《世界记忆名录》
       </p>

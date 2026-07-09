@@ -9,7 +9,7 @@
 
       <div class="w-16 h-px bg-red-seal/30 mx-auto"></div>
 
-      <div class="text-left space-y-4 font-serif text-ink/70 leading-relaxed">
+      <div class="text-left space-y-5 font-serif text-ink/70 leading-loose text-base">
         <p>
           <strong class="text-ink">侨批</strong>（又称"银信"），是海外华侨通过民间机构寄回国内、
           附带家书或简单附言的汇款凭证，盛行于1820年代至1970年代。
