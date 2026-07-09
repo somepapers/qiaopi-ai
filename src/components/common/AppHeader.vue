@@ -8,6 +8,7 @@ const navItems = [
   { path: '/write', label: '写侨批' },
   { path: '/templates', label: '范文库' },
   { path: '/culture', label: '侨批文化' },
+  { path: '/exhibition', label: '展览馆' },
   { path: '/about', label: '关于' },
 ]
 </script>
