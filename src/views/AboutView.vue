@@ -50,6 +50,10 @@
         作者：闽江大学 寻侨迹，传侨魂 实践团队
       </p>
 
+      <p class="text-sm text-ink/50 font-serif">
+        致谢：福建省档案馆
+      </p>
+
       <p class="text-xs text-ink/30 font-serif">
         本项目为公益性质，致力于侨批文化的数字化传承与普及。
       </p>
