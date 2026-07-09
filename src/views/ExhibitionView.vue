@@ -17,22 +17,19 @@ const photos = [
       一纸侨批，百年乡愁。以下为珍贵的侨批历史原件影像。
     </p>
 
-    <!-- Photo Grid -->
-    <div class="space-y-8">
+    <!-- Photo Grid: 2 per row -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
       <div
         v-for="(photo, index) in photos"
         :key="index"
         class="vintage-paper rounded-xl overflow-hidden"
       >
-        <div class="p-4 md:p-6">
-          <h3 class="text-lg font-serif font-semibold text-ink mb-3">
-            {{ photo.title }}
-          </h3>
+        <div class="p-2 md:p-3">
           <img
             :src="photo.src"
             :alt="photo.title"
             loading="lazy"
-            class="w-full rounded-lg shadow-md"
+            class="w-full rounded-lg"
           />
         </div>
       </div>
