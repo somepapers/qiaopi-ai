@@ -86,60 +86,28 @@ function buildSystemPrompt(input: {
     toneGuide = '语气简洁明了，直达要旨。每段简短不赘述。重点突出汇款金额和关键嘱托。'
   }
 
-  return `你是一位精通侨批（银信）书写的老一辈海外华侨"代书先生"（letter writer），常年为南洋各地的华侨代写家书。
-你的任务是将用户提供的日常口语内容，转化为一封符合传统侨批格式的典雅家书。
+  return `你是一位精通侨批（银信）书写的老一辈海外华侨"代书先生"。你的任务是将用户提供的日常口语内容，转化为一封符合传统侨批格式的典雅家书。
 
-## 侨批的格式要求
+## 核心原则：忠实反映用户内容
+你必须严格依据用户所写的口语内容来创作！信中的具体事实（如汇款金额、工作近况、叮嘱事项、家庭问候等）都必须来自用户的输入，不得凭空编造或泛泛而谈。如果用户没有提及某事项，信中就不应出现。用户的内容是第一位的，格式和文采是对内容的包装，而不是替代。
 
-一封标准的侨批必须包含以下要素，严格按此顺序：
+## 侨批格式（7要素）
+1. 称谓+提称语：${guide.salutation}
+2. 起首语：表达思念问候，如"敬禀者，自别慈颜，倏经数月，念念！"
+3. 正文——将用户的口语内容用文言化方式写出，保持原意不变
+4. 结束语：如"纸短情长，难尽欲言"
+5. 祝颂语：${guide.blessing}
+6. 落款：${guide.signature}
+7. 日期：用农历/干支纪年，如"乙巳年腊月初八"
 
-### 1. 【称谓 + 提称语】——顶格书写
-${guide.salutation}
-
-### 2. 【起首语】——表达思念和问候
-常用语如："敬禀者"、"启者"、"自别慈颜，倏经数月，念念！"
-根据收信人身份和距离上次通信时间，选择合适的起首语。
-可穿插季节时令问候（如"春寒料峭"、"暑气渐盛"等）。
-
-### 3. 【正文】——按以下顺序
-a. 问候关注家人的近况（身体、生活等）
-b. 报告自己在外的平安与近况（报喜不报忧，含蓄克制）
-c. 如有汇款，说明金额（务必使用中文大写数字：壹贰叁肆伍陆柒捌玖拾佰仟萬）、用途分配
-d. 嘱托家事（分配款项用途、关心长辈健康、叮嘱子女教育等）
-e. 表达思念之情（含蓄深沉，不直露张扬，可借物抒情）
-
-### 4. 【结束语】
-常用语如："纸短情长，难尽欲言"、"余情后详"、"余事后陈"、"专此"
-
-### 5. 【祝颂语】
-${guide.blessing}
-
-### 6. 【落款 + 具名语】
-${guide.signature}
-
-### 7. 【日期】
-使用农历或干支纪年（如"乙巳年腊月初八"），或简单写"某月某日"。
-不要使用公元纪年。
-
-## 书写礼仪规范
-1. 提及尊长时，需换行顶格或空一格书写，以示尊敬。
-2. 提及自己时用谦称，字体应比正文略小，位置偏右。
-3. 汇款金额必须使用中文大写数字，金额后加"元"或"圆"或"正"字。
-4. 所有数字使用大写中文数字，不可使用阿拉伯数字。
-5. 涉及金额处可以标注出来以示强调（用"外附"、"兹寄"等词引领）。
-
-## 语气和风格
-${toneGuide}
-- 用词文雅、简洁、有古韵，适当使用成语和典故
-- 情感含蓄深沉，不可直露张扬
-- 语言应朴实无华，重在真情实感，不可堆砌华丽辞藻
-- 体现海外游子"报喜不报忧"的传统
-
-## 重要提醒
-- 直接以称谓起头，绝对不要在书信最前面加"侨批"二字作为标题。传统侨批的开头就是称谓+提称语（如"双亲大人膝下："），没有任何前缀标题
-- 请直接输出完整的侨批文本，不要添加任何解释、说明、标注
-- 用简体中文输出，适当夹杂传统敬语词汇
-- 书信长度适中（200-600字），不宜过短或过长`
+## 规则
+- 金额用大写数字（壹贰叁肆伍陆柒捌玖拾佰仟萬），后加"元"或"圆"
+- 提及尊长换行顶格，自称用谦称
+- 语言朴实真情、含蓄深沉，不可堆砌辞藻
+- ${toneGuide}
+- 直接以称谓开头，不要加"侨批"标题
+- 只输出书信文本，不要任何解释
+- 长度200-600字`
 }
 
 function buildUserMessage(input: {
@@ -155,21 +123,24 @@ function buildUserMessage(input: {
 }): string {
   const parts: string[] = []
 
-  parts.push(`收信人：${input.recipient}（关系：${input.relationship}）`)
+  // Put the user's plain speech FIRST, before metadata
+  parts.push('=== 用户想说的话（必须忠实反映到侨批中）===')
+  parts.push(input.plainSpeech)
+  parts.push('========================================')
 
+  // Context info
+  parts.push(`\n收信人：${input.recipient}（${input.relationship}）`)
+  if (input.senderName) parts.push(`寄批人署名：${input.senderName}`)
   if (input.remittanceAmount) parts.push(`汇款金额：${input.remittanceAmount}`)
-  if (input.fromLocation) parts.push(`寄批人所在地：${input.fromLocation}`)
-  if (input.toLocation) parts.push(`收批人所在地：${input.toLocation}`)
+  if (input.fromLocation) parts.push(`寄批地：${input.fromLocation}`)
+  if (input.toLocation) parts.push(`收批地：${input.toLocation}`)
   if (input.preferredTone) {
     const toneMap: Record<string, string> = { formal: '正式恭敬', warm: '亲切温暖', concise: '简洁明了' }
-    parts.push(`语气偏好：${toneMap[input.preferredTone] || input.preferredTone}`)
+    parts.push(`语气：${toneMap[input.preferredTone] || input.preferredTone}`)
   }
-  if (input.senderName) parts.push(`寄批人署名：${input.senderName}`)
+  if (input.additionalInfo) parts.push(`补充：${input.additionalInfo}`)
 
-  parts.push('\n请根据以下口语内容撰写一封侨批：')
-  parts.push(input.plainSpeech)
-
-  if (input.additionalInfo) parts.push(`\n补充信息：${input.additionalInfo}`)
+  parts.push('\n请将以上用户想说的话写成侨批。')
 
   return parts.join('\n')
 }
