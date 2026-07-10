@@ -11,6 +11,7 @@
   --color-paper-dark: #c4a87c;
   --color-gold: #b8860b;
   --font-serif: "Noto Serif SC", "STSong", "SimSun", "Source Han Serif SC", "PingFang SC", "Microsoft YaHei", serif;
+  --font-calligraphy: "honglei sim", "STKaiti", "KaiTi", "楷体", serif;
 }
 
 html, body {
@@ -54,7 +55,7 @@ body {
 
 .vintage-text {
   color: var(--color-ink);
-  font-family: var(--font-serif);
+  font-family: var(--font-calligraphy);
   line-height: 2;
   letter-spacing: 0.05em;
 }

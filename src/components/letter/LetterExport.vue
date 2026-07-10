@@ -26,9 +26,11 @@ function getCanvasSize() {
   return { w: 1080, h: 1527 }
 }
 
+const CALIGRAPHY_FONT = '"honglei sim", "STKaiti", "KaiTi", "楷体", serif'
+
 function drawHorizontal(ctx: CanvasRenderingContext2D, content: string, scale: number, w: number, h: number) {
   ctx.fillStyle = '#2C1810'
-  ctx.font = `${28 * scale}px "Noto Serif SC", "STSong", serif`
+  ctx.font = `${28 * scale}px ${CALIGRAPHY_FONT}`
   ctx.textAlign = 'left'
 
   const lines = content.split('\n')
@@ -67,7 +69,7 @@ function drawHorizontal(ctx: CanvasRenderingContext2D, content: string, scale: n
 function drawVertical(ctx: CanvasRenderingContext2D, content: string, scale: number, w: number, h: number) {
   ctx.fillStyle = '#2C1810'
   const fontSize = 30 * scale
-  ctx.font = `${fontSize}px "Noto Serif SC", "STSong", serif`
+  ctx.font = `${fontSize}px ${CALIGRAPHY_FONT}`
   ctx.textAlign = 'center'
   ctx.textBaseline = 'top'
 
@@ -124,6 +126,11 @@ async function renderPreview() {
   if (!canvas) return
   const content = store.generatedContent
   if (!content) return
+
+  // Ensure calligraphy font is loaded
+  try {
+    await document.fonts.load(`28px ${CALIGRAPHY_FONT}`)
+  } catch { /* use fallback */ }
 
   const { w, h } = getCanvasSize()
   canvas.width = w
