@@ -1,81 +1,84 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+本文件为 Claude Code（claude.ai/code）在本仓库中工作提供指导。
 
-## Project Overview
+## 项目概述
 
-侨批AI代书人 (Qiaopi AI Letter Writer) — A web app that lets users input plain speech and get AI-generated letters in traditional Qiaopi (侨批) style, the historical "silver-letters" sent by overseas Chinese back home (1820s-1970s, UNESCO Memory of the World). Deployed as a single Vercel project with frontend (Vue 3 SPA) and backend (serverless function).
+侨批AI代书人 — 一个 Web 应用，用户输入日常口语，AI 自动生成符合传统侨批（银信）格式的古典家书。侨批是海外华侨寄回家乡的历史书信（1820s-1970s），2013年入选联合国教科文组织《世界记忆名录》。项目部署在 Vercel 上，前端（Vue 3 SPA）和后端（Serverless 函数）统一管理。
 
-**Live URL**: `https://qiaopi-ai-krc9.vercel.app` (also via custom domain `qiaopi-ai-krc9.cn`)
+**线上地址**：`https://qiaopi-ai-krc9.vercel.app`（自定义域名 `qiaopi-ai-krc9.cn`）
 
-## Commands
+## 常用命令
 
 ```bash
-# Frontend dev (port 5173, proxies /api to Express)
+# 前端开发（端口 5173，/api 代理到 Express 后端）
 npm run dev
 
-# Frontend build + type check
+# 前端生产构建 + 类型检查
 npm run build
 
-# Type check only
+# 仅类型检查
 npx vue-tsc -b --noEmit
 
-# Backend dev (port 3001, reads CHATBOX_API_KEY from .env)
+# 本地后端开发（端口 3001，从 .env 读取 CHATBOX_API_KEY）
 cd server && npx tsx index.ts
 
-# Deploy: push to master → Vercel auto-deploys
+# 部署：推送到 master 分支 → Vercel 自动部署
 git push
 ```
 
-## Architecture
+## 架构
 
 ```
-User browser → Vite SPA (Vue 3 + TailwindCSS v4)
-                   │ POST /api/generate (SSE streaming)
+用户浏览器 → Vite SPA (Vue 3 + TailwindCSS v4)
+                   │ POST /api/generate（SSE 流式传输）
                    ▼
-           api/generate.ts (Vercel serverless function)
-                   │ fetch with CHATBOX_API_KEY
+           api/generate.ts（Vercel Serverless 函数）
+                   │ 携带 CHATBOX_API_KEY 请求
                    ▼
-          Chatbox AI API (ai.chatboxai.app/v1, OpenAI-compatible)
+          Chatbox AI API (ai.chatboxai.app/v1，兼容 OpenAI 接口)
 ```
 
-**Key architectural decisions:**
-- **No separate backend server in production**: The Express server (`server/`) is for local development only. Production uses `api/generate.ts`, a Vercel serverless function that proxies to Chatbox AI with SSE streaming.
-- **Font**: 鸿雷板书简体 (HongLei calligraphy brush font) loaded via jsDelivr CDN, defined in `src/styles/main.css` as `--font-calligraphy`. Only applies to `.vintage-text` elements, not general UI.
-- **Vite dev proxy** in `vite.config.ts` forwards `/api/*` to `localhost:3001` for local development.
+**关键架构决策：**
+- **生产环境无需独立后端服务器**：Express 服务器（`server/`）仅供本地开发使用。生产环境使用 `api/generate.ts`，一个代理到 Chatbox AI 的 Vercel Serverless 函数，支持 SSE 流式传输。
+- **字体**：通过 jsDelivr CDN 加载「鸿雷板书简体」毛笔书法字体，在 `src/styles/main.css` 中定义为 `--font-calligraphy` 变量。仅应用于 `.vintage-text` 元素（书信内容），不影响通用 UI。
+- **Vite 开发代理**：`vite.config.ts` 中将 `/api/*` 转发到 `localhost:3001`，用于本地开发。
 
-## Critical Files
+## 关键文件
 
-| File | Purpose |
-|------|---------|
-| `api/generate.ts` | **Production AI backend** — system prompt + user message construction + SSE proxy to Chatbox AI. Contains relationship-specific honorific guides and the Qiaopi format system prompt. |
-| `server/prompts/system-prompt.ts` | **Dev-only** version of the system prompt (used by Express server). Must be kept in sync with `api/generate.ts`. |
-| `src/utils/constants.ts` | `HONORIFIC_MAP` (16 relationship → salutation/blessing/signature mapping), `SCENARIO_METADATA`, `RELATIONSHIP_LABELS`, `CHATBOX_CONFIG` |
-| `src/utils/templateData.ts` | 12 pre-written Qiaopi letter templates with structure breakdowns (which parts are fixed vs. variable) |
-| `src/components/letter/LetterExport.vue` | Canvas-based image export — renders Qiaopi text on vintage paper textures with ink effects, supports horizontal/vertical layouts |
-| `src/stores/letter.ts` | Pinia store for letter generation lifecycle: input → streaming → edit → export, persisted to localStorage |
+| 文件 | 用途 |
+|------|------|
+| `api/generate.ts` | **生产环境 AI 后端** — 系统提示词 + 用户消息构建 + SSE 代理转发到 Chatbox AI。包含按关系分类的敬语指南和侨批格式系统提示词。 |
+| `server/prompts/system-prompt.ts` | **仅开发环境**使用的系统提示词版本（供 Express 服务器使用）。必须与 `api/generate.ts` 保持同步。 |
+| `src/utils/constants.ts` | `HONORIFIC_MAP`（16 种关系 → 称谓/祝颂/落款映射）、`SCENARIO_METADATA`（场景分类）、`RELATIONSHIP_LABELS`（关系标签）、`CHATBOX_CONFIG`（API 配置） |
+| `src/utils/templateData.ts` | 12 篇预制侨批范文模板，含结构解析（标注哪些部分是固定格式、哪些可变） |
+| `src/components/letter/LetterExport.vue` | 基于 Canvas 的图片导出 — 在复古纸张纹理上渲染侨批文字，支持横排/竖排，包含墨色和做旧效果 |
+| `src/stores/letter.ts` | Pinia 状态管理，控制书信生成全生命周期：输入 → 流式生成 → 编辑 → 导出，数据持久化到 localStorage |
 
-## Prompt Engineering Notes
+## 提示词工程经验
 
-The AI generation quality depends heavily on the system prompt in `api/generate.ts`. Key principles learned:
-- **Content fidelity first**: The prompt must explicitly instruct the AI to faithfully reproduce user input, not just follow format rules. Without this, the AI generates generic template content.
-- **User message structure matters**: Put the user's `plainSpeech` at the TOP of the user message with visual markers (`===`), not buried under metadata fields.
-- **Keep system prompt concise**: ~500 chars works better than ~1700 chars. Long format instructions dominate the model's attention over user content.
-- Model: `deepseek-v3.2` via Chatbox AI (OpenAI-compatible). Temperature: 0.5.
+AI 生成质量高度依赖 `api/generate.ts` 中的系统提示词设计。核心经验：
+- **内容保真度优先**：提示词必须明确要求 AI 忠实复现用户输入，而非仅遵循格式规则。缺少此项会导致 AI 生成千篇一律的模板内容。
+- **用户消息结构很重要**：将用户的 `plainSpeech`（口语内容）放在用户消息的**最顶部**，用视觉标记（`===`）包裹，而不是埋在元数据字段后面。
+- **系统提示词保持精简**：约 500 字的效果远好于约 1700 字。过长的格式指令会压倒用户内容，占据模型注意力。
+- 模型：通过 Chatbox AI 调用 `deepseek-v3.2`（兼容 OpenAI 接口）。Temperature 设为 0.5。
 
-## Image Export
+## 图片导出
 
-Canvas 2D API rendering in `LetterExport.vue`:
-- 3 paper textures (light/aged/worn) with simulated fiber lines, vignette overlay
-- Horizontal: standard left-to-right rendering with word wrap
-- Vertical (竖排): characters drawn top-to-bottom, columns right-to-left
-- Font must be preloaded before canvas rendering: `document.fonts.load()`
-- Export sizes: 1080×1527 (horizontal) or 1920×1080 (vertical)
+`LetterExport.vue` 中的 Canvas 2D API 渲染：
+- 3 种纸张纹理（素笺/旧纸/毛边），模拟纤维纹理线和暗角效果
+- 横排：标准从左到右渲染，支持自动换行
+- 竖排：文字从上到下逐字绘制，列从右到左排列
+- Canvas 渲染前必须预加载字体：`document.fonts.load()`
+- 导出尺寸：1080×1527（横排）或 1920×1080（竖排）
 
-## Networking Note
+## 网络说明
 
-The developer is in China. GitHub and Vercel domains are blocked without VPN. Git proxy: `http://127.0.0.1:7890`. Before pushing, run:
+开发者位于中国境内。GitHub 和 Vercel 域名在不使用 VPN 时会被屏蔽。Git 代理地址：`http://127.0.0.1:7890`。推送前执行：
+
 ```bash
 git config --global http.proxy http://127.0.0.1:7890
 git config --global https.proxy http://127.0.0.1:7890
 ```
+## 注意事项
+在之后的对话中请将你的思考和输出内容用中文的形式输出。
