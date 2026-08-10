@@ -48,7 +48,7 @@ async function copyToClipboard() {
 </script>
 
 <template>
-  <div class="max-w-4xl mx-auto px-4 py-8">
+  <div class="max-w-4xl mx-auto py-8">
     <h1 class="text-2xl md:text-3xl font-serif font-bold text-ink text-center mb-8">
       ✍️ 写一封侨批
     </h1>

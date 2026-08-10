@@ -32,7 +32,7 @@ const relationshipOptions = computed(() => [
 </script>
 
 <template>
-  <div class="max-w-5xl mx-auto px-4 py-8">
+  <div class="max-w-5xl mx-auto py-8">
     <h1 class="text-2xl md:text-3xl font-serif font-bold text-ink text-center mb-2">
       📜 侨批范文库
     </h1>

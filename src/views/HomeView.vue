@@ -3,7 +3,7 @@ import { useRouter } from 'vue-router'
 </script>
 
 <template>
-  <div class="max-w-5xl mx-auto px-4">
+  <div class="max-w-5xl mx-auto">
     <!-- Hero Section -->
     <section class="py-16 md:py-24 text-center">
       <div class="text-6xl md:text-7xl mb-6">📮</div>

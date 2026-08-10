@@ -21,7 +21,7 @@ const template = computed(() => {
 </script>
 
 <template>
-  <div class="max-w-3xl mx-auto px-4 py-8">
+  <div class="max-w-3xl mx-auto py-8">
     <!-- Not Found -->
     <div v-if="!template" class="text-center py-20">
       <div class="text-4xl mb-4">📭</div>

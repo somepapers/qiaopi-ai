@@ -2,7 +2,7 @@
 </script>
 
 <template>
-  <div class="max-w-3xl mx-auto px-4 py-12">
+  <div class="max-w-3xl mx-auto py-12">
     <div class="vintage-paper rounded-xl p-6 md:p-10 text-center space-y-6">
       <div class="text-6xl">📮</div>
       <h1 class="text-2xl md:text-3xl font-serif font-bold text-ink">关于侨批AI代书人</h1>
