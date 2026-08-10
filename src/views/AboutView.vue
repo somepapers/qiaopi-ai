@@ -51,7 +51,7 @@
       </p>
 
       <p class="text-sm text-ink/50 font-serif">
-        致谢：福建省档案馆
+        致谢：福建省档案馆、云霄县收藏家协会
       </p>
 
       <p class="text-xs text-ink/30 font-serif">
