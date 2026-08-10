@@ -56,21 +56,21 @@ import { useRouter } from 'vue-router'
     <!-- Quick Start -->
     <section class="py-12 text-center">
       <h2 class="text-2xl font-serif font-bold text-ink mb-6">三步写一封侨批</h2>
-      <div class="flex flex-col md:flex-row items-start justify-center gap-8 max-w-3xl mx-auto">
-        <div class="flex-1 text-center">
-          <div class="w-12 h-12 mx-auto mb-3 rounded-full bg-red-seal/10 flex items-center justify-center text-red-seal font-bold text-lg">1</div>
+      <div class="flex flex-col md:flex-row items-stretch justify-center gap-6 max-w-3xl mx-auto">
+        <div class="flex-1 vintage-paper rounded-xl p-5 text-center">
+          <div class="w-10 h-10 mx-auto mb-3 rounded-full bg-red-seal/10 flex items-center justify-center text-red-seal font-bold text-lg">1</div>
           <p class="font-serif text-ink font-semibold">选择收信人</p>
           <p class="text-sm text-ink-light mt-1">父母、妻子、兄弟……告诉AI给谁写信</p>
         </div>
-        <div class="hidden md:block text-ink/20 text-2xl mt-4">→</div>
-        <div class="flex-1 text-center">
-          <div class="w-12 h-12 mx-auto mb-3 rounded-full bg-red-seal/10 flex items-center justify-center text-red-seal font-bold text-lg">2</div>
+        <div class="hidden md:flex items-center justify-center text-ink/20 text-2xl shrink-0">→</div>
+        <div class="flex-1 vintage-paper rounded-xl p-5 text-center">
+          <div class="w-10 h-10 mx-auto mb-3 rounded-full bg-red-seal/10 flex items-center justify-center text-red-seal font-bold text-lg">2</div>
           <p class="font-serif text-ink font-semibold">输入想说的话</p>
           <p class="text-sm text-ink-light mt-1">用口语描述你想传达的内容</p>
         </div>
-        <div class="hidden md:block text-ink/20 text-2xl mt-4">→</div>
-        <div class="flex-1 text-center">
-          <div class="w-12 h-12 mx-auto mb-3 rounded-full bg-red-seal/10 flex items-center justify-center text-red-seal font-bold text-lg">3</div>
+        <div class="hidden md:flex items-center justify-center text-ink/20 text-2xl shrink-0">→</div>
+        <div class="flex-1 vintage-paper rounded-xl p-5 text-center">
+          <div class="w-10 h-10 mx-auto mb-3 rounded-full bg-red-seal/10 flex items-center justify-center text-red-seal font-bold text-lg">3</div>
           <p class="font-serif text-ink font-semibold">AI生成侨批</p>
           <p class="text-sm text-ink-light mt-1">一键生成，导出精美书信图片分享</p>
         </div>
