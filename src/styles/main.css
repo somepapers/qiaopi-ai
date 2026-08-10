@@ -122,6 +122,13 @@ body {
   opacity: 0;
 }
 
+/* 移动端：缩小 vintage-paper 卡片内边距，使卡片更紧凑 */
+@media (max-width: 639px) {
+  .vintage-paper {
+    padding: 16px !important;
+  }
+}
+
 /* Scrollbar styling */
 ::-webkit-scrollbar {
   width: 6px;
