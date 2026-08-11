@@ -10,12 +10,12 @@ const props = withDefaults(
     amountText?: string
     senderText: string
     revealed?: boolean
-    showPostmark?: boolean
+    showSeal?: boolean
   }>(),
   {
     amountText: '',
     revealed: true,
-    showPostmark: true,
+    showSeal: true,
   }
 )
 
@@ -51,15 +51,16 @@ const titleFontSize = computed(() => {
       <span class="qp-v">{{ senderText }}</span>
     </div>
 
-    <!-- 邮戳 -->
-    <div v-if="showPostmark" class="qp-postmark" :class="{ 'qp-show': revealed }">
-      <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-        <circle cx="50" cy="50" r="42" fill="none" stroke="#8b3a3a" stroke-width="3" />
-        <circle cx="50" cy="50" r="34" fill="none" stroke="#8b3a3a" stroke-width="1.2" />
-        <text x="50" y="40" font-size="15" fill="#8b3a3a" text-anchor="middle" style="font-family: serif">大清</text>
-        <text x="50" y="66" font-size="15" fill="#8b3a3a" text-anchor="middle" style="font-family: serif">邮政</text>
-      </svg>
-    </div>
+    <!-- 「寻侨迹 传侨魂」馆藏印章：钤于右下 -->
+    <img
+      v-if="showSeal"
+      class="qp-seal"
+      :class="{ 'qp-show': revealed }"
+      src="/qiaopi-seal.png"
+      alt=""
+      aria-hidden="true"
+      draggable="false"
+    />
   </div>
 </template>
 
@@ -132,16 +133,14 @@ const titleFontSize = computed(() => {
 
 /* 题字浮现（墨迹晕开） */
 .qp-col,
-.qp-title,
-.qp-postmark {
+.qp-title {
   opacity: 0;
   filter: blur(4px);
   transition: opacity 0.6s ease, filter 0.6s ease;
 }
 
 .qp-col.qp-show,
-.qp-title.qp-show,
-.qp-postmark.qp-show {
+.qp-title.qp-show {
   opacity: 1;
   filter: blur(0);
 }
@@ -150,7 +149,6 @@ const titleFontSize = computed(() => {
 .qp-col-right.qp-show { transition-delay: 0.1s; }
 .qp-title.qp-show { transition-delay: 0.4s; }
 .qp-col-left.qp-show { transition-delay: 0.7s; }
-.qp-postmark.qp-show { transition-delay: 1s; }
 
 /* 红条上的称谓 */
 .qp-title {
@@ -192,29 +190,33 @@ const titleFontSize = computed(() => {
   font-weight: 600;
 }
 
-/* 邮戳 */
-.qp-postmark {
+/* 「寻侨迹 传侨魂」印章：multiply 融入纸底，浮现时带盖章按压回弹 */
+.qp-seal {
   position: absolute;
-  top: 12px;
-  left: 12px;
-  width: 52px;
-  height: 52px;
-  transform: rotate(-11deg);
+  right: 5px;
+  bottom: 16px;
+  width: 92px;
   opacity: 0;
-  z-index: 4;
+  transform: rotate(-7deg) scale(1.22);
   mix-blend-mode: multiply;
+  pointer-events: none;
+  user-select: none;
+  z-index: 5;
+  transition:
+    opacity 0.4s ease,
+    transform 0.5s cubic-bezier(0.22, 1.35, 0.36, 1);
 }
 
-.qp-postmark.qp-show {
-  opacity: 0.78;
+.qp-seal.qp-show {
+  opacity: 0.9;
+  transform: rotate(-7deg) scale(1);
+  transition-delay: 1s;
 }
-
-.qp-postmark svg { width: 100%; height: 100%; }
 
 @media (prefers-reduced-motion: reduce) {
   .qp-col,
   .qp-title,
-  .qp-postmark {
+  .qp-seal {
     transition-duration: 0.01ms !important;
   }
 }

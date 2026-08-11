@@ -18,6 +18,10 @@ dist-ssr
 server/node_modules
 server/dist
 
+# Design source files (large, not needed at runtime)
+侨批印章设计.png
+.commit-msg-tmp.txt
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
