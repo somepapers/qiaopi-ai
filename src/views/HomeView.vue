@@ -30,23 +30,23 @@ import { useRouter } from 'vue-router'
 
     <!-- Feature Cards -->
     <section class="py-12 grid grid-cols-1 md:grid-cols-3 gap-6">
-      <div class="vintage-paper rounded-xl p-6 text-center">
-        <div class="text-4xl mb-3">🤖</div>
-        <h3 class="text-lg font-serif font-semibold text-ink mb-2">AI智能生成</h3>
+      <div class="vintage-paper compact-card rounded-xl p-4 md:p-6 text-center">
+        <div class="text-3xl md:text-4xl mb-2">🤖</div>
+        <h3 class="text-lg font-serif font-semibold text-ink mb-1.5">AI智能生成</h3>
         <p class="text-sm text-ink-light font-serif">
           口语说你想说的话，AI自动将其转化为传统侨批格式的古典家书
         </p>
       </div>
-      <div class="vintage-paper rounded-xl p-6 text-center">
-        <div class="text-4xl mb-3">📜</div>
-        <h3 class="text-lg font-serif font-semibold text-ink mb-2">经典模板</h3>
+      <div class="vintage-paper compact-card rounded-xl p-4 md:p-6 text-center">
+        <div class="text-3xl md:text-4xl mb-2">📜</div>
+        <h3 class="text-lg font-serif font-semibold text-ink mb-1.5">经典模板</h3>
         <p class="text-sm text-ink-light font-serif">
           收录多种场景的侨批范文模板，寄钱汇款、节日祝福、问候平安一应俱全
         </p>
       </div>
-      <div class="vintage-paper rounded-xl p-6 text-center">
-        <div class="text-4xl mb-3">🏛️</div>
-        <h3 class="text-lg font-serif font-semibold text-ink mb-2">文化传承</h3>
+      <div class="vintage-paper compact-card rounded-xl p-4 md:p-6 text-center">
+        <div class="text-3xl md:text-4xl mb-2">🏛️</div>
+        <h3 class="text-lg font-serif font-semibold text-ink mb-1.5">文化传承</h3>
         <p class="text-sm text-ink-light font-serif">
           了解侨批历史、书写格式、敬语传统，让百年文化遗产在指尖延续
         </p>
@@ -57,20 +57,20 @@ import { useRouter } from 'vue-router'
     <section class="py-12 text-center">
       <h2 class="text-2xl font-serif font-bold text-ink mb-6">三步写一封侨批</h2>
       <div class="flex flex-col md:flex-row items-stretch justify-center gap-6 max-w-3xl mx-auto">
-        <div class="flex-1 vintage-paper rounded-xl p-5 text-center">
-          <div class="w-10 h-10 mx-auto mb-3 rounded-full bg-red-seal/10 flex items-center justify-center text-red-seal font-bold text-lg">1</div>
+        <div class="flex-1 vintage-paper compact-card rounded-xl p-4 md:p-5 text-center">
+          <div class="w-9 h-9 mx-auto mb-2 rounded-full bg-red-seal/10 flex items-center justify-center text-red-seal font-bold text-lg">1</div>
           <p class="font-serif text-ink font-semibold">选择收信人</p>
           <p class="text-sm text-ink-light mt-1">父母、妻子、兄弟……告诉AI给谁写信</p>
         </div>
         <div class="hidden md:flex items-center justify-center text-ink/20 text-2xl shrink-0">→</div>
-        <div class="flex-1 vintage-paper rounded-xl p-5 text-center">
-          <div class="w-10 h-10 mx-auto mb-3 rounded-full bg-red-seal/10 flex items-center justify-center text-red-seal font-bold text-lg">2</div>
+        <div class="flex-1 vintage-paper compact-card rounded-xl p-4 md:p-5 text-center">
+          <div class="w-9 h-9 mx-auto mb-2 rounded-full bg-red-seal/10 flex items-center justify-center text-red-seal font-bold text-lg">2</div>
           <p class="font-serif text-ink font-semibold">输入想说的话</p>
           <p class="text-sm text-ink-light mt-1">用口语描述你想传达的内容</p>
         </div>
         <div class="hidden md:flex items-center justify-center text-ink/20 text-2xl shrink-0">→</div>
-        <div class="flex-1 vintage-paper rounded-xl p-5 text-center">
-          <div class="w-10 h-10 mx-auto mb-3 rounded-full bg-red-seal/10 flex items-center justify-center text-red-seal font-bold text-lg">3</div>
+        <div class="flex-1 vintage-paper compact-card rounded-xl p-4 md:p-5 text-center">
+          <div class="w-9 h-9 mx-auto mb-2 rounded-full bg-red-seal/10 flex items-center justify-center text-red-seal font-bold text-lg">3</div>
           <p class="font-serif text-ink font-semibold">AI生成侨批</p>
           <p class="text-sm text-ink-light mt-1">一键生成，导出精美书信图片分享</p>
         </div>

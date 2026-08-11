@@ -127,6 +127,11 @@ body {
   .vintage-paper {
     padding: 16px !important;
   }
+
+  /* 图标+短文字类展示卡片（如首页特色/步骤卡片）：进一步收紧内边距 */
+  .vintage-paper.compact-card {
+    padding: 12px !important;
+  }
 }
 
 /* Scrollbar styling */
