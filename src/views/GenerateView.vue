@@ -3,6 +3,7 @@ import { useRouter } from 'vue-router'
 import LetterInput from '@/components/letter/LetterInput.vue'
 import LetterPreview from '@/components/letter/LetterPreview.vue'
 import LetterExport from '@/components/letter/LetterExport.vue'
+import EnvelopeAnimation from '@/components/letter/EnvelopeAnimation.vue'
 import { useLetterStore } from '@/stores/letter'
 import { useTemplateStore } from '@/stores/templates'
 import { ref, onMounted } from 'vue'
@@ -35,6 +36,7 @@ function handleGenerated() {
 async function copyToClipboard() {
   try {
     await navigator.clipboard.writeText(letterStore.generatedContent || '')
+    letterStore.triggerEnvelope()
   } catch {
     // Fallback for older browsers
     const textarea = document.createElement('textarea')
@@ -43,6 +45,7 @@ async function copyToClipboard() {
     textarea.select()
     document.execCommand('copy')
     document.body.removeChild(textarea)
+    letterStore.triggerEnvelope()
   }
 }
 </script>
@@ -108,6 +111,12 @@ async function copyToClipboard() {
 
       <!-- Export Modal -->
       <LetterExport v-if="showExport" @close="showExport = false" />
+
+      <!-- Envelope Animation -->
+      <EnvelopeAnimation
+        v-if="letterStore.showEnvelopeAnimation"
+        @done="letterStore.dismissEnvelope()"
+      />
     </section>
   </div>
 </template>

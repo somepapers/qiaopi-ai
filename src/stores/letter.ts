@@ -11,6 +11,7 @@ export const useLetterStore = defineStore('letter', () => {
   const exportImageUrl = ref<string | null>(null)
   const history = ref<GeneratedLetter[]>(loadHistory())
   const error = ref<string | null>(null)
+  const showEnvelopeAnimation = ref(false)
 
   function loadHistory(): GeneratedLetter[] {
     try {
@@ -88,6 +89,14 @@ export const useLetterStore = defineStore('letter', () => {
     saveHistory()
   }
 
+  function triggerEnvelope() {
+    showEnvelopeAnimation.value = true
+  }
+
+  function dismissEnvelope() {
+    showEnvelopeAnimation.value = false
+  }
+
   function clearHistory() {
     history.value = []
     saveHistory()
@@ -101,6 +110,7 @@ export const useLetterStore = defineStore('letter', () => {
     exportImageUrl,
     history,
     error,
+    showEnvelopeAnimation,
     latestLetter,
     setInput,
     startGenerating,
@@ -112,6 +122,8 @@ export const useLetterStore = defineStore('letter', () => {
     cancelEdit,
     setExportImage,
     deleteLetter,
+    triggerEnvelope,
+    dismissEnvelope,
     clearHistory,
   }
 })

@@ -177,6 +177,8 @@ function downloadImage() {
   a.href = url
   a.download = `侨批_${new Date().toISOString().slice(0, 10)}.png`
   a.click()
+  store.triggerEnvelope()
+  emit('close')
 }
 
 async function shareImage() {
@@ -192,6 +194,8 @@ async function shareImage() {
           text: '我用AI写了一封侨批家书',
           files: [file],
         })
+        store.triggerEnvelope()
+        emit('close')
       } catch { /* user cancelled */ }
     }, 'image/png')
   } else {
