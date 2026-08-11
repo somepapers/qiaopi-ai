@@ -38,6 +38,11 @@ const router = createRouter({
       name: 'about',
       component: () => import('@/views/AboutView.vue'),
     },
+    {
+      path: '/l',
+      name: 'letter-receive',
+      component: () => import('@/views/LetterReceive.vue'),
+    },
   ],
   scrollBehavior() {
     return { top: 0 }

@@ -2,6 +2,7 @@
 import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { useLetterStore } from '@/stores/letter'
 
+const props = defineProps<{ content?: string }>()
 const emit = defineEmits<{ stamped: [] }>()
 const store = useLetterStore()
 
@@ -10,7 +11,7 @@ const stampDown = ref(false)
 const timers: ReturnType<typeof setTimeout>[] = []
 
 const paragraphs = computed(() => {
-  const text = store.generatedContent || ''
+  const text = props.content ?? store.generatedContent ?? ''
   const lines = text.split(/\n+/).map((l) => l.trim()).filter(Boolean)
   return lines.length ? lines : [text]
 })
