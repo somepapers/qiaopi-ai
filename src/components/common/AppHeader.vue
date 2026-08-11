@@ -26,7 +26,7 @@ const navItems = [
           v-for="item in navItems"
           :key="item.path"
           :to="item.path"
-          class="px-2 md:px-3 py-2 rounded-md text-xs md:text-sm font-serif text-ink/70 hover:text-ink hover:bg-ink/5 transition-colors whitespace-nowrap shrink-0"
+          class="px-1 sm:px-2 md:px-3 py-2 rounded-md text-xs md:text-sm font-serif text-ink/70 hover:text-ink hover:bg-ink/5 transition-colors whitespace-nowrap shrink-0"
           active-class="!text-red-seal !bg-red-seal/5"
         >
           {{ item.label }}
