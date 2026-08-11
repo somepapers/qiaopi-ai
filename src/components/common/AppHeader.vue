@@ -21,7 +21,7 @@ const navItems = [
         <span class="text-xl font-serif font-semibold text-ink hidden sm:inline">侨批AI代书人</span>
       </router-link>
 
-      <div class="flex items-center gap-0.5 overflow-x-auto scrollbar-none">
+      <div class="flex items-center gap-0.5 overflow-x-auto scrollbar-none min-w-0">
         <router-link
           v-for="item in navItems"
           :key="item.path"

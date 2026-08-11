@@ -22,11 +22,9 @@ html, body {
   overflow-x: hidden;
 }
 
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
+/* 全局 margin/padding/box-sizing 归零已由 Tailwind v4 preflight（@layer base）统一处理。
+   切勿再手写 unlayered 的 `* { margin:0; padding:0 }`——无层样式优先级高于 @layer utilities，
+   会覆盖掉 mx-auto / space-y / px-* / mb-* 等所有间距类，导致布局不居中、字段紧贴。 */
 
 body {
   font-family: var(--font-serif);
