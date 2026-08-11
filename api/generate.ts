@@ -70,6 +70,11 @@ const RELATIONSHIP_GUIDES: Record<string, {
     blessing: '使用"耑此叩禀，恭请教安"',
     signature: '使用"受业 [名字] 叩禀"或"学生 [名字] 叩禀"',
   },
+  student: {
+    salutation: '使用"某某同学如晤"或"某某贤棣青览"',
+    blessing: '使用"耑此，顺颂学祺"或"手此，即颂进步"',
+    signature: '使用"师 [名字] 手书"',
+  },
 }
 
 const DEFAULT_GUIDE = {

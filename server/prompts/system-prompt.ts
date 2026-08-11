@@ -155,6 +155,11 @@ function getHonorificGuide(relationship: string): {
       blessingGuide: '使用"耑此叩禀，恭请教安"',
       signatureGuide: '使用"受业 [名字] 叩禀"或"学生 [名字] 叩禀"',
     },
+    student: {
+      salutationGuide: '使用"某某同学如晤"或"某某贤棣青览"',
+      blessingGuide: '使用"耑此，顺颂学祺"或"手此，即颂进步"',
+      signatureGuide: '使用"师 [名字] 手书"',
+    },
     default: {
       salutationGuide: '根据收信人身份选择合适的敬语称谓。长辈用"膝下/尊前"，平辈用"如晤/座右"，晚辈用"收知/见字"。',
       blessingGuide: '根据收信人身份选择合适的祝颂语。长辈用"福安/金安"，平辈用"时祺"，晚辈用"进步"。',

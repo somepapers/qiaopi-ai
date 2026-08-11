@@ -16,6 +16,7 @@ export type Relationship =
   | 'aunt'
   | 'friend'
   | 'teacher'
+  | 'student'
   | 'other'
 
 export type Tone = 'formal' | 'warm' | 'concise'

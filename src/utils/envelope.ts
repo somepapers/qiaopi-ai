@@ -23,6 +23,7 @@ const ENVELOPE_SUFFIX: Record<Relationship, string> = {
   aunt: '安启',
   friend: '台启',
   teacher: '安启',
+  student: '收启',
   other: '台启',
 }
 
@@ -45,6 +46,7 @@ const ENVELOPE_TITLE: Record<Relationship, string> = {
   aunt: '姑母大人安展',
   friend: '仁兄台展',
   teacher: '先生大人安展',
+  student: '某某同学青览',
   other: '台启展',
 }
 
