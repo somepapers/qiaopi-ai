@@ -132,10 +132,10 @@ async function nativeShare() {
     <section v-else class="space-y-6">
       <!-- 生成中 / 出错：流式预览 -->
       <LetterPreview v-if="letterStore.isGenerating || letterStore.error" />
-      <!-- 生成完成：成品信纸（竖排 + 落纸 + 墨迹浮现 + 盖章） -->
+      <!-- 生成完成：成品信纸（竖排 + 落纸 + 墨迹浮现） -->
       <LetterArtifact v-else @stamped="showActions = true" />
 
-      <!-- 操作按钮：印章盖下后浮现 -->
+      <!-- 操作按钮：段落浮现后显示 -->
       <div
         v-if="!letterStore.isGenerating && !letterStore.error"
         class="grid grid-cols-2 gap-2 transition-all duration-700 sm:flex sm:flex-wrap sm:justify-center sm:gap-x-6 sm:gap-y-4"
