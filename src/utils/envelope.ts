@@ -44,7 +44,7 @@ const ENVELOPE_TITLE: Record<Relationship, string> = {
   uncle: '叔父大人安展',
   aunt: '姑母大人安展',
   friend: '仁兄台展',
-  teacher: '夫子大人安展',
+  teacher: '先生大人安展',
   other: '台启展',
 }
 

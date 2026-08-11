@@ -151,7 +151,7 @@ function getHonorificGuide(relationship: string): {
       signatureGuide: '使用"孙女 [名字] 叩禀"',
     },
     teacher: {
-      salutationGuide: '使用"夫子大人函丈"或"业师大人尊前"',
+      salutationGuide: '使用"先生大人函丈"或"业师大人尊前"',
       blessingGuide: '使用"耑此叩禀，恭请教安"',
       signatureGuide: '使用"受业 [名字] 叩禀"或"学生 [名字] 叩禀"',
     },

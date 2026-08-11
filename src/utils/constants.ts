@@ -82,7 +82,7 @@ export const HONORIFIC_MAP: Record<Relationship, HonorificSet> = {
     signature: (name: string) => `弟 ${name} 手启`,
   },
   teacher: {
-    salutation: '夫子大人函丈',
+    salutation: '先生大人函丈',
     blessing: '耑此叩禀，恭请教安',
     signature: (name: string) => `受业 ${name} 叩禀`,
   },
@@ -110,7 +110,7 @@ export const RELATIONSHIP_LABELS: Record<Relationship, string> = {
   uncle: '叔父/伯父',
   aunt: '婶母/伯母',
   friend: '朋友',
-  teacher: '老师',
+  teacher: '先生',
   other: '其他',
 }
 
