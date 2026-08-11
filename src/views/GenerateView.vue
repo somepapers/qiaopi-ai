@@ -122,7 +122,7 @@ async function nativeShare() {
 
     <!-- Step: Input -->
     <section
-      v-if="!letterStore.generatedContent && !letterStore.isGenerating"
+      v-if="!letterStore.generatedContent && !letterStore.isGenerating && !letterStore.error"
       class="vintage-paper rounded-xl p-6 md:p-8"
     >
       <LetterInput />

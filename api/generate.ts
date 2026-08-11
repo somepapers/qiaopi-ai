@@ -1,9 +1,24 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
-import { getLunarDateString } from '../src/utils/lunarDate'
+import { lunar } from 'lunar-ts'
 
 export const config = {
   runtime: 'nodejs',
   maxDuration: 60,
+}
+
+const LUNAR_MONTHS = ['正', '二', '三', '四', '五', '六', '七', '八', '九', '十', '冬', '腊']
+const LUNAR_DAYS = [
+  '初一', '初二', '初三', '初四', '初五', '初六', '初七', '初八', '初九', '初十',
+  '十一', '十二', '十三', '十四', '十五', '十六', '十七', '十八', '十九', '二十',
+  '廿一', '廿二', '廿三', '廿四', '廿五', '廿六', '廿七', '廿八', '廿九', '三十',
+]
+
+function lunarDateString(): string {
+  const d = lunar(new Date())
+  const gz = d.ganzhi?.year ?? ''
+  const m = LUNAR_MONTHS[(d.month ?? 1) - 1]
+  const day = LUNAR_DAYS[(d.day ?? 1) - 1]
+  return `${gz}年${d.isLeap ? '闰' : ''}${m}月${day}`
 }
 
 const RELATIONSHIP_GUIDES: Record<string, {
@@ -109,7 +124,7 @@ function buildSystemPrompt(input: {
 4. 结束语：如"纸短情长，难尽欲言"
 5. 祝颂语：${guide.blessing}
 6. 落款：${guide.signature}
-7. 日期：落款日期必须使用"${getLunarDateString()}"（写批当天的农历日期）
+7. 日期：落款日期必须使用"${lunarDateString()}"（写批当天的农历日期）
 
 ## 规则
 - 金额用大写数字（壹贰叁肆伍陆柒捌玖拾佰仟萬），后加"元"或"圆"
