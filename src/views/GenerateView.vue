@@ -2,6 +2,7 @@
 import { useRouter } from 'vue-router'
 import LetterInput from '@/components/letter/LetterInput.vue'
 import LetterPreview from '@/components/letter/LetterPreview.vue'
+import LetterArtifact from '@/components/letter/LetterArtifact.vue'
 import LetterExport from '@/components/letter/LetterExport.vue'
 import EnvelopeAnimation from '@/components/letter/EnvelopeAnimation.vue'
 import { useLetterStore } from '@/stores/letter'
@@ -12,6 +13,13 @@ const router = useRouter()
 const letterStore = useLetterStore()
 const templateStore = useTemplateStore()
 const showExport = ref(false)
+const showActions = ref(false)
+
+function regenerate() {
+  showActions.value = false
+  letterStore.setInput(letterStore.input!)
+  letterStore.generatedContent = null
+}
 
 onMounted(() => {
   const templateId = router.currentRoute.value.query.template as string
@@ -57,33 +65,50 @@ async function copyToClipboard() {
     </h1>
 
     <!-- Step: Input -->
-    <section v-if="!letterStore.generatedContent" class="vintage-paper rounded-xl p-6 md:p-8">
+    <section
+      v-if="!letterStore.generatedContent && !letterStore.isGenerating"
+      class="vintage-paper rounded-xl p-6 md:p-8"
+    >
       <LetterInput />
     </section>
 
     <!-- Step: Preview & Actions -->
     <section v-else class="space-y-6">
-      <LetterPreview />
+      <!-- 生成中 / 出错：流式预览 -->
+      <LetterPreview v-if="letterStore.isGenerating || letterStore.error" />
+      <!-- 生成完成：成品信纸（竖排 + 落纸 + 墨迹浮现 + 盖章） -->
+      <LetterArtifact v-else @stamped="showActions = true" />
 
-      <div class="flex flex-wrap justify-center gap-3">
-        <button class="btn-secondary" @click="letterStore.startEdit()">
-          ✏️ 编辑修改
-        </button>
-        <button
-          class="btn-primary"
-          @click="letterStore.setInput(letterStore.input!); letterStore.generatedContent = null"
-        >
-          🔄 重新生成
-        </button>
-        <button class="btn-primary" @click="showExport = true">
-          📷 导出图片
-        </button>
-        <button
-          class="btn-secondary"
-          @click="copyToClipboard()"
-        >
-          📋 复制文本
-        </button>
+      <!-- 操作按钮：印章盖下后浮现 -->
+      <div
+        v-if="!letterStore.isGenerating && !letterStore.error"
+        class="grid grid-cols-2 gap-2 transition-all duration-700 sm:flex sm:flex-wrap sm:justify-center sm:gap-x-6 sm:gap-y-4"
+        :class="showActions ? 'translate-y-0 opacity-100' : 'pointer-events-none translate-y-2 opacity-0'"
+      >
+        <div class="flex flex-col items-center gap-1.5">
+          <button class="ink-button w-full sm:w-auto" @click="showExport = true">
+            装进信封
+          </button>
+          <span class="hidden text-[10px] tracking-[0.3em] text-ink/45 sm:block">保 存 为 图 片</span>
+        </div>
+        <div class="flex flex-col items-center gap-1.5">
+          <button class="ink-button ghost w-full sm:w-auto" @click="copyToClipboard()">
+            誊抄全文
+          </button>
+          <span class="hidden text-[10px] tracking-[0.3em] text-ink/45 sm:block">复 制 到 剪 贴 板</span>
+        </div>
+        <div class="flex flex-col items-center gap-1.5">
+          <button class="ink-button ghost w-full sm:w-auto" @click="letterStore.startEdit()">
+            提笔修改
+          </button>
+          <span class="hidden text-[10px] tracking-[0.3em] text-ink/45 sm:block">亲 手 改 几 句</span>
+        </div>
+        <div class="flex flex-col items-center gap-1.5">
+          <button class="ink-button ghost w-full sm:w-auto" @click="regenerate()">
+            重新研墨
+          </button>
+          <span class="hidden text-[10px] tracking-[0.3em] text-ink/45 sm:block">请 先 生 再 写 一 遍</span>
+        </div>
       </div>
 
       <!-- Edit Modal -->

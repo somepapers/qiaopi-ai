@@ -10,6 +10,7 @@
   --color-paper-worn: #d4b896;
   --color-paper-dark: #c4a87c;
   --color-gold: #b8860b;
+  --color-seal-dark: #8b3a3a;
   --font-serif: "Noto Serif SC", "STSong", "SimSun", "Source Han Serif SC", "PingFang SC", "Microsoft YaHei", serif;
   --font-calligraphy: "honglei sim", "STKaiti", "KaiTi", "楷体", serif;
 }
@@ -120,6 +121,127 @@ body {
 .page-enter-from,
 .page-leave-to {
   opacity: 0;
+}
+
+/* ========== 文人风按钮（仿旧时书信排版：大字距 + 细墨框） ========== */
+.ink-button {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.75rem 2rem;
+  background: transparent;
+  color: var(--color-ink);
+  border: 1px solid rgba(44, 24, 16, 0.65);
+  border-radius: 0;
+  font-family: var(--font-serif);
+  font-size: 0.95rem;
+  letter-spacing: 0.35em;
+  /* 末字后的字距会造成视觉不居中，用 padding-left 补偿 */
+  text-indent: 0.35em;
+  cursor: pointer;
+  transition: background 0.5s ease, color 0.5s ease, letter-spacing 0.5s ease;
+}
+
+.ink-button:hover {
+  background: var(--color-ink);
+  color: var(--color-paper-light);
+  letter-spacing: 0.5em;
+}
+
+.ink-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+.ink-button.ghost {
+  border-color: rgba(44, 24, 16, 0.35);
+}
+
+.ink-button.ghost:hover {
+  background: rgba(44, 24, 16, 0.07);
+  color: var(--color-ink);
+}
+
+@media (max-width: 639px) {
+  .ink-button {
+    padding: 0.6rem 1rem;
+    font-size: 0.8rem;
+    letter-spacing: 0.2em;
+    text-indent: 0.2em;
+  }
+}
+
+/* ========== 侨批成品信纸质感（多层纸纹 + 内阴影暗角 + 边缘老化） ========== */
+.qiaopi-paper {
+  position: relative;
+  background-color: var(--color-paper-light);
+  background-image:
+    radial-gradient(rgba(80, 50, 20, 0.07) 1px, transparent 1.5px),
+    radial-gradient(rgba(60, 40, 20, 0.05) 1px, transparent 1.5px),
+    linear-gradient(140deg, rgba(80, 50, 20, 0.05), transparent 35%, rgba(60, 40, 20, 0.06));
+  background-size: 7px 7px, 13px 13px, 100% 100%;
+  background-position: 0 0, 4px 6px, 0 0;
+  box-shadow:
+    inset 0 0 60px rgba(80, 50, 20, 0.18),
+    0 10px 40px -20px rgba(60, 40, 20, 0.45);
+}
+
+.qiaopi-paper::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image: linear-gradient(180deg, rgba(80, 50, 20, 0.1), transparent 12%, transparent 88%, rgba(80, 50, 20, 0.12));
+}
+
+/* ========== 竖排书信正文 ========== */
+.letter-vertical {
+  writing-mode: vertical-rl;
+  letter-spacing: 0.18em;
+  line-height: 2.2;
+}
+
+/* ========== 成品信纸动画 ========== */
+/* 信纸从上方飘落 */
+@keyframes paper-drop {
+  0% {
+    opacity: 0;
+    transform: translateY(-160px) rotate(-2deg);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) rotate(0deg);
+  }
+}
+
+.paper-drop {
+  animation: paper-drop 0.9s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* 段落墨迹晕开浮现（配合 transition-delay 逐段展开） */
+.ink-para {
+  opacity: 0;
+  filter: blur(4px);
+  transition: opacity 0.55s ease-out, filter 0.55s ease-out;
+}
+
+.ink-para.ink-revealed {
+  opacity: 1;
+  filter: blur(0);
+}
+
+/* 印章盖下：从悬空到落纸的弹簧效果 */
+.stamp-seal {
+  opacity: 0;
+  transform: scale(1.6) rotate(8deg);
+  transition: opacity 0.32s ease, transform 0.32s cubic-bezier(0.34, 1.56, 0.64, 1);
+  mix-blend-mode: multiply;
+}
+
+.stamp-seal.stamp-down {
+  opacity: 0.92;
+  transform: scale(1) rotate(-6deg);
 }
 
 /* 移动端：缩小 vintage-paper 卡片内边距，使卡片更紧凑 */
