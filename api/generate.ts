@@ -1,4 +1,5 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
+import { getLunarDateString } from '../src/utils/lunarDate'
 
 export const config = {
   runtime: 'nodejs',
@@ -108,7 +109,7 @@ function buildSystemPrompt(input: {
 4. 结束语：如"纸短情长，难尽欲言"
 5. 祝颂语：${guide.blessing}
 6. 落款：${guide.signature}
-7. 日期：用农历/干支纪年，如"乙巳年腊月初八"
+7. 日期：落款日期必须使用"${getLunarDateString()}"（写批当天的农历日期）
 
 ## 规则
 - 金额用大写数字（壹贰叁肆伍陆柒捌玖拾佰仟萬），后加"元"或"圆"

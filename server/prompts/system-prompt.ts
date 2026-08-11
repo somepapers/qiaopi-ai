@@ -1,8 +1,10 @@
 import type { LetterInput } from '../../src/types/letter.js'
+import { getLunarDateString } from '../../src/utils/lunarDate.js'
 
 export function buildSystemPrompt(input: LetterInput): string {
   const toneGuide = getToneGuide(input.preferredTone)
   const honorificGuide = getHonorificGuide(input.relationship)
+  const lunarDate = getLunarDateString()
 
   return `你是一位精通侨批（银信）书写的老一辈海外华侨"代书先生"（letter writer），常年为南洋各地的华侨代写家书。
 你的任务是将用户提供的日常口语内容，转化为一封符合传统侨批格式的典雅家书。
@@ -36,9 +38,8 @@ ${honorificGuide.blessingGuide}
 ${honorificGuide.signatureGuide}
 
 ### 7. 【日期】
-使用农历或干支纪年（如"乙巳年腊月初八"、"岁次乙巳冬月"），
-或者民国纪年，或简单写"某月某日"。
-不要使用公元纪年。
+落款日期必须使用写批当天的农历日期：**${lunarDate}**。
+不可使用公元纪年，不可编造日期。
 
 ## 书写礼仪规范
 
