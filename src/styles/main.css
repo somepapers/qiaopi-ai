@@ -182,6 +182,8 @@ body {
   background-position: 0 0, 4px 6px, 0 0;
   box-shadow:
     inset 0 0 60px rgba(80, 50, 20, 0.18),
+    inset 0 0 0 1px rgba(107, 52, 32, 0.07),
+    inset 0 0 0 10px rgba(107, 52, 32, 0.025),
     0 10px 40px -20px rgba(60, 40, 20, 0.45);
 }
 
@@ -191,6 +193,35 @@ body {
   inset: 0;
   pointer-events: none;
   background-image: linear-gradient(180deg, rgba(80, 50, 20, 0.1), transparent 12%, transparent 88%, rgba(80, 50, 20, 0.12));
+}
+
+/* 信纸暗花：微弱梅花纹（五瓣花 + 散落小花蕾） */
+.qiaopi-paper::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background-image:
+    /* 花心 */
+    radial-gradient(circle 2px, rgba(107, 52, 32, 0.07) 35%, transparent 70%),
+    /* 上瓣 */
+    radial-gradient(circle 1.6px at 50% 34%, rgba(107, 52, 32, 0.05) 35%, transparent 70%),
+    /* 右上瓣 */
+    radial-gradient(circle 1.6px at 63% 41%, rgba(107, 52, 32, 0.05) 35%, transparent 70%),
+    /* 右下瓣 */
+    radial-gradient(circle 1.6px at 58% 59%, rgba(107, 52, 32, 0.05) 35%, transparent 70%),
+    /* 左下瓣 */
+    radial-gradient(circle 1.6px at 42% 59%, rgba(107, 52, 32, 0.05) 35%, transparent 70%),
+    /* 左上瓣 */
+    radial-gradient(circle 1.6px at 37% 41%, rgba(107, 52, 32, 0.05) 35%, transparent 70%),
+    /* 散落小花蕾 */
+    radial-gradient(circle 0.8px at 20% 18%, rgba(107, 52, 32, 0.04) 35%, transparent 70%),
+    radial-gradient(circle 0.8px at 82% 75%, rgba(107, 52, 32, 0.04) 35%, transparent 70%),
+    radial-gradient(circle 0.8px at 72% 15%, rgba(107, 52, 32, 0.04) 35%, transparent 70%),
+    radial-gradient(circle 0.8px at 25% 72%, rgba(107, 52, 32, 0.04) 35%, transparent 70%);
+  background-size: 90px 90px;
+  background-position: 0 0;
 }
 
 /* ========== 竖排书信正文 ========== */
