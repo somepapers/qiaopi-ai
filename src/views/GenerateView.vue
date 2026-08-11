@@ -85,6 +85,7 @@ async function shareToFamily() {
     v: 1,
     content: letterStore.generatedContent,
     relationship: letterStore.input?.relationship,
+    recipient: letterStore.input?.recipient,
     toLocation: letterStore.input?.toLocation,
     fromLocation: letterStore.input?.fromLocation,
     senderName: letterStore.input?.senderName,

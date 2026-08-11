@@ -3,7 +3,29 @@ import type { LetterInput, Relationship } from '@/types/letter'
 // 侨批封题字工具：由信件输入生成红条封上的竖排题字
 // （中央红条称谓、右侧寄达地、左侧汇款金额与寄款人）
 
-// 中央红条：收信人称谓（侨批封题格式：称谓 + 安展/台展 等敬辞）
+// 中央红条：启封敬辞，题于收信人名讳之下，按尊卑有别
+// （古批封题式如「陈集允胞兄亲收」「许母李氏安启」：名讳直书，下缀敬辞）
+const ENVELOPE_SUFFIX: Record<Relationship, string> = {
+  parents: '安启',
+  father: '安启',
+  mother: '安启',
+  wife: '亲启',
+  husband: '安启',
+  son: '收启',
+  daughter: '收启',
+  older_brother: '台启',
+  younger_brother: '台启',
+  older_sister: '妆次',
+  younger_sister: '妆次',
+  grandfather: '安启',
+  grandmother: '安启',
+  uncle: '安启',
+  aunt: '安启',
+  friend: '台启',
+  other: '台启',
+}
+
+// 中央红条：未填收信人名字时的回退称谓（称谓 + 安展/台展 等敬辞）
 const ENVELOPE_TITLE: Record<Relationship, string> = {
   parents: '双亲大人安展',
   father: '家严大人安展',
@@ -62,7 +84,10 @@ export interface EnvelopeText {
 
 export function buildEnvelopeText(input: Partial<LetterInput> | null | undefined): EnvelopeText {
   const rel = input?.relationship
-  const title = (rel && ENVELOPE_TITLE[rel]) || '台启展'
+  const recipientName = input?.recipient?.trim()
+  const title = recipientName
+    ? `${recipientName}　${(rel && ENVELOPE_SUFFIX[rel]) || '台启'}`
+    : (rel && ENVELOPE_TITLE[rel]) || '台启展'
 
   const to = input?.toLocation?.trim()
   const toText = `${to || '唐山故里'}　交`

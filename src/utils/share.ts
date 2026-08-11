@@ -8,6 +8,7 @@ export interface SharePayload {
   v: number
   content: string
   relationship?: Relationship
+  recipient?: string
   toLocation?: string
   fromLocation?: string
   senderName?: string
@@ -21,6 +22,7 @@ interface CompactPayload {
   v: number
   c: string
   r?: Relationship
+  n?: string
   t?: string
   f?: string
   s?: string
@@ -32,6 +34,7 @@ export function encodeLetter(payload: SharePayload): string {
     v: payload.v || CURRENT_VERSION,
     c: payload.content,
     r: payload.relationship,
+    n: payload.recipient,
     t: payload.toLocation,
     f: payload.fromLocation,
     s: payload.senderName,
@@ -51,6 +54,7 @@ export function decodeLetter(code: string): SharePayload | null {
       v: c.v ?? CURRENT_VERSION,
       content: c.c,
       relationship: c.r,
+      recipient: c.n,
       toLocation: c.t,
       fromLocation: c.f,
       senderName: c.s,

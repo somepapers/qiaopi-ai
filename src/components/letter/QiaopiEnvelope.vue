@@ -1,7 +1,9 @@
 <script setup lang="ts">
+import { computed } from 'vue'
+
 // 可复用的竖式侨批红条封（纯 CSS 绘制）。
 // 装入动画（EnvelopeAnimation）与收信拆封页（LetterReceive）共用。
-withDefaults(
+const props = withDefaults(
   defineProps<{
     title: string
     toText: string
@@ -16,6 +18,13 @@ withDefaults(
     showPostmark: true,
   }
 )
+
+// 红条可书高度约 318px（372 - 上下留白 - 顶部内距），行高 1.7；
+// 题字（名讳＋敬辞）字数多时收缩字号，保证一列直书不溢出
+const titleFontSize = computed(() => {
+  const len = props.title.length || 1
+  return Math.min(25, Math.max(14, Math.floor(318 / (len * 1.7))))
+})
 </script>
 
 <template>
@@ -27,9 +36,13 @@ withDefaults(
       <span class="qp-v">{{ toText }}</span>
     </div>
 
-    <!-- 中央红条：收信人称谓 -->
+    <!-- 中央红条：收信人名讳＋启封敬辞 -->
     <div class="qp-stripe">
-      <span class="qp-v qp-title" :class="{ 'qp-show': revealed }">{{ title }}</span>
+      <span
+        class="qp-v qp-title"
+        :class="{ 'qp-show': revealed }"
+        :style="{ fontSize: titleFontSize + 'px' }"
+      >{{ title }}</span>
     </div>
 
     <!-- 左区：汇款金额 + 寄款人 -->
