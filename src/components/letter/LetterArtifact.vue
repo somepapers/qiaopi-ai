@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, ref } from 'vue'
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useLetterStore } from '@/stores/letter'
 
 const props = defineProps<{ content?: string }>()
@@ -8,12 +8,56 @@ const store = useLetterStore()
 
 const revealed = ref(false)
 const timers: ReturnType<typeof setTimeout>[] = []
+const scrollEl = ref<HTMLElement | null>(null)
+// 字号自适应：内容多则字号缩小，让整封信一屏可见、免去横向拖动
+const fontSize = ref(18)
+const MIN_FONT = 8
+const MAX_FONT = 18
 
 const paragraphs = computed(() => {
   const text = props.content ?? store.generatedContent ?? ''
   const lines = text.split(/\n+/).map((l) => l.trim()).filter(Boolean)
   return lines.length ? lines : [text]
 })
+
+// 竖排布局估算：每列可容字符数 = 可用高度 / (字号 × 行高2.2)，
+// 每字符占宽 ≈ 字号 × (1 + 字距0.18em)，段落间隔 1.2em。
+// 二分找出"总列宽 ≤ 容器宽度"的最大字号。
+function computeFontSize() {
+  const el = scrollEl.value
+  if (!el) return
+  const width = el.clientWidth
+  if (!width) return
+  const paraLens = paragraphs.value.map((p) => p.length)
+  if (!paraLens.length || paraLens.every((n) => n === 0)) return
+  const isMobile = window.matchMedia('(max-width: 639px)').matches
+  const maxHeight = isMobile ? 352 : 480 // 与 CSS 中 22rem / 30rem 对应
+  const paraGap = Math.max(0, paraLens.length - 1) * 1.2
+
+  const fits = (fs: number) => {
+    const rowsPerCol = Math.max(1, Math.floor(maxHeight / (fs * 2.2)))
+    const cols = paraLens.reduce((sum, len) => sum + Math.ceil(len / rowsPerCol), 0)
+    return (cols * 1.18 + paraGap) * fs <= width * 0.96
+  }
+  if (fits(MAX_FONT)) {
+    fontSize.value = MAX_FONT
+    return
+  }
+  if (!fits(MIN_FONT)) {
+    fontSize.value = MIN_FONT // 超长内容：保持最小可读字号，允许滚动
+    return
+  }
+  let lo = MIN_FONT
+  let hi = MAX_FONT
+  for (let i = 0; i < 20; i++) {
+    const mid = (lo + hi) / 2
+    if (fits(mid)) lo = mid
+    else hi = mid
+  }
+  fontSize.value = Math.floor(lo * 2) / 2 // 取 0.5px 粒度，避免视觉抖动
+}
+
+watch(paragraphs, computeFontSize)
 
 function highlight(line: string): string {
   return line
@@ -25,6 +69,8 @@ function highlight(line: string): string {
 }
 
 onMounted(() => {
+  computeFontSize()
+  window.addEventListener('resize', computeFontSize)
   // 时序：信纸飘落(0.9s) → 段落逐段浮现 → 通知父组件显示操作按钮
   timers.push(setTimeout(() => { revealed.value = true }, 650))
   const paraCount = Math.min(paragraphs.value.length, 12)
@@ -33,6 +79,7 @@ onMounted(() => {
 })
 
 onUnmounted(() => {
+  window.removeEventListener('resize', computeFontSize)
   timers.forEach(clearTimeout)
 })
 </script>
@@ -47,10 +94,10 @@ onUnmounted(() => {
         </div>
 
         <!-- 竖排正文（direction:rtl 让初始滚动位置在最右侧 = 文章开头） -->
-        <div class="letter-scroll overflow-x-auto pb-2" style="direction: rtl">
+        <div ref="scrollEl" class="letter-scroll overflow-x-auto pb-2" style="direction: rtl">
           <article
-            class="letter-vertical vintage-text mx-auto text-base md:text-lg"
-            style="direction: ltr; max-height: 30rem; min-height: 16rem"
+            class="letter-vertical vintage-text mx-auto"
+            :style="{ direction: 'ltr', maxHeight: '30rem', minHeight: '16rem', fontSize: fontSize + 'px' }"
           >
             <p
               v-for="(p, i) in paragraphs"
