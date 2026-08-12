@@ -62,7 +62,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     const apiKey = process.env.SHORTLINK_API_KEY
     if (!apiKey) {
-      res.status(503).json({ code: 'NOT_CONFIGURED', message: '短链服务未配置' })
+      // 调试：返回线上函数可见的环境变量名（不含值），用于排查配置未生效问题
+      const envNames = Object.keys(process.env)
+        .filter((k) => !/^(VERCEL|NODE_|PATH|HOME|LANG|TZ|AWS_|HOSTNAME|PWD|SHELL|TERM|USER|NPM|npm_|CI|SHLVL|OLDPWD|_HANDLER)/.test(k))
+        .sort()
+      res.status(503).json({ code: 'NOT_CONFIGURED', message: '短链服务未配置', debug: { envNames } })
       return
     }
 
