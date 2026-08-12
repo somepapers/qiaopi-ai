@@ -57,6 +57,23 @@
       <p class="text-xs text-ink/30 font-serif">
         本项目为公益性质，致力于侨批文化的数字化传承与普及。
       </p>
+
+      <div class="w-16 h-px bg-red-seal/30 mx-auto"></div>
+
+      <!-- 联系方式 -->
+      <div class="space-y-2">
+        <p class="text-sm text-ink/70 font-serif font-semibold">📧 联系我们</p>
+        <p class="text-sm text-ink/60 font-serif">
+          团队邮箱：<a href="mailto:qiaopi_ai@qq.com" class="text-red-seal/80 hover:text-red-seal underline underline-offset-2 transition-colors">qiaopi_ai@qq.com</a>
+        </p>
+      </div>
+
+      <!-- 版权声明 -->
+      <div class="vintage-paper rounded-lg px-4 py-3 text-left">
+        <p class="text-xs text-ink/50 font-serif leading-relaxed">
+          ⚠️ <strong class="text-ink/70">声明：</strong>本站全部内容仅限非商业公益使用，禁止任何形式的商业利用。站内侨批范文、AI生成内容等知识产权归本团队所有，未经书面授权不得转载、镜像或用于商业目的。侵权必究。
+        </p>
+      </div>
     </div>
   </div>
 </template>
