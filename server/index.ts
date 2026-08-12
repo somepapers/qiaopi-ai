@@ -2,6 +2,7 @@ import 'dotenv/config'
 import express from 'express'
 import cors from 'cors'
 import { generateRouter } from './routes/generate.js'
+import { shortenRouter } from './routes/shorten.js'
 
 const app = express()
 const PORT = process.env.PORT || 3001
@@ -14,6 +15,7 @@ app.get('/api/health', (_req, res) => {
 })
 
 app.use('/api', generateRouter)
+app.use('/api', shortenRouter)
 
 app.listen(PORT, () => {
   console.log(`🖋️  侨批AI代书人 后端服务已启动 → http://localhost:${PORT}`)

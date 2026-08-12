@@ -8,7 +8,7 @@ import EnvelopeAnimation from '@/components/letter/EnvelopeAnimation.vue'
 import { useLetterStore } from '@/stores/letter'
 import { useTemplateStore } from '@/stores/templates'
 import { buildShareUrl } from '@/utils/share'
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 
 const router = useRouter()
 const letterStore = useLetterStore()
@@ -16,8 +16,12 @@ const templateStore = useTemplateStore()
 const showExport = ref(false)
 const showActions = ref(false)
 const shareUrl = ref<string | null>(null)
+const shortUrl = ref<string | null>(null)
 const shareCopied = ref(false)
 const canNativeShare = typeof navigator !== 'undefined' && !!navigator.share
+
+// 分享链接：优先展示短链，短链生成失败时自动回退为长链接
+const displayShareUrl = computed(() => shortUrl.value ?? shareUrl.value)
 
 function regenerate() {
   showActions.value = false
@@ -92,21 +96,43 @@ async function shareToFamily() {
     remittanceAmount: letterStore.input?.remittanceAmount,
   })
   shareUrl.value = url
+  shortUrl.value = null
   shareCopied.value = await copyLink(url)
+  shortenShareLink(url)
+}
+
+// 调用 /api/shorten 缩短分享链接；失败静默降级，继续用长链接
+async function shortenShareLink(url: string) {
+  try {
+    const controller = new AbortController()
+    const timer = setTimeout(() => controller.abort(), 6000)
+    const res = await fetch('/api/shorten', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ url }),
+      signal: controller.signal,
+    })
+    clearTimeout(timer)
+    if (!res.ok) return
+    const data = await res.json()
+    if (data?.shortUrl) shortUrl.value = data.shortUrl
+  } catch {
+    // 短链生成失败：保持长链接展示，不影响分享功能
+  }
 }
 
 async function copyShareLink() {
-  if (!shareUrl.value) return
-  shareCopied.value = await copyLink(shareUrl.value)
+  if (!displayShareUrl.value) return
+  shareCopied.value = await copyLink(displayShareUrl.value)
 }
 
 async function nativeShare() {
-  if (!shareUrl.value || !navigator.share) return
+  if (!displayShareUrl.value || !navigator.share) return
   try {
     await navigator.share({
       title: '一封侨批',
       text: '先生替我写了一封侨批，给你看看。',
-      url: shareUrl.value,
+      url: displayShareUrl.value,
     })
   } catch {
     // 用户取消
@@ -211,9 +237,13 @@ async function nativeShare() {
             <p class="text-sm text-ink/60 font-serif mb-4 leading-relaxed">
               把下面的链接发给家人，对方打开即可拆封阅读。信件内容都藏在链接里，不经服务器保存，链接永久有效。
             </p>
+            <p v-if="shortUrl" class="text-xs text-red-seal/80 font-serif mb-1">🔗 已生成短链接，发送更便捷</p>
             <div class="w-full max-h-24 overflow-y-auto p-3 rounded-lg border border-ink/20 bg-white/60 text-xs text-ink/60 break-all select-all mb-4">
-              {{ shareUrl }}
+              {{ displayShareUrl }}
             </div>
+            <p v-if="shortUrl" class="text-[10px] text-ink/35 break-all -mt-2 mb-4">
+              原始链接：{{ shareUrl }}
+            </p>
             <div class="flex gap-3">
               <button class="ink-button flex-1" @click="copyShareLink()">
                 {{ shareCopied ? '已复制 ✓' : '复制链接' }}
