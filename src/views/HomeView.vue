@@ -1,5 +1,20 @@
 <script setup lang="ts">
 import { useRouter } from 'vue-router'
+import { ref, onMounted } from 'vue'
+
+const writeCount = ref<number | null>(null)
+
+onMounted(async () => {
+  try {
+    const res = await fetch('/api/stats')
+    const data = await res.json()
+    if (data.count > 0) {
+      writeCount.value = data.count
+    }
+  } catch {
+    // 静默失败，不阻塞页面
+  }
+})
 </script>
 
 <template>
@@ -17,6 +32,16 @@ import { useRouter } from 'vue-router'
         侨批，又称"银信"，是海外华侨寄回家乡的家书与汇款凭证，
         2013年入选联合国教科文组织《世界记忆名录》
       </p>
+
+      <!-- 写批人数 -->
+      <div v-if="writeCount !== null" class="mt-8">
+        <div class="inline-flex items-center gap-2 vintage-paper rounded-full px-5 py-2">
+          <span class="text-lg">✉️</span>
+          <span class="font-serif text-ink/70 text-sm">
+            已有 <strong class="text-red-seal text-lg font-bold">{{ writeCount.toLocaleString() }}</strong> 人写下侨批家书
+          </span>
+        </div>
+      </div>
 
       <div class="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
         <router-link to="/write" class="btn-primary no-underline inline-block text-center min-w-[180px]">

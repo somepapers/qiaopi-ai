@@ -6,6 +6,10 @@
     "api/generate.ts": {
       "memory": 512,
       "maxDuration": 60
+    },
+    "api/stats.ts": {
+      "memory": 256,
+      "maxDuration": 10
     }
   },
   "rewrites": [

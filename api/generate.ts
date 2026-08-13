@@ -1,5 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
 import { lunar } from 'lunar-ts'
+import { kv } from '@vercel/kv'
 
 export const config = {
   runtime: 'nodejs',
@@ -234,12 +235,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const reader = response.body!.getReader()
     const decoder = new TextDecoder()
 
+    let streamSuccess = false
     try {
       while (true) {
         const { done, value } = await reader.read()
         if (done) {
           res.write('data: [DONE]\n\n')
           res.end()
+          streamSuccess = true
           break
         }
         const chunk = decoder.decode(value, { stream: true })
@@ -251,6 +254,15 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       }
     } catch {
       if (!res.destroyed) res.end()
+    }
+
+    // 成功生成后递增写批计数
+    if (streamSuccess) {
+      try {
+        await kv.incr('qiaopi:total')
+      } catch {
+        // 计数失败不影响主流程
+      }
     }
   } catch (err) {
     console.error('Generate error:', err)
