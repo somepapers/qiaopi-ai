@@ -17,6 +17,7 @@ const showExport = ref(false)
 const showActions = ref(false)
 const shareUrl = ref<string | null>(null)
 const shortUrl = ref<string | null>(null)
+const shortening = ref(false) // 短链生成中：弹窗内显示等待提示
 const shareCopied = ref(false)
 const canNativeShare = typeof navigator !== 'undefined' && !!navigator.share
 
@@ -97,12 +98,14 @@ async function shareToFamily() {
   })
   shareUrl.value = url
   shortUrl.value = null
+  shortening.value = false
   shareCopied.value = await copyLink(url)
   shortenShareLink(url)
 }
 
 // 调用 /api/shorten 缩短分享链接；失败静默降级，继续用长链接
 async function shortenShareLink(url: string) {
+  shortening.value = true
   try {
     const controller = new AbortController()
     const timer = setTimeout(() => controller.abort(), 6000)
@@ -118,6 +121,8 @@ async function shortenShareLink(url: string) {
     if (data?.shortUrl) shortUrl.value = data.shortUrl
   } catch {
     // 短链生成失败：保持长链接展示，不影响分享功能
+  } finally {
+    shortening.value = false
   }
 }
 
@@ -237,7 +242,8 @@ async function nativeShare() {
             <p class="text-sm text-ink/60 font-serif mb-4 leading-relaxed">
               把下面的链接发给家人，对方打开即可拆封阅读。信件内容都藏在链接里，不经服务器保存，链接永久有效。
             </p>
-            <p v-if="shortUrl" class="text-xs text-red-seal/80 font-serif mb-1">🔗 已生成短链接，发送更便捷</p>
+            <p v-if="shortening" class="text-xs text-ink/50 font-serif mb-1">⏳ 正在生成短链接，稍候即可使用…</p>
+            <p v-else-if="shortUrl" class="text-xs text-red-seal/80 font-serif mb-1">🔗 已生成短链接，发送更便捷</p>
             <div class="w-full max-h-24 overflow-y-auto p-3 rounded-lg border border-ink/20 bg-white/60 text-xs text-ink/60 break-all select-all mb-4">
               {{ displayShareUrl }}
             </div>
