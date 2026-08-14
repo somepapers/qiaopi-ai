@@ -19,84 +19,120 @@ const paperColors: Record<PaperType, string> = {
   worn: '#D4B896',
 }
 
-function getCanvasSize() {
-  if (layout.value === 'vertical') {
-    return { w: 1920, h: 1080 }
-  }
-  return { w: 1080, h: 1527 }
-}
-
 const CALIGRAPHY_FONT = '"honglei sim", "STKaiti", "KaiTi", "楷体", serif'
 
-function drawHorizontal(ctx: CanvasRenderingContext2D, content: string, scale: number, w: number, h: number) {
-  ctx.fillStyle = '#2C1810'
-  ctx.font = `${28 * scale}px ${CALIGRAPHY_FONT}`
-  ctx.textAlign = 'left'
+// 浏览器 Canvas 单边尺寸上限（超出会导致导出失败/空白），超长内容超出时按比例缩小字号
+const MAX_CANVAS_DIM = 16000
+// 竖排最大列数（基准 1920×1080 下可容纳 20 列）
+const VERTICAL_MAX_COLS = 20
 
-  const lines = content.split('\n')
-  const lineHeight = 50 * scale
-  const margin = 80 * scale
-  const maxWidth = w - margin * 2
-  let y = 80 * scale
+interface WrapLine {
+  text: string
+  red: boolean
+  gapAfter: number
+}
 
-  for (const line of lines) {
-    if (y > h - margin * 1.5) break
+type MeasuredLayout =
+  | { kind: 'horizontal'; wrapped: WrapLine[]; height: number }
+  | { kind: 'vertical'; maxRows: number; height: number }
 
+/** 横排：按最大宽度折行，保留段落间距与汇款金额红色标注 */
+function wrapHorizontal(ctx: CanvasRenderingContext2D, content: string, scale: number, maxWidth: number): WrapLine[] {
+  const gap = 4 * scale
+  const out: WrapLine[] = []
+  for (const line of content.split('\n')) {
     const isRemittance = /[外附寄汇奉特].*[壹贰叁肆伍陆柒捌玖拾佰仟\d]+.*(?:元|块|圆|新币|港币|美金)/.test(line)
     const isAmount = /[壹贰叁肆伍陆柒捌玖拾佰仟萬亿零\d]+(?:元|块|圆|角|分|新币|港币|美金|英镑|大洋|文)/.test(line)
-    ctx.fillStyle = (isRemittance || isAmount) ? '#CC0000' : '#2C1810'
-
+    const red = isRemittance || isAmount
+    if (!line) {
+      out.push({ text: '', red: false, gapAfter: gap })
+      continue
+    }
     const words = [...line]
     let currentLine = ''
     for (const char of words) {
       const testLine = currentLine + char
       if (ctx.measureText(testLine).width > maxWidth && currentLine.length > 0) {
-        ctx.fillText(currentLine, margin, y)
-        y += lineHeight
+        out.push({ text: currentLine, red, gapAfter: 0 })
         currentLine = char
       } else {
         currentLine = testLine
       }
     }
     if (currentLine) {
-      ctx.fillText(currentLine, margin, y)
-      y += lineHeight
+      out.push({ text: currentLine, red, gapAfter: gap })
     }
-    y += 4 * scale
   }
+  return out
 }
 
-function drawVertical(ctx: CanvasRenderingContext2D, content: string, scale: number, w: number, h: number) {
-  ctx.fillStyle = '#2C1810'
-  const fontSize = 30 * scale
-  ctx.font = `${fontSize}px ${CALIGRAPHY_FONT}`
-  ctx.textAlign = 'center'
-  ctx.textBaseline = 'top'
-
-  const margin = 60 * scale
-  const colGap = fontSize * 1.6
-  const maxCols = 20
-  const maxRows = Math.floor((h - margin * 2) / colGap)
-
-  // Split content into paragraphs
+/** 竖排：将内容拆为逐字单元，段落间以空字符串分隔 */
+function buildVerticalUnits(content: string): string[] {
   const paragraphs = content.split('\n').filter(p => p.trim())
-
-  // Combine all chars from all paragraphs
   const allChars: string[] = []
   for (const para of paragraphs) {
     for (const ch of para) {
       if (ch === ' ' || ch === '\r') continue
       allChars.push(ch)
     }
-    allChars.push('')  // empty string as paragraph separator
+    allChars.push('')
   }
+  return allChars
+}
 
-  // Draw from right to left (traditional Chinese vertical)
-  let col = maxCols - 1
+/** 横排：测量内容所需的画布高度（基准宽 1080） */
+function prepareHorizontal(ctx: CanvasRenderingContext2D, content: string, scale: number): MeasuredLayout {
+  const margin = 80 * scale
+  ctx.font = `${28 * scale}px ${CALIGRAPHY_FONT}`
+  const wrapped = wrapHorizontal(ctx, content, scale, 1080 - margin * 2)
+  const lineHeight = 50 * scale
+  const lineCount = wrapped.filter(l => l.text).length
+  const totalGap = wrapped.reduce((sum, l) => sum + l.gapAfter, 0)
+  const height = margin + lineCount * lineHeight + totalGap + 120 * scale
+  return { kind: 'horizontal', wrapped, height }
+}
+
+/** 竖排：测量内容所需的画布高度（基准宽 1920，超长内容向下加长画布而非截断） */
+function prepareVertical(units: string[], scale: number): MeasuredLayout {
+  const margin = 60 * scale
+  const colGap = 30 * scale * 1.6
+  const baseMaxRows = Math.floor((1080 - margin * 2) / colGap)
+  const maxRows = Math.max(baseMaxRows, Math.ceil(units.length / VERTICAL_MAX_COLS))
+  const height = margin * 2 + maxRows * colGap
+  return { kind: 'vertical', maxRows, height }
+}
+
+function drawHorizontal(ctx: CanvasRenderingContext2D, wrapped: WrapLine[], scale: number) {
+  ctx.textAlign = 'left'
+  const margin = 80 * scale
+  const lineHeight = 50 * scale
+  let y = margin
+
+  for (const line of wrapped) {
+    if (line.text) {
+      ctx.fillStyle = line.red ? '#CC0000' : '#2C1810'
+      ctx.fillText(line.text, margin, y)
+      y += lineHeight
+    }
+    y += line.gapAfter
+  }
+}
+
+function drawVertical(ctx: CanvasRenderingContext2D, units: string[], scale: number, w: number, maxRows: number) {
+  const fontSize = 30 * scale
+  ctx.fillStyle = '#2C1810'
+  ctx.font = `${fontSize}px ${CALIGRAPHY_FONT}`
+  ctx.textAlign = 'center'
+  ctx.textBaseline = 'top'
+
+  const margin = 60 * scale
+  const colGap = fontSize * 1.6
+
+  // 从右向左逐列书写（传统中文竖排）
+  let col = VERTICAL_MAX_COLS - 1
   let row = 0
 
-  for (const ch of allChars) {
-    if (col < 0) break
+  for (const ch of units) {
     if (row >= maxRows) {
       row = 0
       col--
@@ -107,14 +143,8 @@ function drawVertical(ctx: CanvasRenderingContext2D, content: string, scale: num
     const y = margin + row * colGap
 
     if (ch === '') {
-      // Paragraph separator - just extra space
-      row++
+      row++ // 段落间空一格
     } else {
-      // Check for remittance
-      if ((row > 0 || col < maxCols - 1) && /\d/.test(ch)) {
-        // Check surrounding context for amounts
-        ctx.fillStyle = '#2C1810'
-      }
       ctx.fillText(ch, x, y)
       row++
     }
@@ -132,11 +162,30 @@ async function renderPreview() {
     await document.fonts.load(`28px ${CALIGRAPHY_FONT}`)
   } catch { /* use fallback */ }
 
-  const { w, h } = getCanvasSize()
+  const isVertical = layout.value === 'vertical'
+  const baseW = isVertical ? 1920 : 1080
+  const baseH = isVertical ? 1080 : 1527
+
+  // 先用离屏 canvas 测量排版尺寸，保证超长内容完整呈现（画布随内容伸缩）
+  const measureCtx = document.createElement('canvas').getContext('2d')!
+  const units = isVertical ? buildVerticalUnits(content) : []
+
+  let scale = isVertical ? 1920 / 1080 : 1
+  const measure = () =>
+    isVertical
+      ? prepareVertical(units, scale)
+      : prepareHorizontal(measureCtx, content, scale)
+
+  // 内容过长时按比例缩小字号，避免超出浏览器 canvas 尺寸上限
+  while (measure().height > MAX_CANVAS_DIM) scale *= 0.9
+  const measured = measure()
+
+  const w = baseW
+  const h = Math.max(baseH, Math.ceil(measured.height))
+
   canvas.width = w
   canvas.height = h
   const ctx = canvas.getContext('2d')!
-  const scale = w / 1080
 
   // Draw paper background
   ctx.fillStyle = paperColors[paperType.value]
@@ -153,10 +202,11 @@ async function renderPreview() {
   }
 
   // Draw content based on layout
-  if (layout.value === 'vertical') {
-    drawVertical(ctx, content, scale, w, h)
+  if (measured.kind === 'vertical') {
+    drawVertical(ctx, units, scale, w, measured.maxRows)
   } else {
-    drawHorizontal(ctx, content, scale, w, h)
+    ctx.font = `${28 * scale}px ${CALIGRAPHY_FONT}`
+    drawHorizontal(ctx, measured.wrapped, scale)
   }
 
   // Draw vignette
