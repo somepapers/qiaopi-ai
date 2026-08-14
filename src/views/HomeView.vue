@@ -1,15 +1,20 @@
 <script setup lang="ts">
 import { useRouter } from 'vue-router'
-import { ref, onMounted } from 'vue'
+import { onMounted } from 'vue'
+import { useVisitCount } from '@/composables/useVisitCount'
 
-const writeCount = ref<number | null>(null)
+const { visitCount, recordVisit } = useVisitCount()
 
 onMounted(async () => {
+  // 与 App.vue 共享同一次计数请求，拿到本次访问 +1 后的最新值
+  const count = await recordVisit()
+  if (count !== null) return
+  // 计数失败时兜底读取（只读，不再 +1）
   try {
     const res = await fetch('/api/stats')
     const data = await res.json()
-    if (data.count > 0) {
-      writeCount.value = data.count
+    if (typeof data.count === 'number') {
+      visitCount.value = data.count
     }
   } catch {
     // 静默失败，不阻塞页面
@@ -33,12 +38,12 @@ onMounted(async () => {
         2013年入选联合国教科文组织《世界记忆名录》
       </p>
 
-      <!-- 写批人数 -->
-      <div v-if="writeCount !== null" class="mt-8">
+      <!-- 网站使用次数 -->
+      <div v-if="visitCount !== null" class="mt-8">
         <div class="inline-flex items-center gap-2 vintage-paper rounded-full px-5 py-2">
-          <span class="text-lg">✉️</span>
+          <span class="text-lg">📮</span>
           <span class="font-serif text-ink/70 text-sm">
-            已有 <strong class="text-red-seal text-lg font-bold">{{ writeCount.toLocaleString() }}</strong> 人写下侨批家书
+            网站已使用 <strong class="text-red-seal text-lg font-bold">{{ visitCount.toLocaleString() }}</strong> 次
           </span>
         </div>
       </div>

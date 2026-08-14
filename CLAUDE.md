@@ -49,6 +49,7 @@ git push
 | 文件 | 用途 |
 |------|------|
 | `api/generate.ts` | **生产环境 AI 后端** — 系统提示词 + 用户消息构建 + SSE 代理转发到 Chatbox AI。包含按关系分类的敬语指南和侨批格式系统提示词。 |
+| `api/stats.ts` | **网站使用次数统计** — GET 读取 / POST 进入网站 +1，Vercel KV key `qiaopi:visits`，首次访问自动初始化基线 10032。前端由 `App.vue` 挂载时计数、首页展示。 |
 | `server/prompts/system-prompt.ts` | **仅开发环境**使用的系统提示词版本（供 Express 服务器使用）。必须与 `api/generate.ts` 保持同步。 |
 | `src/utils/constants.ts` | `HONORIFIC_MAP`（16 种关系 → 称谓/祝颂/落款映射）、`SCENARIO_METADATA`（场景分类）、`RELATIONSHIP_LABELS`（关系标签）、`CHATBOX_CONFIG`（API 配置） |
 | `src/utils/templateData.ts` | 12 篇预制侨批范文模板，含结构解析（标注哪些部分是固定格式、哪些可变） |

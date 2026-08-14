@@ -1,6 +1,13 @@
 <script setup lang="ts">
+import { onMounted } from 'vue'
 import { RouterView } from 'vue-router'
 import AppHeader from '@/components/common/AppHeader.vue'
+import { recordVisit } from '@/composables/useVisitCount'
+
+// 进入网站：使用次数 +1（App 每次页面加载只挂载一次，路由跳转不重复计数）
+onMounted(() => {
+  recordVisit()
+})
 </script>
 
 <template>
