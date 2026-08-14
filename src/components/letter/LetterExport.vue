@@ -23,6 +23,8 @@ const CALIGRAPHY_FONT = '"honglei sim", "STKaiti", "KaiTi", "楷体", serif'
 
 // 浏览器 Canvas 单边尺寸上限（超出会导致导出失败/空白），超长内容超出时按比例缩小字号
 const MAX_CANVAS_DIM = 16000
+// 横排纸张最小高度：内容过短时保留 2:1 的纸张比例，避免导出成细长条
+const MIN_HORIZONTAL_HEIGHT = 540
 // 竖排最大列数（基准 1920×1080 下可容纳 20 列）
 const VERTICAL_MAX_COLS = 20
 
@@ -164,7 +166,6 @@ async function renderPreview() {
 
   const isVertical = layout.value === 'vertical'
   const baseW = isVertical ? 1920 : 1080
-  const baseH = isVertical ? 1080 : 1527
 
   // 先用离屏 canvas 测量排版尺寸，保证超长内容完整呈现（画布随内容伸缩）
   const measureCtx = document.createElement('canvas').getContext('2d')!
@@ -181,7 +182,11 @@ async function renderPreview() {
   const measured = measure()
 
   const w = baseW
-  const h = Math.max(baseH, Math.ceil(measured.height))
+  // 横排：纸张高度随内容伸缩，短内容不再留大片空白（最短保留 2:1 比例）
+  // 竖排：保持 1920×1080 基准，超长时向下加长
+  const h = isVertical
+    ? Math.max(1080, Math.ceil(measured.height))
+    : Math.max(MIN_HORIZONTAL_HEIGHT, Math.ceil(measured.height))
 
   canvas.width = w
   canvas.height = h
