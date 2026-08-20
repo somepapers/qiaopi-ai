@@ -12,8 +12,7 @@ const limiter = rateLimit({
 
 generateRouter.post('/generate', limiter, async (req: Request, res: Response) => {
   try {
-    const { input, client } = req.body
-    const isMiniProgram = client === 'miniprogram'
+    const { input } = req.body
 
     if (!input || !input.plainSpeech || !input.recipient) {
       res.status(400).json({ code: 'INVALID_INPUT', message: '请填写收信人信息和你想说的话' })
@@ -48,8 +47,7 @@ generateRouter.post('/generate', limiter, async (req: Request, res: Response) =>
         ],
         temperature: 0.5,
         max_tokens: 4096,
-        // 小程序端不支持网页的 ReadableStream，改为一次性 JSON 响应。
-        stream: !isMiniProgram,
+        stream: true,
       }),
     })
 
@@ -66,18 +64,7 @@ generateRouter.post('/generate', limiter, async (req: Request, res: Response) =>
       return
     }
 
-    if (isMiniProgram) {
-      const payload = await response.json() as { choices?: Array<{ message?: { content?: string } }> }
-      const content = payload.choices?.[0]?.message?.content?.trim()
-      if (!content) {
-        res.status(502).json({ code: 'EMPTY_RESPONSE', message: 'AI 未返回有效内容，请稍后重试' })
-        return
-      }
-      res.status(200).json({ content })
-      return
-    }
-
-    // 网页端：保持流式输出
+    // Stream the response
     res.setHeader('Content-Type', 'text/event-stream')
     res.setHeader('Cache-Control', 'no-cache')
     res.setHeader('Connection', 'keep-alive')

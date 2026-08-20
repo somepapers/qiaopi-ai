@@ -1,0 +1,10 @@
+{
+  "name": "qiaopi-miniprogram-api",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "dependencies": {
+    "@vercel/node": "^5.8.22",
+    "lunar-ts": "^1.0.1"
+  }
+}
