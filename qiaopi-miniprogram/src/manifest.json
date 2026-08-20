@@ -1,0 +1,15 @@
+{
+  "name": "侨批AI代书人",
+  "appid": "wx56e55596dbe4f539",
+  "description": "传承百年侨批，AI续写家书",
+  "versionName": "0.1.0",
+  "versionCode": "100",
+  "mp-weixin": {
+    "appid": "",
+    "setting": {
+      "urlCheck": true,
+      "minified": true
+    },
+    "usingComponents": true
+  }
+}

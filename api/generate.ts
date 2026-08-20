@@ -178,7 +178,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   try {
-    const { input, model } = req.body
+    const { input, model, client } = req.body
+    const isMiniProgram = client === 'miniprogram'
 
     if (!input || !input.plainSpeech || !input.recipient) {
       res.status(400).json({ code: 'INVALID_INPUT', message: '请填写收信人信息和你想说的话' })
@@ -211,7 +212,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         ],
         temperature: 0.5,
         max_tokens: 4096,
-        stream: true,
+        // 小程序端使用普通 JSON 响应；网页端维持原来的流式输出体验。
+        stream: !isMiniProgram,
       }),
     })
 
@@ -225,7 +227,18 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return
     }
 
-    // Stream the response
+    if (isMiniProgram) {
+      const payload = await response.json() as { choices?: Array<{ message?: { content?: string } }> }
+      const content = payload.choices?.[0]?.message?.content?.trim()
+      if (!content) {
+        res.status(502).json({ code: 'EMPTY_RESPONSE', message: 'AI 未返回有效内容，请稍后重试' })
+        return
+      }
+      res.status(200).json({ content })
+      return
+    }
+
+    // 网页端：保持流式输出
     res.setHeader('Content-Type', 'text/event-stream')
     res.setHeader('Cache-Control', 'no-cache')
     res.setHeader('Connection', 'keep-alive')

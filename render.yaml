@@ -7,6 +7,6 @@ services:
     startCommand: npx tsx index.ts
     envVars:
       - key: CHATBOX_API_KEY
-        value: 0e670c95-8555-4382-9078-1d6279beb82b
+        sync: false
       - key: PORT
         value: "10000"
