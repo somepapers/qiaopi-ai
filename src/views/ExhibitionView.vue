@@ -2,6 +2,10 @@
 const photos = [
   { src: '/exhibition/侨批1.jpg', title: '侨批原件展示（一）' },
   { src: '/exhibition/侨批2.jpg', title: '侨批原件展示（二）' },
+  { src: '/exhibition/侨批3.jpg', title: '侨批原件展示（三）' },
+  { src: '/exhibition/侨批4.jpg', title: '侨批原件展示（四）' },
+  { src: '/exhibition/侨批5.jpg', title: '侨批原件展示（五）' },
+  { src: '/exhibition/侨批6.jpg', title: '侨批原件展示（六）' },
 ]
 </script>
 
