@@ -59,6 +59,27 @@ body {
   letter-spacing: 0.05em;
 }
 
+/* ========== 图片加载骨架微光（展览馆等图片网格用） ========== */
+.skeleton-shimmer {
+  background: linear-gradient(
+    100deg,
+    rgba(232, 213, 163, 0.45) 30%,
+    rgba(245, 230, 200, 0.9) 50%,
+    rgba(232, 213, 163, 0.45) 70%
+  );
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.4s ease-in-out infinite;
+}
+
+@keyframes skeleton-shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
 .remittance-highlight {
   color: var(--color-red-seal);
   font-weight: 600;

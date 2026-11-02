@@ -20,6 +20,9 @@ npm run build
 # 仅类型检查
 npx vue-tsc -b --noEmit
 
+# 展览馆图片压缩：素材库原图 → src/assets/exhibition/（幂等，--force 强制重压）
+npm run compress:exhibition
+
 # 本地后端开发（端口 3001，从 .env 读取 CHATBOX_API_KEY）
 cd server && npx tsx index.ts
 
@@ -55,6 +58,8 @@ git push
 | `src/utils/templateData.ts` | 12 篇预制侨批范文模板，含结构解析（标注哪些部分是固定格式、哪些可变） |
 | `src/components/letter/LetterExport.vue` | 基于 Canvas 的图片导出 — 在复古纸张纹理上渲染侨批文字，支持横排/竖排，包含墨色和做旧效果 |
 | `src/stores/letter.ts` | Pinia 状态管理，控制书信生成全生命周期：输入 → 流式生成 → 编辑 → 导出，数据持久化到 localStorage |
+| `src/assets/exhibition/index.ts` | **展览馆图片数据层** — `import.meta.glob` 自动发现 `qiaopi/`、`ip/` 目录图片，与 `src/utils/exhibitionMeta.ts` 的标题映射合并 |
+| `src/components/exhibition/PhotoGrid.vue`、`Lightbox.vue` | 展览馆图片网格（骨架微光 + 懒加载 + 固定比例盒防 CLS）与灯箱（键盘切换、邻图预加载） |
 
 ## 提示词工程经验
 
@@ -72,6 +77,17 @@ AI 生成质量高度依赖 `api/generate.ts` 中的系统提示词设计。核�
 - 竖排：文字从上到下逐字绘制，列从右到左排列
 - Canvas 渲染前必须预加载字体：`document.fonts.load()`
 - 导出尺寸：宽度固定（横排 1080 / 竖排 1920），高度随内容伸缩——横排最短 540、超长时向下加长（超出 canvas 上限自动缩小字号）；竖排基准 1080、超长时向下加长
+
+## 展览馆图片工作流
+
+展览馆（`/exhibition`）分「侨批文化展示」「团队IP设计」两个 Tab 区域（`?tab=` 查询参数切换）。图片**永不直接放 `public/`**（vercel.json 对 public 路径返回 no-store，每次访问都强制重新下载）。
+
+**团队新增图片流程**：
+1. 原图放入素材库目录：侨批区 → 根目录 `侨批展示库/`，IP 区 → 根目录 `IP素材库/`
+2. 运行 `npm run compress:exhibition`：压缩（最长边 1600，jpg q80 / png palette 量化）并输出到 `src/assets/exhibition/qiaopi/` 或 `ip/`
+3. 提交压缩产物 → 推送部署。图片构建时带内容哈希进入 `dist/assets/`，命中 vercel.json 的 immutable 一年缓存
+
+放图即自动出现在页面上（`import.meta.glob` 自动发现，零代码改动）；想改标题/说明/排序，编辑 `src/utils/exhibitionMeta.ts` 的映射表（文件名索引）。IP 素材目录为空时页面显示印章风「作品整理中」占位。
 
 ## 网络说明
 

@@ -44,7 +44,9 @@ const router = createRouter({
       component: () => import('@/views/LetterReceive.vue'),
     },
   ],
-  scrollBehavior() {
+  scrollBehavior(to, from) {
+    // 同路径仅查询参数变化（如展览馆 Tab 切换）时保持滚动位置，避免强制滚回页顶
+    if (to.path === from.path) return false
     return { top: 0 }
   },
 })
