@@ -91,7 +91,10 @@ AI 生成质量高度依赖 `api/generate.ts` 中的系统提示词设计。核�
 
 ## 网络说明
 
-开发者位于中国境内。GitHub 和 Vercel 域名在不使用 VPN 时会被屏蔽。Git 代理地址：`http://127.0.0.1:7890`。推送前执行：
+开发者位于中国境内。GitHub 和 Vercel 域名在不使用 VPN 时会被屏蔽。推送前确认 VPN 模式（2026-11 实测：**全局模式直连可用**，git 代理已从全局配置移除）：
+
+- **VPN 全局模式（TUN/系统代理）**：无需 git 代理，直接 `git push`
+- **本地 HTTP 代理模式**（Clash 类，端口 7890）：先执行
 
 ```bash
 git config --global http.proxy http://127.0.0.1:7890
