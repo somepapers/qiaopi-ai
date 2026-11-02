@@ -20,7 +20,7 @@
 
 登录后选择展区和单帧 JPG、PNG 或 WebP，填写展签并发布。单张上限 20 MiB、5000 万像素。成功页面的「查看展品」链接可以直接分享。后台会话有效期为 8 小时，连续 5 次口令错误后需等 15 分钟。上传中断时在当前表单重试会沿用相同的作品编号。
 
-档案首展与印章首展随站点提供。原图放入 `侨批展示库/` 或 `IP素材库/` 后运行 `npm run compress:exhibition` 更新内置版本，并将生成的 WebP 文件和展签一同提交。网页后台发布的作品直接写入存储，刷新即可查看。
+侨批档案与团队 IP 作品随站点提供。原图放入 `侨批展示库/` 或 `IP素材库/` 后运行 `npm run compress:exhibition` 更新内置版本，并将生成的 WebP 文件和展签一同提交。网页后台发布的作品直接写入存储，刷新即可查看。
 
 This template should help get you started developing with Vue 3 and TypeScript in Vite. The template uses Vue 3 `<script setup>` SFCs, check out the [script setup docs](https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup) to learn more.
 

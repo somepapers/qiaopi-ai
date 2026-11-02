@@ -8,5 +8,6 @@ export const QIAOPI_META: Record<string, ExhibitionImageMeta> = Object.fromEntri
 )
 
 export const IP_META: Record<string, ExhibitionImageMeta> = {
-  '侨批印章设计.png': { title: '侨批印章设计', credit: '寻侨迹，传侨魂 · 实践团队', desc: '团队视觉设计', sort: -1 },
+  '侨燕.jpg': { title: '团队吉祥物“侨燕”', credit: '寻侨迹，传侨魂 · 实践团队', sort: -2 },
+  '侨燕马克杯.jpg': { title: '“侨燕”主题马克杯', credit: '寻侨迹，传侨魂 · 实践团队', sort: -1 },
 }

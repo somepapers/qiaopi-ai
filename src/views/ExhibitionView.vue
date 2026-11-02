@@ -61,7 +61,7 @@ watch([gallery, revision], async ([key], _, onCleanup) => {
       <header class="section-head">
         <div class="eyebrow">{{ isDesign ? '第二展厅 · 设计作品' : '第一展厅 · 历史档案' }}</div>
         <h2>{{ isDesign ? '团队 IP 设计' : '侨批文化展示' }}</h2>
-        <p>{{ isDesign ? '从纸上印记出发，展示团队围绕侨批文化创作的视觉作品。' : '侨批将家书与汇款连在一起。点开影像，细看信封上的字迹与邮戳。' }}</p>
+        <p>{{ isDesign ? '戴着斗笠、挎着邮包的侨燕，是团队的吉祥物。点开作品，细看它的形象设计与马克杯上的图案。' : '侨批将家书与汇款连在一起。点开影像，细看信封上的字迹与邮戳。' }}</p>
       </header>
       <PhotoGrid :key="gallery" :images="items" :design="isDesign" @open="select(gallery, $event)" />
       <p v-if="unavailable" role="status" class="catalog-note">正在展示内置馆藏，在线目录暂时不可用。<button @click="revision++">重新读取</button></p>

@@ -16,7 +16,7 @@ function retry(id: string) {
 
 <template>
   <div class="cards" :class="{ designs: design }">
-    <article v-for="(image, index) in images" :key="image.id" :class="{ feature: design && index === 0 }">
+    <article v-for="(image, index) in images" :key="image.id">
       <button class="work" type="button" :aria-label="'放大查看 · ' + image.title" @click="emit('open', image.id)">
         <span class="mount">
           <span v-if="!loaded.has(image.id) && !failed.has(image.id)" class="absolute inset-0 skeleton-shimmer"></span>
@@ -30,7 +30,6 @@ function retry(id: string) {
           <strong>{{ image.title }}</strong>
           <span v-if="image.credit" class="credit">{{ design ? '署名' : '来源' }} · {{ image.credit }}</span>
           <span v-if="image.desc" class="description">{{ image.desc }}</span>
-          <span v-if="design && index === 0" class="view">查看设计细节 ↗</span>
         </span>
       </button>
       <button v-if="failed.has(image.id)" class="retry" @click="retry(image.id)">重新加载预览图</button>
@@ -87,7 +86,7 @@ article {
   padding: 1.1rem 1.2rem;
   overflow-wrap: anywhere;
 }
-.number,.view {
+.number {
   color: #8c3529;
   font-size: .72rem;
   letter-spacing: .13em;
@@ -104,28 +103,11 @@ article {
 .work:hover strong {
   color: #913b30;
 }
-.feature {
-  grid-column: 1/-1;
+.designs {
+  grid-template-columns: repeat(2,minmax(0,1fr));
 }
-.feature .work {
-  display: grid;
-  grid-template-columns: minmax(0,1.25fr) minmax(0,1fr);
-  align-items: center;
-}
-.feature .mount {
-  aspect-ratio: 1.9;
-  background: #ede1cd;
-}
-.feature strong {
-  font-size: clamp(1.6rem,4vw,2.4rem);
-}
-.feature .caption {
-  padding: clamp(1.2rem,4vw,3rem);
-}
-.view {
-  margin-top: 1rem;
-  border-bottom: 1px solid #9e6050;
-  padding-bottom: .25rem;
+.designs .mount {
+  aspect-ratio: 1;
 }
 .retry {
   color: #893628;
@@ -138,11 +120,8 @@ article {
   }
 }
 @media(max-width:640px) {
-  .cards,.feature .work {
+  .cards {
     grid-template-columns: 1fr;
-  }
-  .feature .mount {
-    aspect-ratio: 1.4;
   }
   .caption {
     padding: 1rem;

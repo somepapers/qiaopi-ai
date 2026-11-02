@@ -7,12 +7,10 @@ async function main() {
   const { exhibitionVariants } = await import('../server/exhibition/images.mjs')
   const force = process.argv.includes('--force')
   const prune = !process.argv.includes('--no-prune')
-  const seal = '侨批印章设计.png'
   for (const [folder, gallery] of [['侨批展示库', 'qiaopi'], ['IP素材库', 'ip']]) {
     const output = path.join('src/assets/exhibition', gallery)
     const present = existsSync(folder)
     const files = present ? (await fs.readdir(folder)).filter(f => /\.(jpe?g|png|webp)$/i.test(f)).map(f => path.join(folder, f)) : []
-    if (gallery === 'ip' && existsSync(seal) && !files.some(f => path.basename(f) === seal)) files.push(seal)
     await fs.mkdir(output, { recursive: true })
     const kept = new Set()
     for (const file of files) {
@@ -31,8 +29,6 @@ async function main() {
     }
     if (prune && present) {
       for (const name of await fs.readdir(output)) {
-        // 首展印章的源稿只保存在团队本机，干净检出仍保留已提交的展图。
-        if (gallery === 'ip' && name.startsWith(seal + '.')) continue
         if (/\.(thumb|detail)\.webp$/.test(name) && !kept.has(name)) await fs.unlink(path.join(output, name))
       }
     }

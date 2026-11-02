@@ -84,7 +84,7 @@ AI 生成质量高度依赖 `api/generate.ts` 中的系统提示词设计。核�
 
 **网页发布**。团队在 `/exhibition/admin` 登录，选择展区和图片，填写标题与来源或署名后发布。开发用 Express 和 Vercel 函数共用 `server/exhibition/handler.ts`。环境配置见 README 的「展览馆上架」。
 
-**内置馆藏**。侨批区原图放在根目录 `侨批展示库/`，IP 区使用 `IP素材库/` 和首展原稿《侨批印章设计》。运行 `npm run compress:exhibition` 生成 640 和 1920 像素两档 WebP 并提交产物。元数据按原始文件名在 `src/utils/exhibitionMeta.ts` 登记。在线目录异常时仍会展示内置馆藏。
+**内置馆藏**。侨批区原图放在根目录 `侨批展示库/`，IP 区原图放在 `IP素材库/`。运行 `npm run compress:exhibition` 生成 640 和 1920 像素两档 WebP 并提交产物。元数据按原始文件名在 `src/utils/exhibitionMeta.ts` 登记。在线目录异常时仍会展示内置馆藏。
 
 ## 网络说明
 
