@@ -1,115 +1,202 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ipImages, qiaopiImages } from '@/assets/exhibition'
-import type { ExhibitionImage } from '@/types/exhibition'
+import type { ExhibitionImage, Gallery } from '@/types/exhibition'
 import PhotoGrid from '@/components/exhibition/PhotoGrid.vue'
 import Lightbox from '@/components/exhibition/Lightbox.vue'
 
 const route = useRoute()
 const router = useRouter()
-
-type TabKey = 'qiaopi' | 'ip'
-
-const tabs: { key: TabKey; label: string; icon: string }[] = [
-  { key: 'qiaopi', label: '侨批文化展示', icon: '📜' },
-  { key: 'ip', label: '团队IP设计', icon: '🎨' },
-]
-
-// URL 查询参数为唯一事实源：可分享直达（?tab=ip）、刷新保持、前进后退正常
-const activeTab = computed<TabKey>(() => (route.query.tab === 'ip' ? 'ip' : 'qiaopi'))
-
-function switchTab(key: TabKey) {
-  if (key === activeTab.value) return
-  // 用 replace 而非 push：浏览器后退直接离开页面，而不是逐级回退 Tab 历史
-  router.replace({ query: { ...route.query, tab: key } })
+const tabs = [
+  { key: 'qiaopi', number: '01', label: '侨批文化展示' },
+  { key: 'ip', number: '02', label: '团队 IP 设计' },
+] as const
+const gallery = computed<Gallery>(() => route.query.tab === 'ip' ? 'ip' : 'qiaopi')
+const isDesign = computed(() => gallery.value === 'ip')
+const online = ref<ExhibitionImage[]>([])
+const unavailable = ref(false)
+const revision = ref(0)
+const items = computed(() => [...(isDesign.value ? ipImages : qiaopiImages), ...online.value])
+const index = computed(() => items.value.findIndex(item => item.id === route.query.work))
+const current = computed(() => items.value[index.value])
+function select(key: Gallery, work?: string) {
+  void router.replace({ query: { ...route.query, tab: key, work } })
 }
-
-// 灯箱状态（打开时全屏遮罩盖住 Tab，切换期间 activeImages 不会变化）
-const lightboxOpen = ref(false)
-const lightboxIndex = ref(0)
-const activeImages = computed<ExhibitionImage[]>(() =>
-  activeTab.value === 'qiaopi' ? qiaopiImages : ipImages,
-)
-
-function openLightbox(index: number) {
-  lightboxIndex.value = index
-  lightboxOpen.value = true
+function move(direction: number) {
+  select(gallery.value, items.value[(index.value + direction + items.value.length) % items.value.length]?.id)
 }
+watch([gallery, revision], async ([key], _, onCleanup) => {
+  const controller = new AbortController()
+  onCleanup(() => controller.abort())
+  online.value = []
+  unavailable.value = false
+  try {
+    const response = await fetch('/api/exhibition?gallery=' + key, { signal: controller.signal })
+    if (!response.ok) throw new Error()
+    const data = await response.json()
+    if (!Array.isArray(data.items)) throw new Error()
+    if (!controller.signal.aborted) online.value = data.items
+  } catch {
+    if (!controller.signal.aborted) unavailable.value = true
+  }
+}, { immediate: true })
 </script>
 
 <template>
-  <div class="max-w-5xl mx-auto py-8 px-4">
-    <h1 class="text-2xl md:text-3xl font-serif font-bold text-ink text-center mb-2">
-      🏛️ 侨批展览馆
-    </h1>
-    <p class="text-center text-ink/50 font-serif mb-8">
-      一纸侨批，百年乡愁。走进展览馆，领略侨批文化的厚重与新生。
-    </p>
-
-    <!-- Tab 栏 -->
-    <div class="flex justify-center gap-2 mb-8">
-      <button
-        v-for="tab in tabs"
-        :key="tab.key"
-        type="button"
-        :aria-pressed="activeTab === tab.key"
-        class="px-5 py-2.5 font-serif tracking-widest text-sm md:text-base border rounded-sm transition-all duration-200"
-        :class="activeTab === tab.key
-          ? 'bg-red-seal text-paper-light border-red-seal shadow-md shadow-red-seal/20'
-          : 'text-ink/60 border-ink/15 hover:bg-ink/5 hover:text-ink'"
-        @click="switchTab(tab.key)"
-      >
-        {{ tab.icon }} {{ tab.label }}
+  <div class="museum">
+    <header class="mast">
+      <div class="eyebrow"><span class="rule"></span> 寻侨迹，传侨魂 · 数字展厅</div>
+      <h1>侨批展览馆</h1>
+      <p>从一封远渡重洋的家书，到一方当代印记。</p>
+      <span class="stamp" aria-hidden="true">侨批<br>展馆</span>
+    </header>
+    <nav aria-label="展区" class="halls">
+      <button v-for="tab in tabs" :key="tab.key" :aria-pressed="gallery === tab.key"
+        @click="gallery !== tab.key && select(tab.key)">
+        <span>{{ tab.number }}</span>{{ tab.label }}
       </button>
-    </div>
-
-    <!-- ===== 侨批文化展示区 ===== -->
-    <section v-if="activeTab === 'qiaopi'">
-      <div class="vintage-paper rounded-xl p-5 md:p-8 mb-8">
-        <p class="text-sm md:text-base text-ink/80 font-serif leading-loose">
-          侨批，是海外华侨通过民间渠道寄回故乡的家书与汇款凭证的合称，承载着游子对故土的思念与家国的担当。以下原件影像来自福建省档案馆，一纸一墨，皆是历史的回响。点击图片可放大端详。
-        </p>
-      </div>
-
-      <PhotoGrid v-if="qiaopiImages.length" :images="qiaopiImages" @open="openLightbox" />
-
-      <!-- Credit -->
-      <div class="mt-10 text-center">
-        <div class="w-16 h-px bg-red-seal/20 mx-auto mb-4"></div>
-        <p class="text-sm text-ink/50 font-serif">照片来源：福建省档案馆</p>
-      </div>
+    </nav>
+    <section :aria-label="isDesign ? '团队 IP 设计' : '侨批文化展示'">
+      <header class="section-head">
+        <div class="eyebrow">{{ isDesign ? '第二展厅 · 设计作品' : '第一展厅 · 历史档案' }}</div>
+        <h2>{{ isDesign ? '团队 IP 设计' : '侨批文化展示' }}</h2>
+        <p>{{ isDesign ? '从纸上印记出发，展示团队围绕侨批文化创作的视觉作品。' : '侨批将家书与汇款连在一起。点开影像，细看信封上的字迹与邮戳。' }}</p>
+      </header>
+      <PhotoGrid :key="gallery" :images="items" :design="isDesign" @open="select(gallery, $event)" />
+      <p v-if="unavailable" role="status" class="catalog-note">正在展示内置馆藏，在线目录暂时不可用。<button @click="revision++">重新读取</button></p>
     </section>
-
-    <!-- ===== 团队IP设计区 ===== -->
-    <section v-else>
-      <div class="vintage-paper rounded-xl p-5 md:p-8 mb-8">
-        <p class="text-sm md:text-base text-ink/80 font-serif leading-loose">
-          以侨批文化为灵感，团队创作了一系列 IP 形象设计作品，让百年家书在当代语境中焕发新的生命力。点击作品可放大欣赏细节。
-        </p>
-      </div>
-
-      <PhotoGrid v-if="ipImages.length" :images="ipImages" @open="openLightbox" />
-
-      <!-- 空状态：IP 素材就绪前优雅占位（放图进素材库并压缩后自动出现） -->
-      <div v-else class="flex justify-center py-10">
-        <div class="vintage-paper rounded-xl px-8 py-10 text-center -rotate-3">
-          <div class="inline-block border-2 border-red-seal rounded-sm px-6 py-3 mb-4">
-            <p class="font-calligraphy text-2xl md:text-3xl text-red-seal tracking-widest">
-              作品整理中
-            </p>
-          </div>
-          <p class="text-sm text-ink/50 font-serif">团队 IP 形象成果将于近期展出，敬请期待。</p>
-        </div>
-      </div>
-    </section>
-
-    <!-- 灯箱 -->
-    <Lightbox
-      v-if="lightboxOpen && activeImages.length"
-      v-model:index="lightboxIndex"
-      :images="activeImages"
-      @close="lightboxOpen = false"
-    />
+    <footer class="museum-foot"><span>寻侨迹，传侨魂 · 实践团队</span><RouterLink to="/exhibition/admin">团队管理 ↗</RouterLink></footer>
+    <Lightbox v-if="current" :item="current" :index="index" :total="items.length" @move="move" @close="select(gallery)" />
   </div>
 </template>
+
+<style scoped>
+.museum {
+  max-width: 64rem;
+  margin: 0 auto;
+  padding: clamp(1rem,3vw,2.5rem) 0;
+  color: var(--color-ink);
+}
+.mast {
+  position: relative;
+  padding: clamp(1.5rem,4vw,3rem);
+  border-block: 1px solid #8b694b55;
+  background: linear-gradient(110deg,#f5ebd9,#ece0cb);
+  overflow: hidden;
+}
+.eyebrow {
+  font-size: .73rem;
+  letter-spacing: .18em;
+  color: #843b2e;
+  font-weight: 600;
+}
+.rule {
+  display: inline-block;
+  width: 2.2rem;
+  height: 1px;
+  vertical-align: middle;
+  background: #923f32;
+  margin-right: .35rem;
+}
+.mast h1 {
+  font-size: clamp(2.45rem,6vw,4.5rem);
+  line-height: 1.2;
+  letter-spacing: .07em;
+  font-weight: 650;
+  margin: .6rem 0;
+}
+.mast p,.section-head p {
+  color: #695744;
+  line-height: 1.8;
+  font-size: .95rem;
+}
+.mast p {
+  text-wrap: balance;
+}
+.stamp {
+  position: absolute;
+  right: 7%;
+  top: 50%;
+  transform: translateY(-50%) rotate(-8deg);
+  color: #944634a6;
+  border: 4px double currentColor;
+  border-radius: .35rem;
+  font-size: clamp(2rem,5vw,3.7rem);
+  line-height: 1.05;
+  letter-spacing: .07em;
+  padding: .25em .16em .2em .24em;
+}
+.halls {
+  display: flex;
+  border-bottom: 1px solid #775d4236;
+}
+.halls button {
+  display: flex;
+  gap: .7rem;
+  align-items: baseline;
+  justify-content: center;
+  padding: 1rem 1.4rem;
+  color: #675544;
+  border-bottom: 3px solid transparent;
+}
+.halls button[aria-pressed=true] {
+  color: #8e3527;
+  border-color: #8e3527;
+  font-weight: 650;
+}
+.halls span {
+  font-family: Georgia,serif;
+  font-size: .85rem;
+}
+.section-head {
+  margin: 2.1rem 0 1.2rem;
+}
+.section-head h2 {
+  font-size: clamp(1.45rem,3.5vw,2.05rem);
+  font-weight: 650;
+  margin: .3rem 0;
+}
+.museum-foot,.catalog-note {
+  font-size: .83rem;
+  color: #6c5946;
+}
+.catalog-note {
+  margin-top: 1.5rem;
+}
+.catalog-note button,.museum-foot a {
+  color: #873d30;
+  text-decoration: underline;
+  text-underline-offset: .2em;
+}
+.museum-foot {
+  border-top: 1px solid #775d4236;
+  margin: 2.5rem 0 0;
+  padding: 1rem 0;
+  display: flex;
+  justify-content: space-between;
+  gap: .6rem;
+}
+@media(max-width:640px) {
+  .stamp {
+    font-size: 1.45rem;
+    right: 1rem;
+    top: 1.2rem;
+    transform: rotate(-8deg);
+  }
+  .mast {
+    padding: 1.25rem;
+  }
+  .mast p {
+    max-width: 18rem;
+  }
+  .halls button {
+    padding: .9rem .25rem;
+    flex: 1;
+    gap: .4rem;
+  }
+  .section-head {
+    margin-top: 1.5rem;
+  }
+}
+</style>

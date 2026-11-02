@@ -1,50 +1,28 @@
-import type { ExhibitionImage, ExhibitionImageMeta } from '@/types/exhibition'
+import type { ExhibitionImage, ExhibitionImageMeta, Gallery } from '@/types/exhibition'
 import { IP_META, QIAOPI_META } from '@/utils/exhibitionMeta'
 
-/**
- * 展览馆图片数据层：用 import.meta.glob 自动发现目录中的图片。
- * 放图进 qiaopi/ 或 ip/ 目录即自动出现在页面上，无需改代码；
- * 构建时图片带内容哈希进入 dist/assets/，命中 vercel.json 的 immutable 一年缓存。
- *
- * 注意：glob 模式必须是字面量（Vite 构建期静态分析，不能用运行时拼接），故两个目录分别写死。
- * eager: true 只是把 URL 字符串内联进 JS（每张几十字节），
- * 图片下载仍由 <img> 渲染时机 + loading="lazy" 决定。
- */
-const qiaopiFiles = import.meta.glob<string>('./qiaopi/*.{jpg,jpeg,JPG,JPEG,png,PNG,webp,WEBP}', {
-  eager: true,
-  query: '?url',
-  import: 'default',
+const urls = import.meta.glob<string>('./{qiaopi,ip}/*.{thumb,detail}.webp', {
+  eager: true, query: '?url&no-inline', import: 'default',
 })
 
-const ipFiles = import.meta.glob<string>('./ip/*.{jpg,jpeg,JPG,JPEG,png,PNG,webp,WEBP}', {
-  eager: true,
-  query: '?url',
-  import: 'default',
-})
-
-/** 文件名自然排序：中文 locale + numeric，保证「侨批10」排在「侨批2」之后 */
-function compareFileName(a: string, b: string): number {
-  return a.localeCompare(b, 'zh-Hans-CN', { numeric: true })
-}
-
-function buildImages(files: Record<string, string>, meta: Record<string, ExhibitionImageMeta>): ExhibitionImage[] {
-  return Object.entries(files)
-    .map(([path, src]) => {
-      const fileName = path.split('/').pop() ?? path
-      const m = meta[fileName] ?? {}
+function collection(gallery: Gallery, meta: Record<string, ExhibitionImageMeta>): ExhibitionImage[] {
+  const prefix = './' + gallery + '/'
+  return Object.keys(urls)
+    .filter(key => key.startsWith(prefix) && key.endsWith('.thumb.webp'))
+    .map(key => key.slice(prefix.length, -'.thumb.webp'.length))
+    .sort((a, b) => (meta[a]?.sort ?? 0) - (meta[b]?.sort ?? 0) || a.localeCompare(b, 'zh-CN', { numeric: true }))
+    .map(name => {
+      const info = meta[name]
+      const detail = urls[prefix + name + '.detail.webp']
+      if (!detail) throw new Error('展品缺少详情图：' + name)
       return {
-        src,
-        fileName,
-        title: m.title ?? fileName.replace(/\.[^.]+$/, ''),
-        ...(m.desc !== undefined ? { desc: m.desc } : {}),
-        ...(m.sort !== undefined ? { sort: m.sort } : {}),
+        id: gallery + '-' + name, gallery,
+        title: info?.title ?? name.replace(/\.[^.]+$/, ''),
+        credit: info?.credit ?? '', desc: info?.desc,
+        thumb: urls[prefix + name + '.thumb.webp'], detail,
       }
     })
-    .sort((a, b) => (a.sort ?? 0) - (b.sort ?? 0) || compareFileName(a.fileName, b.fileName))
 }
 
-/** 侨批文化展示区图片 */
-export const qiaopiImages: ExhibitionImage[] = buildImages(qiaopiFiles, QIAOPI_META)
-
-/** 团队IP设计区图片（素材就绪后自动出现） */
-export const ipImages: ExhibitionImage[] = buildImages(ipFiles, IP_META)
+export const qiaopiImages = collection('qiaopi', QIAOPI_META)
+export const ipImages = collection('ip', IP_META)

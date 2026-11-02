@@ -59,7 +59,7 @@ git push
 | `src/components/letter/LetterExport.vue` | 基于 Canvas 的图片导出 — 在复古纸张纹理上渲染侨批文字，支持横排/竖排，包含墨色和做旧效果 |
 | `src/stores/letter.ts` | Pinia 状态管理，控制书信生成全生命周期：输入 → 流式生成 → 编辑 → 导出，数据持久化到 localStorage |
 | `src/assets/exhibition/index.ts` | **展览馆图片数据层** — `import.meta.glob` 自动发现 `qiaopi/`、`ip/` 目录图片，与 `src/utils/exhibitionMeta.ts` 的标题映射合并 |
-| `src/components/exhibition/PhotoGrid.vue`、`Lightbox.vue` | 展览馆图片网格（骨架微光 + 懒加载 + 固定比例盒防 CLS）与灯箱（键盘切换、邻图预加载） |
+| `src/components/exhibition/PhotoGrid.vue`、`Lightbox.vue` | 展览馆缩略图网格与灯箱。打开时保留预览图，详情图解码完成后替换，支持键盘切换与失败重试。 |
 
 ## 提示词工程经验
 
@@ -82,12 +82,9 @@ AI 生成质量高度依赖 `api/generate.ts` 中的系统提示词设计。核�
 
 展览馆（`/exhibition`）分「侨批文化展示」「团队IP设计」两个 Tab 区域（`?tab=` 查询参数切换）。图片**永不直接放 `public/`**（vercel.json 对 public 路径返回 no-store，每次访问都强制重新下载）。
 
-**团队新增图片流程**：
-1. 原图放入素材库目录：侨批区 → 根目录 `侨批展示库/`，IP 区 → 根目录 `IP素材库/`
-2. 运行 `npm run compress:exhibition`：压缩（最长边 1600，jpg q80 / png palette 量化）并输出到 `src/assets/exhibition/qiaopi/` 或 `ip/`
-3. 提交压缩产物 → 推送部署。图片构建时带内容哈希进入 `dist/assets/`，命中 vercel.json 的 immutable 一年缓存
+**网页发布**。团队在 `/exhibition/admin` 登录，选择展区和图片，填写标题与来源或署名后发布。开发用 Express 和 Vercel 函数共用 `server/exhibition/handler.ts`。环境配置见 README 的「展览馆上架」。
 
-放图即自动出现在页面上（`import.meta.glob` 自动发现，零代码改动）；想改标题/说明/排序，编辑 `src/utils/exhibitionMeta.ts` 的映射表（文件名索引）。IP 素材目录为空时页面显示印章风「作品整理中」占位。
+**内置馆藏**。侨批区原图放在根目录 `侨批展示库/`，IP 区使用 `IP素材库/` 和首展原稿《侨批印章设计》。运行 `npm run compress:exhibition` 生成 640 和 1920 像素两档 WebP 并提交产物。元数据按原始文件名在 `src/utils/exhibitionMeta.ts` 登记。在线目录异常时仍会展示内置馆藏。
 
 ## 网络说明
 

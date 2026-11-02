@@ -1,4 +1,3 @@
-import type { VercelRequest, VercelResponse } from '@vercel/node'
 import { kv } from '@vercel/kv'
 
 export const config = {
@@ -16,7 +15,12 @@ async function ensureBaseline() {
   }
 }
 
-export default async function handler(req: VercelRequest, res: VercelResponse) {
+interface StatsResponse {
+  setHeader(name: string, value: string): unknown
+  status(code: number): { json(body: unknown): unknown }
+}
+
+export default async function handler(req: { method?: string }, res: StatsResponse) {
   try {
     if (req.method === 'POST') {
       // 进入网站：计数 +1 并返回最新值

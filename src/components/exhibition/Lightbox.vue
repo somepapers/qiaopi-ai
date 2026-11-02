@@ -1,142 +1,138 @@
 <script setup lang="ts">
-import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { onMounted, onBeforeUnmount, watch, ref } from 'vue'
 import type { ExhibitionImage } from '@/types/exhibition'
 
-const props = defineProps<{ images: ExhibitionImage[] }>()
-const index = defineModel<number>('index', { required: true })
-const emit = defineEmits<{ close: [] }>()
+const props = defineProps<{ item: ExhibitionImage, index: number, total: number }>()
+const emit = defineEmits<{ close: [], move: [direction: number] }>()
+const dialog = ref<HTMLDialogElement>()
+const ready = ref('')
+const failed = ref(false)
+const attempt = ref(0)
+let previousOverflow = ''
+let trigger: HTMLElement | null = null
 
-/** 过渡状态：挂载后置 true 播放 enter；关闭时先置 false 播放 leave，播完再通知父组件卸载 */
-const visible = ref(false)
-const imageLoaded = ref(false)
-let lastFocused: HTMLElement | null = null
-
-const total = computed(() => props.images.length)
-const current = computed(() => props.images[index.value] ?? null)
-
-function prev() {
-  index.value = (index.value - 1 + total.value) % total.value
-}
-function next() {
-  index.value = (index.value + 1) % total.value
-}
-
-function close() {
-  visible.value = false
-  setTimeout(() => emit('close'), 200)
-}
-
-function onKeydown(e: KeyboardEvent) {
-  if (e.key === 'Escape') close()
-  else if (e.key === 'ArrowLeft') prev()
-  else if (e.key === 'ArrowRight') next()
-}
-
-/** 预加载左右邻图：切换零等待 */
-function preloadNeighbors() {
-  const n = total.value
-  if (n <= 1) return
-  for (const offset of [-1, 1]) {
-    const img = props.images[(index.value + offset + n) % n]
-    new Image().src = img.src
+watch(() => [props.item.detail, attempt.value], async (_, __, onCleanup) => {
+  const image = new Image()
+  let current = true
+  onCleanup(() => { current = false; image.removeAttribute('src') })
+  ready.value = ''
+  failed.value = false
+  image.decoding = 'async'
+  image.src = props.item.detail
+  try {
+    await image.decode()
+    if (current) ready.value = image.src
+  } catch {
+    if (current) failed.value = true
   }
-}
-
-watch(index, () => {
-  imageLoaded.value = false
-  preloadNeighbors()
-})
+}, { immediate: true })
 
 onMounted(() => {
-  lastFocused = document.activeElement as HTMLElement | null
+  trigger = document.activeElement as HTMLElement | null
+  previousOverflow = document.body.style.overflow
   document.body.style.overflow = 'hidden'
-  window.addEventListener('keydown', onKeydown)
-  nextTick(() => {
-    visible.value = true
-  })
-  preloadNeighbors()
+  dialog.value?.showModal()
 })
-
 onBeforeUnmount(() => {
-  document.body.style.overflow = ''
-  window.removeEventListener('keydown', onKeydown)
-  lastFocused?.focus?.()
+  dialog.value?.close()
+  document.body.style.overflow = previousOverflow
+  trigger?.focus({ preventScroll: true })
 })
 </script>
-
 <template>
   <Teleport to="body">
-    <Transition name="lightbox-fade">
-      <div
-        v-if="visible && current"
-        class="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-ink/95 px-4 py-6"
-        role="dialog"
-        aria-modal="true"
-        :aria-label="current.title"
-        @click.self="close"
-      >
-        <!-- 关闭按钮 -->
-        <button
-          type="button"
-          class="absolute top-4 right-4 w-10 h-10 flex items-center justify-center rounded-full text-paper-light/70 hover:text-paper-light hover:bg-paper-light/10 transition-colors text-2xl font-serif"
-          aria-label="关闭"
-          @click="close"
-        >
-          ✕
-        </button>
-
-        <!-- 图片区：点击空白处关闭，点击图片本体不关闭 -->
-        <div class="relative flex-1 min-h-0 w-full flex items-center justify-center" @click.self="close">
-          <div v-if="!imageLoaded" class="absolute w-10 h-10 rounded-full border-2 border-paper-light/30 border-t-paper-light animate-spin"></div>
-          <img
-            :key="current.src"
-            :src="current.src"
-            :alt="current.title"
-            class="max-w-full max-h-full object-contain select-none transition-opacity duration-300"
-            :class="imageLoaded ? 'opacity-100' : 'opacity-0'"
-            @load="imageLoaded = true"
-          />
+    <dialog ref="dialog" class="viewer" :aria-label="item.title" @cancel.prevent="emit('close')"
+      @keydown.left.prevent="emit('move', -1)" @keydown.right.prevent="emit('move', 1)">
+      <div class="viewer-inner" @click.self="emit('close')">
+        <button autofocus class="close" aria-label="关闭" @click="emit('close')">关闭 ×</button>
+        <div class="frame" @click.self="emit('close')">
+          <img :src="ready || item.thumb" :alt="item.title" />
         </div>
-
-        <!-- 左右切换（首尾循环） -->
-        <button
-          v-if="total > 1"
-          type="button"
-          class="absolute left-2 md:left-6 top-1/2 -translate-y-1/2 w-11 h-11 flex items-center justify-center rounded-full bg-paper-light/10 text-paper-light hover:bg-paper-light/25 transition-colors text-2xl"
-          aria-label="上一张"
-          @click="prev"
-        >
-          ‹
-        </button>
-        <button
-          v-if="total > 1"
-          type="button"
-          class="absolute right-2 md:right-6 top-1/2 -translate-y-1/2 w-11 h-11 flex items-center justify-center rounded-full bg-paper-light/10 text-paper-light hover:bg-paper-light/25 transition-colors text-2xl"
-          aria-label="下一张"
-          @click="next"
-        >
-          ›
-        </button>
-
-        <!-- 底部标题 / 说明 / 计数 -->
-        <div class="mt-4 text-center max-w-2xl" @click.self="close">
-          <h3 class="text-base md:text-lg font-serif font-semibold text-paper-light">{{ current.title }}</h3>
-          <p v-if="current.desc" class="text-sm text-paper-light/70 font-serif mt-1">{{ current.desc }}</p>
-          <p class="text-xs text-paper-light/50 font-serif mt-2 tracking-widest">{{ index + 1 }} / {{ total }}</p>
+        <div class="controls">
+          <button v-if="total > 1" aria-label="上一张" @click="emit('move', -1)">‹</button>
+          <div aria-live="polite" class="info">
+            <small>{{ index + 1 }} / {{ total }}</small><h2>{{ item.title }}</h2>
+            <p v-if="item.credit">{{ item.credit }}</p><p v-if="item.desc">{{ item.desc }}</p>
+            <button v-if="failed" class="retry" @click="attempt++">详情图未加载 · 重试</button>
+            <small v-else-if="!ready">正在加载细节…</small>
+          </div>
+          <button v-if="total > 1" aria-label="下一张" @click="emit('move', 1)">›</button>
         </div>
       </div>
-    </Transition>
+    </dialog>
   </Teleport>
 </template>
-
 <style scoped>
-.lightbox-fade-enter-active,
-.lightbox-fade-leave-active {
-  transition: opacity 0.2s ease;
+.viewer[open] {
+  position: fixed;
+  inset: 0;
+  margin: 0;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  max-height: none;
+  background: #251e19;
+  color: #faefdd;
+  border: 0;
 }
-
-.lightbox-fade-enter-from,
-.lightbox-fade-leave-to {
-  opacity: 0;
+.viewer::backdrop {
+  background: #251e19;
+}
+.viewer-inner {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 1rem clamp(1rem,4vw,4rem);
+  gap: .65rem;
+}
+.close {
+  align-self: flex-end;
+  padding: .45rem .9rem;
+  border: 1px solid #ffffff50;
+}
+.frame {
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.frame img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+.controls {
+  display: flex;
+  width: min(42rem,100%);
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+}
+.controls>button {
+  width: 2.8rem;
+  height: 2.8rem;
+  border: 1px solid #ffffff50;
+  font-size: 1.65rem;
+  flex-shrink: 0;
+}
+.info {
+  text-align: center;
+  flex: 1;
+  max-height: 29dvh;
+  overflow: auto;
+  overflow-wrap: anywhere;
+}
+.info h2 {
+  font-size: 1.15rem;
+}
+.info small,.info p,.retry {
+  font-size: .82rem;
+  color: #e0d4c3;
+}
+.retry {
+  text-decoration: underline;
 }
 </style>
