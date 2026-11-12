@@ -4,6 +4,11 @@ const router = createRouter({
   history: createWebHistory(),
   routes: [
     {
+      path: '/media',
+      name: 'media',
+      component: () => import('@/views/MediaView.vue'),
+    },
+    {
       path: '/practice',
       name: 'practice',
       component: () => import('@/views/PracticeView.vue'),

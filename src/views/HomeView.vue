@@ -41,7 +41,10 @@ onMounted(async () => {
           <router-link to="/exhibition" class="btn-primary">走进展览馆</router-link>
           <router-link to="/write" class="btn-secondary">体验 AI 写侨批</router-link>
         </div>
-        <router-link to="/culture" class="mt-5 inline-block text-sm text-red-seal underline underline-offset-4">了解侨批文化</router-link>
+        <div class="mt-5 flex flex-wrap gap-x-5 gap-y-2 text-sm text-red-seal">
+          <router-link to="/culture" class="underline underline-offset-4">了解侨批文化</router-link>
+          <router-link to="/media" class="underline underline-offset-4">查看媒体报道</router-link>
+        </div>
       </div>
       <figure class="m-0 border border-ink/15 bg-[#fffaf1] p-3 shadow-sm sm:p-4">
         <img :src="archivePhoto" alt="展览馆展出的第一件侨批原件影像" fetchpriority="high" class="aspect-[4/3] w-full bg-[#eee6d9] object-contain" />
