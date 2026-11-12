@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useRouter } from 'vue-router'
+import archivePhoto from '@/assets/exhibition/qiaopi/侨批1.jpg.detail.webp'
 import { onMounted } from 'vue'
 import { useVisitCount } from '@/composables/useVisitCount'
 
@@ -24,39 +24,30 @@ onMounted(async () => {
 
 <template>
   <div class="max-w-5xl mx-auto">
-    <!-- Hero Section -->
-    <section class="py-16 md:py-24 text-center">
-      <div class="text-6xl md:text-7xl mb-6">📮</div>
-      <h1 class="text-3xl md:text-5xl font-serif font-bold text-ink mb-4">
-        侨批AI代书人
-      </h1>
-      <p class="text-lg md:text-xl text-ink-light font-serif mb-2">
-        传承百年侨批，AI续写家书
-      </p>
-      <p class="text-sm text-ink/40 font-serif max-w-md mx-auto leading-loose">
-        侨批，又称"银信"，是海外华侨寄回家乡的家书与汇款凭证，
-        2013年入选联合国教科文组织《世界记忆名录》
-      </p>
-
-      <!-- 网站使用次数 -->
-      <div v-if="visitCount !== null" class="mt-8">
-        <div class="inline-flex items-center gap-2 vintage-paper rounded-full px-5 py-2">
-          <span class="text-lg">📮</span>
-          <span class="font-serif text-ink/70 text-sm">
-            网站已使用 <strong class="text-red-seal text-lg font-bold">{{ visitCount.toLocaleString() }}</strong> 次
-          </span>
+    <section aria-labelledby="team-title" class="grid items-center gap-8 border-b border-ink/15 py-10 md:grid-cols-2 md:gap-12 md:py-16">
+      <div class="font-serif">
+        <p class="mb-4 text-sm font-semibold tracking-widest text-red-seal">闽江大学 · 暑期社会实践团队</p>
+        <h1 id="team-title" class="text-4xl font-bold leading-tight text-ink lg:text-5xl">寻侨迹，传侨魂</h1>
+        <p class="mt-6 max-w-lg leading-loose text-ink-light">
+          一封侨批，既是海外亲人寄回的汇款凭证，也是写给家里人的信。我们想让更多人有机会读到这些家书，看看远隔重洋的一家人怎样报平安、寄牵挂。
+        </p>
+        <p class="mt-3 max-w-lg leading-loose text-ink-light">
+          我们把侨批影像收进线上展览馆，设计了团队吉祥物“侨燕”，也做了 AI 代书人，让你用自己的话写一封家书。
+        </p>
+        <div class="mt-7 flex flex-wrap items-center gap-4">
+          <router-link to="/exhibition" class="btn-primary">走进展览馆</router-link>
+          <router-link to="/write" class="btn-secondary">体验 AI 写侨批</router-link>
         </div>
+        <router-link to="/culture" class="mt-5 inline-block text-sm text-red-seal underline underline-offset-4">了解侨批文化</router-link>
       </div>
-
-      <div class="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
-        <router-link to="/write" class="btn-primary no-underline inline-block text-center min-w-[180px]">
-          ✍️ 开始写批
-        </router-link>
-        <router-link to="/culture" class="btn-secondary no-underline inline-block text-center min-w-[180px]">
-          📖 学习侨批文化
-        </router-link>
-      </div>
+      <figure class="m-0 border border-ink/15 bg-[#fffaf1] p-3 shadow-sm sm:p-4">
+        <img :src="archivePhoto" alt="展览馆展出的第一件侨批原件影像" fetchpriority="high" class="aspect-[4/3] w-full bg-[#eee6d9] object-contain" />
+        <figcaption class="mt-3 flex flex-wrap justify-between gap-2 font-serif text-sm text-ink-light">
+          <span>侨批原件展示（一）</span><span>福建省档案馆</span>
+        </figcaption>
+      </figure>
     </section>
+    <p v-if="visitCount !== null" class="mt-4 text-right font-serif text-xs text-ink-light">网站已使用 {{ visitCount.toLocaleString() }} 次</p>
 
     <!-- Feature Cards -->
     <section class="py-12 grid grid-cols-1 md:grid-cols-3 gap-6">
