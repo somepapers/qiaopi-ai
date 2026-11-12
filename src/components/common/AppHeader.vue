@@ -9,6 +9,7 @@ const navItems = [
   { path: '/templates', label: '范文库' },
   { path: '/culture', label: '侨批文化' },
   { path: '/exhibition', label: '展览馆' },
+  { path: '/practice', label: '实践足迹' },
   { path: '/about', label: '关于' },
 ]
 </script>

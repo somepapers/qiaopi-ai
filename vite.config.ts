@@ -2,6 +2,7 @@ import { defineConfig, type Plugin } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import tailwindcss from '@tailwindcss/vite'
 import { resolve } from 'path'
+import { records } from './src/data/practice.ts'
 
 // 构建版本号：注入到前端代码，同时输出 version.json，供运行时比对是否有新部署
 const buildVersion = new Date().toISOString()
@@ -23,6 +24,9 @@ function emitVersionJson(): Plugin {
 export default defineConfig({
   plugins: [vue(), tailwindcss(), emitVersionJson()],
   define: {
+    __PRACTICE_RECORDS__: JSON.stringify(records
+      .filter(record => record.status === 'published')
+      .sort((a, b) => b.date.localeCompare(a.date))),
     __APP_VERSION__: JSON.stringify(buildVersion),
   },
   resolve: {

@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import archivePhoto from '@/assets/exhibition/qiaopi/侨批1.jpg.detail.webp'
 import { onMounted } from 'vue'
+import { publishedRecords } from '@/utils/practice'
+
+const latest = publishedRecords[0]
 import { useVisitCount } from '@/composables/useVisitCount'
 
 const { visitCount, recordVisit } = useVisitCount()
@@ -46,6 +49,17 @@ onMounted(async () => {
           <span>侨批原件展示（一）</span><span>福建省档案馆</span>
         </figcaption>
       </figure>
+    </section>
+    <section v-if="latest" class="border-b border-ink/15 py-8">
+      <h2 class="mb-4 text-sm font-semibold tracking-widest text-red-seal">最新实践记录</h2>
+      <RouterLink :to="{ name: 'practice-detail', params: { slug: latest.slug } }"
+        class="group grid items-center gap-5 md:grid-cols-[1fr_2fr]">
+        <img :src="latest.photos[0].src" :alt="latest.photos[0].alt" class="h-auto w-full" />
+        <div>
+          <h3 class="text-2xl font-bold group-hover:text-red-seal">{{ latest.title }}</h3>
+          <p class="mt-3 leading-loose text-ink-light">{{ latest.summary }}</p>
+        </div>
+      </RouterLink>
     </section>
     <p v-if="visitCount !== null" class="mt-4 text-right font-serif text-xs text-ink-light">网站已使用 {{ visitCount.toLocaleString() }} 次</p>
 
