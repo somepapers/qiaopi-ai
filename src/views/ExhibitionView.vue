@@ -66,7 +66,7 @@ watch([gallery, revision], async ([key], _, onCleanup) => {
       <PhotoGrid :key="gallery" :images="items" :design="isDesign" @open="select(gallery, $event)" />
       <p v-if="unavailable" role="status" class="catalog-note">正在展示内置馆藏，在线目录暂时不可用。<button @click="revision++">重新读取</button></p>
     </section>
-    <footer class="museum-foot"><span>寻侨迹，传侨魂 · 实践团队</span><RouterLink to="/exhibition/admin">团队管理 ↗</RouterLink></footer>
+    <footer class="museum-foot"><span>寻侨迹，传侨魂 · 实践团队</span></footer>
     <Lightbox v-if="current" :item="current" :index="index" :total="items.length" @move="move" @close="select(gallery)" />
   </div>
 </template>
