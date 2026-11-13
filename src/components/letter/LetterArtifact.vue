@@ -89,8 +89,8 @@ onUnmounted(() => {
     <div class="paper-drop w-full max-w-3xl">
       <div class="qiaopi-paper relative rounded-sm px-6 py-8 md:px-12 md:py-12">
         <!-- 左上角水印 -->
-        <div class="pointer-events-none absolute left-3 top-3 text-[10px] tracking-[0.3em] text-ink/40 select-none">
-          QIAOPI · 侨批
+        <div class="pointer-events-none absolute left-3 top-2 text-xs tracking-wider text-ink/75 select-none">
+          AI 生成家书
         </div>
 
         <!-- 竖排正文（direction:rtl 让初始滚动位置在最右侧 = 文章开头） -->

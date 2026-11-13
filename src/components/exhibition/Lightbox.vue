@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { onMounted, onBeforeUnmount, watch, ref } from 'vue'
 import type { ExhibitionImage } from '@/types/exhibition'
+import { featured } from '@/assets/exhibition/featured'
+import FeaturedReading from './FeaturedReading.vue'
 
 const props = defineProps<{ item: ExhibitionImage, index: number, total: number }>()
 const emit = defineEmits<{ close: [], move: [direction: number] }>()
@@ -43,9 +45,10 @@ onBeforeUnmount(() => {
   <Teleport to="body">
     <dialog ref="dialog" class="viewer" :aria-label="item.title" @cancel.prevent="emit('close')"
       @keydown.left.prevent="emit('move', -1)" @keydown.right.prevent="emit('move', 1)">
-      <div class="viewer-inner" @click.self="emit('close')">
+      <div class="viewer-inner" :class="{ 'with-reading': item.id === featured.id }" @click.self="emit('close')">
         <button autofocus class="close" aria-label="关闭" @click="emit('close')">关闭 ×</button>
-        <div class="frame" @click.self="emit('close')">
+        <FeaturedReading v-if="item.id === featured.id" :src="ready || item.thumb" />
+        <div v-else class="frame" @click.self="emit('close')">
           <img :src="ready || item.thumb" :alt="item.title" />
         </div>
         <div class="controls">
@@ -91,6 +94,12 @@ onBeforeUnmount(() => {
   padding: .45rem .9rem;
   border: 1px solid #ffffff50;
 }
+.with-reading {
+  height: auto;
+  min-height: 100%;
+  gap: 1rem;
+}
+.with-reading .close { position: sticky; top: .5rem; z-index: 1; background: #251e19; }
 .frame {
   flex: 1;
   min-height: 0;

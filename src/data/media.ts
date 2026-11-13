@@ -30,7 +30,7 @@ export const mediaItems: MediaItem[] = [
     kind: 'video',
     title: '一纸侨批寄山海，青年创新传侨心',
     date: '2026-09-02',
-    summary: '闽江大学国际数字经济学院“寻侨迹，传侨魂”实践队以视频回顾暑期侨批文化寻访。',
+    summary: '闽江大学国际数字经济学院“寻侨迹，传侨魂”社会实践团队以视频回顾侨批文化寻访。',
     sources: [
       { label: '华人头条 · 观看视频', url: 'https://www.52hrtt.com/global/n/w/info/F1786948122674' },
     ],

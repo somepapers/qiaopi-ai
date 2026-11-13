@@ -21,7 +21,7 @@ onMounted(() => {
       </RouterView>
     </main>
     <footer class="text-center py-6 px-4 sm:px-6 lg:px-8 text-ink/40 text-sm font-serif">
-      <p>侨批AI代书人 · 传承百年侨批  AI续写家书</p>
+      <p>闽江大学“寻侨迹，传侨魂”社会实践团队</p>
       <p class="mt-1">侨批档案 · 联合国教科文组织世界记忆遗产</p>
     </footer>
   </div>

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
+import { featured } from '@/assets/exhibition/featured'
 
 const activeTab = ref<'history' | 'format' | 'terms' | 'classic'>('history')
 
@@ -35,18 +36,6 @@ const honorificTerms = [
   { term: '时祺', usage: '对平辈的祝颂语', example: '顺颂时祺', note: '祝时时吉祥' },
 ]
 
-const classicLetters = [
-  {
-    title: '最简短的侨批',
-    content: '双亲大人膝下：内外平安。',
-    context: '这是一封只有九个字的侨批，出自一位不善言辞的华侨之手。短短几字，道尽了海外游子对父母最朴素的牵挂。',
-  },
-  {
-    title: '感人至深的思乡信',
-    content: '双亲大人膝下：\n敬禀者，自违慈颜，瞬逾三载。每值夜阑人静，辄忆家中情景。祖母年迈，未知步履尚健否；门前那棵龙眼树，今年结实否。男在洋中，虽则粗安，然每怀家国，未尝不临风陨涕。惟望早积余资，得以早日归省。纸短情长，难尽欲言。',
-    context: '这是一位在暹罗（今泰国）打工的青年写给父母的信。信中不提苦楚，却用"门前龙眼树"这样具体的意象表达乡愁，令人动容。',
-  },
-]
 </script>
 
 <template>
@@ -89,7 +78,7 @@ const classicLetters = [
     <!-- Format Tab -->
     <section v-if="activeTab === 'format'" class="space-y-6">
       <div class="vintage-paper rounded-xl p-6 md:p-10">
-        <h2 class="text-xl font-serif font-bold text-ink mb-6 text-center">侨批格式图解</h2>
+        <h2 class="text-xl font-serif font-bold text-ink mb-6 text-center">侨批格式图解 · 仿写示例</h2>
         <div class="vintage-paper rounded-lg border border-ink/10 p-6 space-y-4 max-w-lg mx-auto">
           <div class="text-center">
             <span class="text-xs text-ink/40 font-serif bg-red-seal/5 px-3 py-1 rounded-full">1. 称谓 + 提称语</span>
@@ -137,17 +126,12 @@ const classicLetters = [
 
     <!-- Classic Tab -->
     <section v-if="activeTab === 'classic'" class="space-y-6">
-      <div
-        v-for="item in classicLetters"
-        :key="item.title"
-        class="vintage-paper rounded-xl p-6 md:p-10"
-      >
-        <h2 class="text-xl font-serif font-bold text-ink mb-4">{{ item.title }}</h2>
-        <div class="vintage-paper rounded-lg border border-ink/10 p-6 mb-4">
-          <div class="vintage-text whitespace-pre-line text-base leading-loose">{{ item.content }}</div>
-        </div>
-        <p class="text-sm text-ink/60 font-serif italic">{{ item.context }}</p>
-      </div>
+      <article class="vintage-paper rounded-xl p-6 md:p-10">
+        <p class="mb-2 text-sm text-[#873e30]">档案原件 · {{ featured.credit }}</p>
+        <h2 class="mb-3 text-xl font-semibold">{{ featured.title }}</h2>
+        <p class="mb-4 leading-loose">{{ featured.guide }}</p>
+        <RouterLink :to="featured.to" class="inline-flex min-h-11 items-center text-[#873e30] underline underline-offset-4">对照原图与局部放大 →</RouterLink>
+      </article>
     </section>
   </div>
 </template>

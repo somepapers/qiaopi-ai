@@ -176,19 +176,17 @@ async function nativeShare() {
           <button class="ink-button w-full sm:w-auto" @click="shareToFamily()">
             寄给亲人
           </button>
-          <span class="hidden text-[10px] tracking-[0.3em] text-ink/45 sm:block">生 成 链 接 · 拆 封 阅 读</span>
+          <span class="text-sm text-ink/70">生成分享链接</span>
         </div>
         <div class="flex flex-col items-center gap-1.5">
           <button class="ink-button ghost w-full sm:w-auto" @click="showExport = true">
-            装进信封
+            保存为图片
           </button>
-          <span class="hidden text-[10px] tracking-[0.3em] text-ink/45 sm:block">保 存 为 图 片</span>
         </div>
         <div class="flex flex-col items-center gap-1.5">
           <button class="ink-button ghost w-full sm:w-auto" @click="copyToClipboard()">
-            誊抄全文
+            复制全文
           </button>
-          <span class="hidden text-[10px] tracking-[0.3em] text-ink/45 sm:block">复 制 到 剪 贴 板</span>
         </div>
         <div class="flex flex-col items-center gap-1.5">
           <button class="ink-button ghost w-full sm:w-auto" @click="letterStore.startEdit()">

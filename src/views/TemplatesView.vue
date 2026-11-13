@@ -37,7 +37,7 @@ const relationshipOptions = computed(() => [
       📜 侨批范文库
     </h1>
     <p class="text-center text-ink/50 font-serif mb-8">
-      浏览经典侨批模板，找到适合你的场景，以此为基础生成专属家书
+      按收信人和写信场景浏览仿写示例，选一篇来写自己的家书
     </p>
 
     <!-- Filters -->

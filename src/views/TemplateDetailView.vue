@@ -50,7 +50,7 @@ const template = computed(() => {
 
         <!-- Example letter -->
         <div class="border-t border-ink/10 pt-6">
-          <h3 class="text-sm text-ink/50 font-serif mb-3">范文示例</h3>
+          <h3 class="text-sm text-ink/50 font-serif mb-3">仿写示例</h3>
           <div class="vintage-text text-lg whitespace-pre-line leading-loose">
             {{ template.example }}
           </div>
