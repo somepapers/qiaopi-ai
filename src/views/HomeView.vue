@@ -3,7 +3,7 @@ import { featured } from '@/assets/exhibition/featured'
 import { onMounted } from 'vue'
 import { publishedRecords } from '@/utils/practice'
 
-const latest = publishedRecords[0]
+const journeyCover = publishedRecords.find(record => record.photos.length)
 import { useVisitCount } from '@/composables/useVisitCount'
 
 const { visitCount, recordVisit } = useVisitCount()
@@ -56,14 +56,15 @@ onMounted(async () => {
         </figcaption>
       </figure>
     </section>
-    <section v-if="latest" class="border-b border-ink/15 py-8">
-      <h2 class="mb-4 text-sm font-semibold tracking-widest text-red-seal">最新实践记录</h2>
-      <RouterLink :to="{ name: 'practice-detail', params: { slug: latest.slug } }"
+    <section v-if="journeyCover" class="border-b border-ink/15 py-8">
+      <h2 class="mb-4 text-sm font-semibold tracking-widest text-[#873e30]">实践足迹 · 我们的寻侨之旅</h2>
+      <RouterLink to="/practice"
         class="group grid items-center gap-5 md:grid-cols-[1fr_2fr]">
-        <img :src="latest.photos[0].src" :alt="latest.photos[0].alt" class="h-auto w-full" />
+        <img v-if="journeyCover.photos[0]" :src="journeyCover.photos[0].src" :alt="journeyCover.photos[0].alt" loading="lazy" class="h-auto w-full" />
         <div>
-          <h3 class="text-2xl font-bold group-hover:text-red-seal">{{ latest.title }}</h3>
-          <p class="mt-3 leading-loose text-ink-light">{{ latest.summary }}</p>
+          <h3 class="text-2xl font-bold group-hover:text-[#873e30]">循着一纸侨批，走进百年侨乡</h3>
+          <p class="mt-3 leading-loose text-ink-light">从福建省档案馆出发，走过泉州、漳州与云霄，再将沿途故事带回福州，写进数字作品。</p>
+          <span class="mt-3 inline-flex min-h-11 items-center text-[#873e30] underline underline-offset-4">展开六站实践足迹</span>
         </div>
       </RouterLink>
     </section>

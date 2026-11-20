@@ -26,7 +26,8 @@ export default defineConfig({
   define: {
     __PRACTICE_RECORDS__: JSON.stringify(records
       .filter(record => record.status === 'published')
-      .sort((a, b) => b.date.localeCompare(a.date))),
+      .sort((a, b) => (a.order ?? Infinity) - (b.order ?? Infinity)
+        || (a.date ?? '').localeCompare(b.date ?? ''))),
     __APP_VERSION__: JSON.stringify(buildVersion),
   },
   resolve: {
