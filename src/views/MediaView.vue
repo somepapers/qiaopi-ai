@@ -2,13 +2,13 @@
 import { mediaItems } from '@/data/media'
 
 const sections = [
-  { kind: 'article', label: '图文报道' },
   { kind: 'video', label: '团队影像' },
+  { kind: 'article', label: '图文报道' },
 ].map(section => ({
   ...section,
   items: mediaItems
     .filter(item => item.kind === section.kind)
-    .sort((a, b) => b.date.localeCompare(a.date)),
+    .sort((a, b) => (b.date ?? '').localeCompare(a.date ?? '')),
 }))
 
 const dateFormat = new Intl.DateTimeFormat('zh-CN', {
@@ -23,9 +23,11 @@ const dateFormat = new Intl.DateTimeFormat('zh-CN', {
       <h2 :id="section.kind" class="mb-1 border-l-2 border-red-seal pl-3 text-xl font-semibold">{{ section.label }}</h2>
       <article v-for="item in section.items" :key="item.title"
         class="grid gap-2 border-b border-ink/15 py-6 md:grid-cols-[9rem_1fr] md:gap-6">
-        <time :datetime="item.date" class="pt-1 text-sm text-ink-light">
-          {{ dateFormat.format(new Date(item.date)) }}
-        </time>
+        <div class="pt-1 text-sm text-ink-light">
+          <time v-if="item.date" :datetime="item.date">
+            {{ dateFormat.format(new Date(item.date)) }}
+          </time>
+        </div>
         <div class="min-w-0">
           <h3 class="text-xl font-semibold leading-relaxed md:text-2xl">{{ item.title }}</h3>
           <p class="mt-2 leading-loose text-ink-light">{{ item.summary }}</p>
