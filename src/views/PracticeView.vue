@@ -43,7 +43,7 @@ const creations = [
         <div class="route-title"><span>寻访路线</span><small>沿着足迹，读懂侨批</small></div>
         <ol>
           <li v-for="(record, index) in publishedRecords" :key="record.slug">
-            <a :href="`#${record.slug}`"><span class="route-city">{{ record.city || record.location }}<small>{{ stops[index] || '寻访' }}</small></span><span class="route-place">{{ record.station || record.title }}</span></a>
+            <a :href="`#${record.slug}`"><span class="route-city"><span>{{ record.city || record.location }}</span><small>{{ stops[index] || '寻访' }}</small></span><span class="route-place">{{ record.station || record.title }}</span></a>
           </li>
         </ol>
       </nav>
@@ -109,8 +109,9 @@ const creations = [
 .route-strip li { border-left: 2px solid #873e3030; }
 .route-strip a { display: block; min-height: 90px; padding: .5rem .65rem; transition: background .2s; }
 .route-strip a:hover { background: #873e300a; }
-.route-city { display: flex; align-items: center; gap: .6rem; font-size: 1.25rem; font-weight: 600; }
-.route-city small { font-size: .875rem; font-weight: 400; color: var(--accent); }
+.route-city { display: flex; flex-wrap: wrap; align-items: center; gap: .3rem .6rem; font-size: 1.25rem; font-weight: 600; }
+.route-city > span { white-space: nowrap; }
+.route-city small { font-size: .875rem; font-weight: 400; color: var(--accent); white-space: nowrap; }
 .route-place { display: block; font-size: .875rem; color: var(--muted); margin-top: .5rem; line-height: 1.6; }
 .field-notes { padding-top: 4.5rem; }
 .section-heading { display: flex; justify-content: space-between; align-items: end; gap: 1rem; margin-bottom: 2rem; }
