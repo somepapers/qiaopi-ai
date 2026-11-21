@@ -48,6 +48,7 @@ export type SectionType =
   | 'date'
 
 export interface LetterInput {
+  locale?: 'zh-CN' | 'en'
   plainSpeech: string
   recipient: string
   relationship: Relationship

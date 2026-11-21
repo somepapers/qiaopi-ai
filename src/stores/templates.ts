@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
+import { t as translate } from '@/i18n'
 import type { LetterTemplate, Scenario, Relationship } from '@/types/letter'
 
 export const useTemplateStore = defineStore('templates', () => {
@@ -31,13 +32,10 @@ export const useTemplateStore = defineStore('templates', () => {
     }
 
     if (searchQuery.value.trim()) {
-      const q = searchQuery.value.toLowerCase()
-      result = result.filter(
-        (t) =>
-          t.title.includes(q) ||
-          t.description.includes(q) ||
-          t.tags.some((tag) => tag.includes(q)) ||
-          t.example.includes(q)
+      const q = searchQuery.value.trim().toLowerCase()
+      result = result.filter(letter =>
+        [letter.title, letter.description, ...letter.tags, letter.example]
+          .some(text => translate(text).toLowerCase().includes(q))
       )
     }
 

@@ -1,5 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
 import { lunar } from 'lunar-ts'
+import { englishLetterMessages } from '../server/prompts/english-letter.js'
 
 export const config = {
   runtime: 'nodejs',
@@ -191,8 +192,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return
     }
 
-    const systemPrompt = buildSystemPrompt(input)
-    const userMessage = buildUserMessage(input)
+    const messages = input.locale === 'en' ? englishLetterMessages(input) : [
+      { role: 'system', content: buildSystemPrompt(input) },
+      { role: 'user', content: buildUserMessage(input) },
+    ]
     const selectedModel = model || 'deepseek-v3.2'
 
     console.log(`🖋️ 生成侨批 → 收信人: ${input.recipient}, 模型: ${selectedModel}`)
@@ -205,10 +208,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       },
       body: JSON.stringify({
         model: selectedModel,
-        messages: [
-          { role: 'system', content: systemPrompt },
-          { role: 'user', content: userMessage },
-        ],
+        messages,
         temperature: 0.5,
         max_tokens: 4096,
         stream: true,

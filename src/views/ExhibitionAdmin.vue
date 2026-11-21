@@ -1,5 +1,7 @@
 <script setup lang="ts">
-import { onMounted, onBeforeUnmount, ref, reactive } from 'vue'
+import { t } from '@/i18n'
+import { computed, onMounted, onBeforeUnmount, ref, reactive } from 'vue'
+import { exhibitCaption } from '@/composables/useExhibitionCatalog'
 import { put } from '@vercel/blob/client'
 import type { Gallery, ExhibitionImage } from '@/types/exhibition'
 import GalleryManager from '@/components/exhibition/GalleryManager.vue'
@@ -8,11 +10,13 @@ const session = ref<'checking' | 'login' | 'open' | 'unavailable'>('checking')
 const password = ref('')
 const error = ref('')
 const status = ref('')
+const uploadPercent = ref(0)
 const busy = ref(false)
 const managing = ref(false)
 const manageGallery = ref<Gallery>('qiaopi')
 const refreshList = ref(0)
-const form = reactive({ gallery: 'qiaopi' as Gallery, title: '', credit: '', desc: '' })
+const form = reactive({ gallery: 'qiaopi' as Gallery, title: '', credit: '', desc: '', titleEn: '', creditEn: '', descEn: '' })
+const previewCaption = computed(() => exhibitCaption(form))
 const chosen = ref<File>()
 const preview = ref('')
 const uploadId = ref('')
@@ -73,6 +77,7 @@ function clearFile() {
 function reset() {
   clearFile()
   form.title = form.credit = form.desc = ''
+  form.titleEn = form.creditEn = form.descEn = ''
   published.value = undefined
   error.value = status.value = ''
   if (picker.value) picker.value.value = ''
@@ -117,7 +122,10 @@ async function publish() {
           await put(auth.pathname, file, {
             token: auth.token, access: 'public', contentType: file.type, abortSignal: controller.signal,
             onUploadProgress: progress => {
-              if (uploading) status.value = '正在上传原图 · ' + Math.round(progress.percentage) + '%'
+              if (uploading) {
+                uploadPercent.value = Math.round(progress.percentage)
+                status.value = '正在上传原图 · {percent}%'
+              }
             },
           })
         } catch {
@@ -139,48 +147,54 @@ onBeforeUnmount(() => { controller.abort(); clearFile() })
 
 <template>
   <div class="studio">
-    <RouterLink class="back" to="/exhibition">← 返回展览馆</RouterLink>
-    <header><small>寻侨迹，传侨魂 · 布展工作台</small><h1>团队展品管理</h1><p>为两个展厅发布作品、调整展示顺序，或恢复已撤下的展品。</p></header>
-    <p v-if="error" class="error" role="alert">{{ error }}</p>
-    <p v-if="session === 'checking'" role="status">正在检查管理会话…</p>
-    <button v-else-if="session === 'unavailable'" class="secondary" @click="checkSession">重新连接后台</button>
+    <RouterLink class="back" to="/exhibition">{{ t('← 返回展览馆') }}</RouterLink>
+    <header><small>{{ t('寻侨迹，传侨魂 · 布展工作台') }}</small><h1>{{ t('团队展品管理') }}</h1><p>{{ t('为两个展厅发布作品、调整展示顺序，或恢复已撤下的展品。') }}</p></header>
+    <p v-if="error" class="error" role="alert">{{ t(error) }}</p>
+    <p v-if="session === 'checking'" role="status">{{ t('正在检查管理会话…') }}</p>
+    <button v-else-if="session === 'unavailable'" class="secondary" @click="checkSession">{{ t('重新连接后台') }}</button>
     <form v-else-if="session === 'login'" class="panel login" @submit.prevent="login">
-      <h2>团队登录</h2>
-      <label>共用管理口令<input v-model="password" required type="password" autocomplete="current-password" /></label>
-      <button class="primary" :disabled="busy">{{ busy ? '正在登录…' : '进入布展工作台' }}</button>
+      <h2>{{ t('团队登录') }}</h2>
+      <label>{{ t('共用管理口令') }}<input v-model="password" required type="password" autocomplete="current-password" /></label>
+      <button class="primary" :disabled="busy">{{ t(busy ? '正在登录…' : '进入布展工作台') }}</button>
     </form>
     <template v-else>
-      <div class="bar"><span>团队管理会话已开启</span><button :disabled="busy || managing" @click="logout">退出登录</button></div>
+      <div class="bar"><span>{{ t('团队管理会话已开启') }}</span><button :disabled="busy || managing" @click="logout">{{ t('退出登录') }}</button></div>
       <section v-if="published" class="panel success" role="status">
-        <small>发布完成</small><h2>《{{ published.title }}》已上架</h2>
-        <p>访客现在可以在{{ published.gallery === 'ip' ? '团队 IP 设计' : '侨批文化展示' }}展区看到这件作品。</p>
+        <small>{{ t('发布完成') }}</small><h2>{{ t('《{title}》已上架', { title: exhibitCaption(published).title }) }}</h2>
+        <p>{{ t('访客现在可以在{gallery}展区看到这件作品。', { gallery: t(published.gallery === 'ip' ? '团队 IP 设计' : '侨批文化展示') }) }}</p>
         <div class="actions">
-          <RouterLink class="primary" :to="{ path: '/exhibition', query: { tab: published.gallery, work: published.id } }">查看展品 ↗</RouterLink>
-          <button class="secondary" @click="reset">继续添加作品</button>
+          <RouterLink class="primary" :to="{ path: '/exhibition', query: { tab: published.gallery, work: published.id } }">{{ t('查看展品 ↗') }}</RouterLink>
+          <button class="secondary" @click="reset">{{ t('继续添加作品') }}</button>
         </div>
       </section>
       <form v-else class="panel" @submit.prevent="publish">
         <fieldset :disabled="busy || managing">
-          <legend>新展品</legend>
+          <legend>{{ t('新展品') }}</legend>
           <div class="fields">
             <div>
-              <label for="exhibition-gallery">展区</label>
-              <select id="exhibition-gallery" v-model="form.gallery"><option value="qiaopi">侨批文化展示</option><option value="ip">团队 IP 设计</option></select>
-              <label>展品图片<input ref="picker" type="file" required accept="image/jpeg,image/png,image/webp" @change="pick" /></label>
-              <p class="hint">JPG、PNG 或 WebP · 单张不超过 20 MB</p>
-              <label>作品标题<input v-model.trim="form.title" required maxlength="80" /></label>
-              <label>{{ form.gallery === 'ip' ? '设计署名' : '影像来源' }}<input v-model.trim="form.credit" required maxlength="120" /></label>
-              <label>展签说明（选填）<textarea v-model.trim="form.desc" maxlength="600" rows="3"></textarea></label>
+              <label for="exhibition-gallery">{{ t('展区') }}</label>
+              <select id="exhibition-gallery" v-model="form.gallery"><option value="qiaopi">{{ t('侨批文化展示') }}</option><option value="ip">{{ t('团队 IP 设计') }}</option></select>
+              <label>{{ t('展品图片') }}<input ref="picker" type="file" required accept="image/jpeg,image/png,image/webp" @change="pick" /></label>
+              <p class="hint">{{ t('JPG、PNG 或 WebP · 单张不超过 20 MB') }}</p>
+              <label>{{ t('作品标题') }}<input v-model.trim="form.title" required maxlength="80" /></label>
+              <label>{{ t(form.gallery === 'ip' ? '设计署名' : '影像来源') }}<input v-model.trim="form.credit" required maxlength="120" /></label>
+              <label>{{ t('展签说明（选填）') }}<textarea v-model.trim="form.desc" maxlength="600" rows="3"></textarea></label>
+              <details>
+                <summary>{{ t('英文展签（选填）') }}</summary>
+                <label>{{ t('英文标题') }}<input v-model.trim="form.titleEn" lang="en" maxlength="160" /></label>
+                <label>{{ t('英文来源或署名') }}<input v-model.trim="form.creditEn" lang="en" maxlength="240" /></label>
+                <label>{{ t('英文说明') }}<textarea v-model.trim="form.descEn" lang="en" maxlength="1800" rows="3"></textarea></label>
+              </details>
             </div>
             <div class="preview">
-              <small>发布预览</small>
-              <div class="mat"><img v-if="preview" :src="preview" alt="所选展品的图片预览" @error="badPreview" /><span v-else>选图后可在此预览</span></div>
-              <h2>{{ form.title || '作品标题' }}</h2><p>{{ form.credit || '来源或设计署名' }}</p><p>{{ form.desc }}</p>
+              <small>{{ t('发布预览') }}</small>
+              <div class="mat"><img v-if="preview" :src="preview" :alt="t('所选展品的图片预览')" @error="badPreview" /><span v-else>{{ t('选图后可在此预览') }}</span></div>
+              <h2>{{ previewCaption.title || t('作品标题') }}</h2><p>{{ previewCaption.credit || t('来源或设计署名') }}</p><p>{{ previewCaption.desc }}</p>
             </div>
           </div>
-          <button class="primary" :disabled="!chosen || busy">{{ busy ? '正在发布…' : '发布到展览馆' }}</button>
+          <button class="primary" :disabled="!chosen || busy">{{ t(busy ? '正在发布…' : '发布到展览馆') }}</button>
         </fieldset>
-        <p v-if="status" role="status" class="hint">{{ status }}</p>
+        <p v-if="status" role="status" class="hint">{{ t(status, { percent: uploadPercent }) }}</p>
       </form>
       <GalleryManager v-model="manageGallery" :refresh="refreshList" :disabled="busy" :request="request"
         @saving="managing = $event" @trashed="id => { if (published?.id === id) reset() }" />

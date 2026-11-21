@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { t } from '@/i18n'
 import { featured } from '@/assets/exhibition/featured'
 
 defineProps<{ src: string }>()
@@ -9,22 +10,22 @@ const enlarged = { left: percent(-left / fraction), top: percent(-top / fraction
 </script>
 
 <template>
-  <section aria-label="展品精读" class="reading">
+  <section :aria-label="t('展品精读')" class="reading">
     <figure>
-      <figcaption>档案原件 · 全图</figcaption>
+      <figcaption>{{ t('档案原件 · 全图') }}</figcaption>
       <div class="relative">
-        <img :src="src" :alt="featured.title" class="block aspect-[4/3] w-full" />
+        <img :src="src" :alt="t(featured.title)" class="block aspect-[4/3] w-full" />
         <span aria-hidden="true" class="marker" :style="marker"></span>
       </div>
     </figure>
     <div>
       <figure>
-        <figcaption>局部放大 · {{ featured.location }}</figcaption>
+        <figcaption>{{ t('局部放大 ·') }} {{ t(featured.location) }}</figcaption>
         <div class="relative aspect-[4/3] overflow-hidden">
-          <img :src="src" alt="原图白框内的红线转角、黑色笔画与纸面缺口" class="absolute max-w-none" :style="enlarged" />
+          <img :src="src" :alt="t('原图白框内的红线转角、黑色笔画与纸面缺口')" class="absolute max-w-none" :style="enlarged" />
         </div>
       </figure>
-      <p class="mt-3 leading-relaxed">{{ featured.reading }}</p>
+      <p class="mt-3 leading-relaxed">{{ t(featured.reading) }}</p>
     </div>
   </section>
 </template>

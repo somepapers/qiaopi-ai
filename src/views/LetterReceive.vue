@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { t } from '@/i18n'
 import { ref, computed, onMounted } from 'vue'
 import { readSharedFromHash, type SharePayload } from '@/utils/share'
 import { buildEnvelopeText } from '@/utils/envelope'
@@ -11,7 +12,7 @@ const phase = ref<Phase>('loading')
 const payload = ref<SharePayload | null>(null)
 
 const env = computed(() => buildEnvelopeText(payload.value))
-const fromLabel = computed(() => payload.value?.fromLocation?.trim() || '远方')
+const fromLabel = computed(() => t(payload.value?.fromLocation?.trim() || '远方'))
 
 onMounted(() => {
   const p = readSharedFromHash()
@@ -35,9 +36,9 @@ function openLetter() {
   <div class="rc-root">
     <!-- 找不到内容 -->
     <div v-if="phase === 'missing'" class="rc-missing">
-      <p class="rc-missing-title">这 封 侨 批 没 有 找 到</p>
-      <p class="rc-missing-sub">链接可能不完整，或已失效。每一封侨批只随链接而存，别处寻不见。</p>
-      <router-link to="/write" class="ink-button mt-2">我 来 写 一 封</router-link>
+      <p class="rc-missing-title">{{ t('这 封 侨 批 没 有 找 到') }}</p>
+      <p class="rc-missing-sub">{{ t('链接可能不完整，或已失效。每一封侨批只随链接而存，别处寻不见。') }}</p>
+      <router-link to="/write" class="ink-button mt-2">{{ t('我 来 写 一 封') }}</router-link>
     </div>
 
     <!-- 封着 / 拆封中 -->
@@ -69,17 +70,17 @@ function openLetter() {
       </div>
 
       <p class="rc-hint" :class="{ 'rc-hint-hidden': phase === 'opening' }">
-        轻 触 · 拆 开 这 封 侨 批
+        {{ t('轻 触 · 拆 开 这 封 侨 批') }}
       </p>
     </div>
 
     <!-- 阅读 -->
     <div v-else-if="phase === 'reading'" class="rc-reading">
-      <p class="rc-from">{{ fromLabel }}　寄 来 一 封 侨 批</p>
-      <LetterArtifact :content="payload!.content" />
+      <p class="rc-from">{{ t('{place}　寄 来 一 封 侨 批', { place: fromLabel }) }}</p>
+      <LetterArtifact :content="payload!.content" :language="payload!.locale" />
       <div class="rc-cta">
-        <p class="rc-sign">— 侨批AI代书人 代 书 —</p>
-        <router-link to="/write" class="ink-button">我 也 写 一 封</router-link>
+        <p class="rc-sign">{{ t('— 侨批AI代书人 代 书 —') }}</p>
+        <router-link to="/write" class="ink-button">{{ t('我 也 写 一 封') }}</router-link>
       </div>
     </div>
   </div>

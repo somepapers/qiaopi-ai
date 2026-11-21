@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { t } from '@/i18n'
 import { useLetterStore } from '@/stores/letter'
 import { computed } from 'vue'
 
@@ -32,8 +33,8 @@ const formattedContent = computed(() => {
       class="flex flex-col items-center justify-center py-12"
     >
       <div class="text-4xl animate-bounce mb-4">🖋️</div>
-      <p class="text-ink/50 font-serif">AI代书先生正在研墨挥毫...</p>
-      <p class="text-xs text-ink/30 font-serif mt-1">请稍候，精雕细琢需要一点时间</p>
+      <p class="text-ink/50 font-serif">{{ t('AI代书先生正在研墨挥毫...') }}</p>
+      <p class="text-xs text-ink/30 font-serif mt-1">{{ t('请稍候，精雕细琢需要一点时间') }}</p>
     </div>
 
     <!-- Error state -->
@@ -42,9 +43,9 @@ const formattedContent = computed(() => {
       class="flex flex-col items-center justify-center py-12"
     >
       <div class="text-4xl mb-4">😔</div>
-      <p class="text-red-seal font-serif">{{ store.error }}</p>
+      <p class="text-red-seal font-serif">{{ t(store.error) }}</p>
       <button class="btn-secondary mt-4" @click="store.generatedContent = null">
-        重试
+        {{ t('重试') }}
       </button>
     </div>
   </div>

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { locale, t } from '@/i18n'
 import { featured } from '@/assets/exhibition/featured'
 import { useFeaturedExhibit } from '@/composables/useExhibitionCatalog'
 import { onMounted } from 'vue'
@@ -31,46 +32,46 @@ onMounted(async () => {
   <div class="max-w-5xl mx-auto">
     <section aria-labelledby="team-title" class="hero border-b border-ink/15">
       <div>
-        <p class="mb-2 font-semibold tracking-widest text-[#873e30] lg:mb-4">闽江大学 · 社会实践团队</p>
-        <h1 id="team-title" class="text-[clamp(2.1rem,4.2vw,3.6rem)] font-bold leading-tight text-ink">寻侨迹，传侨魂</h1>
+        <p class="mb-2 font-semibold tracking-widest text-[#873e30] lg:mb-4">{{ t('闽江大学 · 社会实践团队') }}</p>
+        <h1 id="team-title" class="text-[clamp(2.1rem,4.2vw,3.6rem)] font-bold leading-tight text-ink">{{ t('寻侨迹，传侨魂') }}</h1>
         <p class="mt-3 max-w-lg text-base leading-relaxed text-ink-light lg:mt-6 lg:text-xl lg:leading-loose">
-          一封侨批，既是海外亲人寄回的汇款凭证，也是写给家里人的信。
+          {{ t('一封侨批，既是海外亲人寄回的汇款凭证，也是写给家里人的信。') }}
         </p>
         <h2 class="mt-5 border-t border-ink/15 pt-4 text-xl font-bold text-ink lg:mt-7 lg:pt-6 lg:text-2xl">
-          <span class="text-sm font-semibold text-[#873e30] lg:text-base">团队重点成果 · </span>侨批 AI 代书人
+          <span class="text-sm font-semibold text-[#873e30] lg:text-base">{{ t('团队重点成果 ·') }} </span>{{ t('侨批 AI 代书人') }}
         </h2>
         <p class="mt-2 max-w-lg leading-relaxed text-ink-light lg:text-lg">
-          写下你想对家人说的话，AI 会帮你整理成一封侨批格式的家书。
+          {{ t('写下你想对家人说的话，AI 会帮你整理成一封侨批格式的家书。') }}
         </p>
-        <RouterLink to="/write" class="ink-button primary-action mt-4 min-h-11">用 AI 写家书</RouterLink>
+        <RouterLink to="/write" class="ink-button primary-action mt-4 min-h-11">{{ t('用 AI 写家书') }}</RouterLink>
       </div>
       <figure v-if="showFeatured" class="border border-ink/15 bg-[#fffaf1] p-3 shadow-sm lg:p-4">
-        <RouterLink :to="featured.to" :aria-label="'读这件侨批 · ' + featured.title" class="block">
-          <img :src="featured.photo" alt="木桌上的侨批，纸面上有红色长框和墨字" width="1920" height="1440" fetchpriority="high" class="w-full h-auto" />
+        <RouterLink :to="featured.to" :aria-label="t('读这件侨批 · ') + t(featured.title)" class="block">
+          <img :src="featured.photo" :alt="t('木桌上的侨批，纸面上有红色长框和墨字')" width="1920" height="1440" fetchpriority="high" class="w-full h-auto" />
         </RouterLink>
         <figcaption class="mt-3">
           <div class="flex flex-wrap items-baseline justify-between gap-x-2">
-            <strong class="text-base lg:text-xl">{{ featured.title }}</strong>
-            <span class="text-sm text-ink-light">{{ featured.credit }}</span>
+            <strong class="text-base lg:text-xl">{{ t(featured.title) }}</strong>
+            <span class="text-sm text-ink-light">{{ t(featured.credit) }}</span>
           </div>
-          <p class="mt-1 text-base leading-relaxed text-ink-light">{{ featured.guide }}</p>
-          <RouterLink :to="featured.to" class="inline-flex min-h-11 items-center text-[#873e30] underline underline-offset-4">读这件侨批</RouterLink>
+          <p class="mt-1 text-base leading-relaxed text-ink-light">{{ t(featured.guide) }}</p>
+          <RouterLink :to="featured.to" class="inline-flex min-h-11 items-center text-[#873e30] underline underline-offset-4">{{ t('读这件侨批') }}</RouterLink>
         </figcaption>
       </figure>
     </section>
     <section v-if="journeyCover" class="border-b border-ink/15 py-8">
-      <h2 class="mb-4 text-sm font-semibold tracking-widest text-[#873e30]">实践足迹 · 我们的寻侨之旅</h2>
+      <h2 class="mb-4 text-sm font-semibold tracking-widest text-[#873e30]">{{ t('实践足迹 · 我们的寻侨之旅') }}</h2>
       <RouterLink to="/practice"
         class="group grid items-center gap-5 md:grid-cols-[1fr_2fr]">
-        <img v-if="journeyCover.photos[0]" :src="journeyCover.photos[0].src" :alt="journeyCover.photos[0].alt" loading="lazy" class="h-auto w-full" />
+        <img v-if="journeyCover.photos[0]" :src="journeyCover.photos[0].src" :alt="t(journeyCover.photos[0].alt)" loading="lazy" class="h-auto w-full" />
         <div>
-          <h3 class="text-2xl font-bold group-hover:text-[#873e30]">循着一纸侨批，走进百年侨乡</h3>
-          <p class="mt-3 leading-loose text-ink-light">从福建省档案馆出发，走过泉州、漳州与云霄，再将沿途故事带回福州，写进数字作品。</p>
-          <span class="mt-3 inline-flex min-h-11 items-center text-[#873e30] underline underline-offset-4">展开六站实践足迹</span>
+          <h3 class="text-2xl font-bold group-hover:text-[#873e30]">{{ t('循着一纸侨批，走进百年侨乡') }}</h3>
+          <p class="mt-3 leading-loose text-ink-light">{{ t('从福建省档案馆出发，走过泉州、漳州与云霄，再将沿途故事带回福州，写进数字作品。') }}</p>
+          <span class="mt-3 inline-flex min-h-11 items-center text-[#873e30] underline underline-offset-4">{{ t('展开六站实践足迹') }}</span>
         </div>
       </RouterLink>
     </section>
-    <p v-if="visitCount !== null" class="mt-4 text-right font-serif text-xs text-ink-light">网站已使用 {{ visitCount.toLocaleString() }} 次</p>
+    <p v-if="visitCount !== null" class="mt-4 text-right font-serif text-xs text-ink-light">{{ t('网站已使用 {count} 次', { count: visitCount.toLocaleString(locale) }) }}</p>
 
   </div>
 </template>

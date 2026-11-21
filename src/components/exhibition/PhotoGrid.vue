@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { t } from '@/i18n'
 import { reactive } from 'vue'
 import type { ExhibitionImage } from '@/types/exhibition'
 
@@ -17,22 +18,22 @@ function retry(id: string) {
 <template>
   <div class="cards" :class="{ designs: design }">
     <article v-for="(image, index) in images" :key="image.id">
-      <button class="work" type="button" :aria-label="'放大查看 · ' + image.title" @click="emit('open', image.id)">
+      <button class="work" type="button" :aria-label="t('放大查看 · ') + image.title" @click="emit('open', image.id)">
         <span class="mount">
           <span v-if="!loaded.has(image.id) && !failed.has(image.id)" class="absolute inset-0 skeleton-shimmer"></span>
           <img v-if="!failed.has(image.id)" :key="attempts[image.id] ?? 0" :src="image.thumb" :alt="image.title"
             :loading="index === 0 ? 'eager' : 'lazy'" :fetchpriority="index === 0 ? 'high' : 'auto'" decoding="async"
             @load="loaded.add(image.id)" @error="failed.add(image.id)" />
-          <span v-else class="text-sm text-ink/60">预览图暂时不可用</span>
+          <span v-else class="text-sm text-ink/60">{{ t('预览图暂时不可用') }}</span>
         </span>
         <span class="caption">
-          <span class="number">{{ design ? '设计作品' : '馆藏影像' }} · {{ String(index + 1).padStart(2, '0') }}</span>
+          <span class="number">{{ t(design ? '设计作品' : '馆藏影像') }} · {{ String(index + 1).padStart(2, '0') }}</span>
           <strong>{{ image.title }}</strong>
-          <span v-if="image.credit" class="credit">{{ design ? '署名' : '来源' }} · {{ image.credit }}</span>
+          <span v-if="image.credit" class="credit">{{ t(design ? '署名' : '来源') }} · {{ image.credit }}</span>
           <span v-if="image.desc" class="description">{{ image.desc }}</span>
         </span>
       </button>
-      <button v-if="failed.has(image.id)" class="retry" @click="retry(image.id)">重新加载预览图</button>
+      <button v-if="failed.has(image.id)" class="retry" @click="retry(image.id)">{{ t('重新加载预览图') }}</button>
     </article>
   </div>
 </template>

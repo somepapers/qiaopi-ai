@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { t } from '@/i18n'
 import { computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useExhibitionCatalog } from '@/composables/useExhibitionCatalog'
@@ -28,32 +29,32 @@ function move(direction: number) {
 <template>
   <div class="museum">
     <header class="mast">
-      <div class="eyebrow"><span class="rule"></span> 寻侨迹，传侨魂 · 数字展厅</div>
-      <h1>侨批展览馆</h1>
-      <p>从一封远渡重洋的家书，到一方当代印记。</p>
-      <span class="stamp" aria-hidden="true">侨批<br>展馆</span>
+      <div class="eyebrow"><span class="rule"></span> {{ t('寻侨迹，传侨魂 · 数字展厅') }}</div>
+      <h1>{{ t('侨批展览馆') }}</h1>
+      <p>{{ t('从一封远渡重洋的家书，到一方当代印记。') }}</p>
+      <span class="stamp" aria-hidden="true">{{ t('侨批') }}<br>{{ t('展馆') }}</span>
     </header>
-    <nav aria-label="展区" class="halls">
+    <nav :aria-label="t('展区')" class="halls">
       <button v-for="tab in tabs" :key="tab.key" :aria-pressed="gallery === tab.key"
         @click="gallery !== tab.key && select(tab.key)">
-        <span>{{ tab.number }}</span>{{ tab.label }}
+        <span>{{ tab.number }}</span>{{ t(tab.label) }}
       </button>
     </nav>
-    <section :aria-label="isDesign ? '团队 IP 设计' : '侨批文化展示'">
+    <section :aria-label="t(isDesign ? '团队 IP 设计' : '侨批文化展示')">
       <header class="section-head">
-        <div class="eyebrow">{{ isDesign ? '第二展厅 · 设计作品' : '第一展厅 · 历史档案' }}</div>
-        <h2>{{ isDesign ? '团队 IP 设计' : '侨批文化展示' }}</h2>
-        <p>{{ isDesign ? '这里展出团队围绕侨批文化创作的 IP 作品。点开图片，细看设计与署名。' : '侨批将家书与汇款连在一起。点开影像，细看信封上的字迹与邮戳。' }}</p>
+        <div class="eyebrow">{{ t(isDesign ? '第二展厅 · 设计作品' : '第一展厅 · 历史档案') }}</div>
+        <h2>{{ t(isDesign ? '团队 IP 设计' : '侨批文化展示') }}</h2>
+        <p>{{ t(isDesign ? '这里展出团队围绕侨批文化创作的 IP 作品。点开图片，细看设计与署名。' : '侨批将家书与汇款连在一起。点开影像，细看信封上的字迹与邮戳。') }}</p>
       </header>
-      <p v-if="state === 'loading'" role="status" class="catalog-note">正在读取展品…</p>
-      <p v-else-if="state === 'error'" role="status" class="catalog-note">展品目录暂时不可用。<button @click="retry">重新读取</button></p>
+      <p v-if="state === 'loading'" role="status" class="catalog-note">{{ t('正在读取展品…') }}</p>
+      <p v-else-if="state === 'error'" role="status" class="catalog-note">{{ t('展品目录暂时不可用。') }}<button @click="retry">{{ t('重新读取') }}</button></p>
       <template v-else>
-        <p v-if="route.query.work && !current" role="status" class="catalog-note">该作品已下架或链接无效。</p>
+        <p v-if="route.query.work && !current" role="status" class="catalog-note">{{ t('该作品已下架或链接无效。') }}</p>
         <PhotoGrid v-if="items.length" :key="gallery" :images="items" :design="isDesign" @open="select(gallery, $event)" />
-        <p v-else class="catalog-note">这个展区暂无在展作品。</p>
+        <p v-else class="catalog-note">{{ t('这个展区暂无在展作品。') }}</p>
       </template>
     </section>
-    <footer class="museum-foot"><span>寻侨迹，传侨魂 · 社会实践团队</span></footer>
+    <footer class="museum-foot"><span>{{ t('寻侨迹，传侨魂 · 社会实践团队') }}</span></footer>
     <Lightbox v-if="current" :item="current" :index="index" :total="items.length" @move="move" @close="select(gallery)" />
   </div>
 </template>
@@ -114,6 +115,7 @@ function move(direction: number) {
   letter-spacing: .07em;
   padding: .25em .16em .2em .24em;
 }
+.stamp:lang(en) { font-size: clamp(.9rem, 2.2vw, 1.6rem); }
 .halls {
   display: flex;
   border-bottom: 1px solid #775d4236;

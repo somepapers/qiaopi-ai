@@ -65,6 +65,10 @@ const titleFontSize = computed(() => {
 </template>
 
 <style scoped>
+.qp-envelope:lang(en) .qp-v { writing-mode: horizontal-tb; white-space: normal; overflow-wrap: anywhere; font-family: Georgia, serif; letter-spacing: normal; }
+.qp-stripe:lang(en) { top: 32%; left: 0; right: 0; width: 100%; height: auto; min-height: 20%; padding: .75rem; align-items: center; text-align: center; }
+.qp-col-right:lang(en) { left: 1rem; right: 1rem; }
+.qp-col-left:lang(en) { left: 1rem; right: 1rem; bottom: 22%; flex-direction: column; }
 .qp-envelope {
   position: relative;
   width: 220px;

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { t } from '@/i18n'
 import { onMounted, computed } from 'vue'
 import { useTemplateStore } from '@/stores/templates'
 import { SCENARIO_METADATA, RELATIONSHIP_LABELS } from '@/utils/constants'
@@ -13,20 +14,20 @@ onMounted(() => {
 })
 
 const scenarioOptions = computed(() => [
-  { value: 'all' as const, label: '全部场景' },
+  { value: 'all' as const, label: t('全部场景') },
   ...Array.from(
     new Map(templateData.map((t) => [t.scenario, SCENARIO_METADATA[t.scenario]])).entries()
   ).map(([scenario, info]) => ({
     value: scenario,
-    label: `${info?.icon || ''} ${info?.label || scenario}`,
+    label: `${info?.icon || ''} ${t(info?.label || scenario)}`,
   })),
 ])
 
 const relationshipOptions = computed(() => [
-  { value: 'all' as const, label: '全部关系' },
+  { value: 'all' as const, label: t('全部关系') },
   ...Array.from(new Set(templateData.map((t) => t.relationship))).map((rel) => ({
     value: rel,
-    label: RELATIONSHIP_LABELS[rel] || rel,
+    label: t(RELATIONSHIP_LABELS[rel] || rel),
   })),
 ])
 </script>
@@ -34,17 +35,17 @@ const relationshipOptions = computed(() => [
 <template>
   <div class="max-w-5xl mx-auto py-8">
     <h1 class="text-2xl md:text-3xl font-serif font-bold text-ink text-center mb-2">
-      📜 侨批范文库
+      {{ t('📜 侨批范文库') }}
     </h1>
     <p class="text-center text-ink/50 font-serif mb-8">
-      按收信人和写信场景浏览仿写示例，选一篇来写自己的家书
+      {{ t('按收信人和写信场景浏览仿写示例，选一篇来写自己的家书') }}
     </p>
 
     <!-- Filters -->
     <div class="flex flex-col md:flex-row gap-4 mb-8">
       <!-- Scenario filter -->
       <div class="flex-1 space-y-2">
-        <label class="text-xs text-ink/50 font-serif">按场景筛选</label>
+        <label class="text-xs text-ink/50 font-serif">{{ t('按场景筛选') }}</label>
         <div class="flex flex-wrap gap-2">
           <button
             v-for="opt in scenarioOptions"
@@ -62,7 +63,7 @@ const relationshipOptions = computed(() => [
 
       <!-- Relationship filter -->
       <div class="md:w-48 space-y-2">
-        <label class="text-xs text-ink/50 font-serif">按关系筛选</label>
+        <label class="text-xs text-ink/50 font-serif">{{ t('按关系筛选') }}</label>
         <select
           :value="store.activeRelationship"
           @change="store.setRelationship(($event.target as HTMLSelectElement).value as Relationship | 'all')"
@@ -82,7 +83,7 @@ const relationshipOptions = computed(() => [
       <input
         v-model="store.searchQuery"
         type="text"
-        placeholder="搜索模板..."
+        :placeholder="t('搜索模板...')"
         class="w-full max-w-md px-4 py-2.5 rounded-lg border border-ink/20 bg-white/80 font-serif text-ink placeholder:text-ink/30 focus:outline-none focus:border-red-seal/50"
       />
     </div>
@@ -102,9 +103,9 @@ const relationshipOptions = computed(() => [
     <!-- Empty -->
     <div v-else class="text-center py-20">
       <div class="text-4xl mb-4">📭</div>
-      <p class="text-ink/50 font-serif">没有找到匹配的模板</p>
+      <p class="text-ink/50 font-serif">{{ t('没有找到匹配的模板') }}</p>
       <button class="btn-secondary mt-4" @click="store.setCategory('all'); store.setRelationship('all'); store.searchQuery = ''">
-        清除筛选
+        {{ t('清除筛选') }}
       </button>
     </div>
   </div>

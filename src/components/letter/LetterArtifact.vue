@@ -1,10 +1,12 @@
 <script setup lang="ts">
+import { t } from '@/i18n'
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useLetterStore } from '@/stores/letter'
 
-const props = defineProps<{ content?: string }>()
+const props = defineProps<{ content?: string, language?: 'zh-CN' | 'en' }>()
 const emit = defineEmits<{ stamped: [] }>()
 const store = useLetterStore()
+const language = computed(() => props.language ?? store.input?.locale ?? 'zh-CN')
 
 const revealed = ref(false)
 const timers: ReturnType<typeof setTimeout>[] = []
@@ -25,7 +27,7 @@ const paragraphs = computed(() => {
 // 二分找出"总列宽 ≤ 容器宽度"的最大字号。
 function computeFontSize() {
   const el = scrollEl.value
-  if (!el) return
+  if (!el || language.value === 'en') return
   const width = el.clientWidth
   if (!width) return
   const paraLens = paragraphs.value.map((p) => p.length)
@@ -90,21 +92,22 @@ onUnmounted(() => {
       <div class="qiaopi-paper relative rounded-sm px-6 py-8 md:px-12 md:py-12">
         <!-- 左上角水印 -->
         <div class="pointer-events-none absolute left-3 top-2 text-xs tracking-wider text-ink/75 select-none">
-          AI 生成家书
+          {{ t('AI 生成家书') }}
         </div>
 
         <!-- 竖排正文（direction:rtl 让初始滚动位置在最右侧 = 文章开头） -->
         <div ref="scrollEl" class="letter-scroll overflow-x-auto pb-2" style="direction: rtl">
           <article
-            class="letter-vertical vintage-text mx-auto"
-            :style="{ direction: 'ltr', maxHeight: '30rem', minHeight: '16rem', fontSize: fontSize + 'px' }"
+            dir="ltr" :lang="language" class="vintage-text mx-auto"
+            :class="language === 'en' ? 'english-letter' : 'letter-vertical'"
+            :style="language === 'en' ? undefined : { maxHeight: '30rem', minHeight: '16rem', fontSize: fontSize + 'px' }"
           >
             <p
               v-for="(p, i) in paragraphs"
               :key="i"
               class="ink-para whitespace-pre-wrap"
               :class="{ 'ink-revealed': revealed }"
-              :style="{ transitionDelay: revealed ? (0.2 + Math.min(i, 12) * 0.28) + 's' : '0s', marginInlineEnd: i > 0 ? '1.2em' : '0' }"
+              :style="{ transitionDelay: revealed ? (0.2 + Math.min(i, 12) * 0.28) + 's' : '0s', marginInlineEnd: i > 0 && language !== 'en' ? '1.2em' : '0' }"
               v-html="highlight(p)"
             ></p>
           </article>
@@ -116,6 +119,8 @@ onUnmounted(() => {
 </template>
 
 <style scoped>
+.english-letter { max-width: 64ch; font: 1.125rem/1.75 Georgia, serif; letter-spacing: normal; overflow-wrap: anywhere; }
+.english-letter p + p { margin-block-start: .9em; }
 /* 竖排滚动条样式：细且贴合纸色 */
 .letter-scroll::-webkit-scrollbar {
   height: 5px;

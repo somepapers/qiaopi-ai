@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { t } from '@/i18n'
 import { ref } from 'vue'
 import type { Photo } from '@/data/practice'
 defineProps<{ photo: Photo; priority?: boolean; contain?: boolean }>()
@@ -12,16 +13,16 @@ function showPhoto() {
 
 <template>
   <figure class="practice-photo" :class="{ contain }">
-    <button class="photo-trigger" type="button" :aria-label="`放大照片：${photo.alt}`" @click="showPhoto">
-      <img :src="photo.src" :alt="photo.alt" :loading="priority ? 'eager' : 'lazy'" :fetchpriority="priority ? 'high' : 'auto'" decoding="async" />
-      <span class="zoom-label" aria-hidden="true">查看大图 <span>＋</span></span>
+    <button class="photo-trigger" type="button" :aria-label="t('放大照片：{title}', { title: t(photo.alt) })" @click="showPhoto">
+      <img :src="photo.src" :alt="t(photo.alt)" :loading="priority ? 'eager' : 'lazy'" :fetchpriority="priority ? 'high' : 'auto'" decoding="async" />
+      <span class="zoom-label" aria-hidden="true">{{ t('查看大图') }} <span>＋</span></span>
     </button>
-    <figcaption>{{ photo.caption }}</figcaption>
-    <dialog ref="dialog" class="photo-dialog" aria-label="实践照片大图" @close="expanded = false" @click="($event.target === dialog) && dialog.close()">
+    <figcaption>{{ t(photo.caption) }}</figcaption>
+    <dialog ref="dialog" class="photo-dialog" :aria-label="t('实践照片大图')" @close="expanded = false" @click="($event.target === dialog) && dialog.close()">
       <div class="dialog-content">
-        <button type="button" class="close-photo" autofocus @click="dialog?.close()">关闭大图 <span aria-hidden="true">×</span></button>
-        <img v-if="expanded" :src="photo.src" :alt="photo.alt" />
-        <p>{{ photo.caption }}</p>
+        <button type="button" class="close-photo" autofocus @click="dialog?.close()">{{ t('关闭大图') }} <span aria-hidden="true">×</span></button>
+        <img v-if="expanded" :src="photo.src" :alt="t(photo.alt)" />
+        <p>{{ t(photo.caption) }}</p>
       </div>
     </dialog>
   </figure>

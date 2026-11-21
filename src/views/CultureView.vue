@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { t } from '@/i18n'
 import { ref } from 'vue'
 import { featured } from '@/assets/exhibition/featured'
 import { useFeaturedExhibit } from '@/composables/useExhibitionCatalog'
@@ -43,10 +44,10 @@ const honorificTerms = [
 <template>
   <div class="max-w-4xl mx-auto py-8">
     <h1 class="text-2xl md:text-3xl font-serif font-bold text-ink text-center mb-2">
-      🏛️ 侨批文化
+      {{ t('🏛️ 侨批文化') }}
     </h1>
     <p class="text-center text-ink/50 font-serif mb-8">
-      了解侨批的历史、格式和传统，感受百年家书的文化底蕴
+      {{ t('了解侨批的历史、格式和传统，感受百年家书的文化底蕴') }}
     </p>
 
     <!-- Tab Navigation -->
@@ -60,19 +61,19 @@ const honorificTerms = [
           ? 'bg-red-seal text-white'
           : 'bg-ink/5 text-ink/70 hover:bg-ink/10'"
       >
-        {{ tab.icon }} {{ tab.label }}
+        {{ tab.icon }} {{ t(tab.label) }}
       </button>
     </div>
 
     <!-- History Tab -->
     <section v-if="activeTab === 'history'" class="vintage-paper rounded-xl p-6 md:p-10">
-      <h2 class="text-xl font-serif font-bold text-ink mb-6 text-center">侨批历史时间线</h2>
+      <h2 class="text-xl font-serif font-bold text-ink mb-6 text-center">{{ t('侨批历史时间线') }}</h2>
       <div class="relative border-l-2 border-red-seal/20 pl-6 space-y-8 ml-4">
         <div v-for="item in timeline" :key="item.year" class="relative">
           <div class="absolute -left-[31px] w-4 h-4 rounded-full bg-red-seal border-2 border-[#faf6f0]"></div>
           <span class="text-xs font-serif text-red-seal font-semibold">{{ item.year }}</span>
-          <h3 class="text-base font-serif font-semibold text-ink mt-0.5">{{ item.event }}</h3>
-          <p class="text-sm text-ink/60 font-serif mt-1">{{ item.desc }}</p>
+          <h3 class="text-base font-serif font-semibold text-ink mt-0.5">{{ t(item.event) }}</h3>
+          <p class="text-sm text-ink/60 font-serif mt-1">{{ t(item.desc) }}</p>
         </div>
       </div>
     </section>
@@ -80,28 +81,28 @@ const honorificTerms = [
     <!-- Format Tab -->
     <section v-if="activeTab === 'format'" class="space-y-6">
       <div class="vintage-paper rounded-xl p-6 md:p-10">
-        <h2 class="text-xl font-serif font-bold text-ink mb-6 text-center">侨批格式图解 · 仿写示例</h2>
+        <h2 class="text-xl font-serif font-bold text-ink mb-6 text-center">{{ t('侨批格式图解 · 仿写示例') }}</h2>
         <div class="vintage-paper rounded-lg border border-ink/10 p-6 space-y-4 max-w-lg mx-auto">
           <div class="text-center">
-            <span class="text-xs text-ink/40 font-serif bg-red-seal/5 px-3 py-1 rounded-full">1. 称谓 + 提称语</span>
-            <p class="text-lg font-serif text-ink mt-1">双亲大人膝下：</p>
+            <span class="text-xs text-ink/40 font-serif bg-red-seal/5 px-3 py-1 rounded-full">{{ t('1. 称谓 + 提称语') }}</span>
+            <p class="text-lg font-serif text-ink mt-1">{{ t('双亲大人膝下：') }}</p>
           </div>
           <div class="text-center">
-            <span class="text-xs text-ink/40 font-serif bg-amber-50 px-3 py-1 rounded-full">2. 起首语</span>
-            <p class="text-lg font-serif text-ink mt-1">敬禀者，拜别以来，倏经数月，念念！</p>
+            <span class="text-xs text-ink/40 font-serif bg-amber-50 px-3 py-1 rounded-full">{{ t('2. 起首语') }}</span>
+            <p class="text-lg font-serif text-ink mt-1">{{ t('敬禀者，拜别以来，倏经数月，念念！') }}</p>
           </div>
           <div class="border-t border-ink/5 pt-4 space-y-2">
-            <span class="text-xs text-ink/40 font-serif bg-amber-50 px-3 py-1 rounded-full">3. 正文</span>
-            <p class="text-base font-serif text-ink/80">男在外一切安好，请勿挂念。<br><span class="text-red-seal">兹逢邮便，特寄回银壹佰元正</span>，到祈查收。<br>款到之后，祈为示复，以慰远怀。<br>近来天气渐凉，恳祈双亲大人加衣珍重。</p>
+            <span class="text-xs text-ink/40 font-serif bg-amber-50 px-3 py-1 rounded-full">{{ t('3. 正文') }}</span>
+            <p class="text-base font-serif text-ink/80">{{ t('男在外一切安好，请勿挂念。') }}<br><span class="text-red-seal">{{ t('兹逢邮便，特寄回银壹佰元正') }}</span>{{ t('，到祈查收。') }}<br>{{ t('款到之后，祈为示复，以慰远怀。') }}<br>{{ t('近来天气渐凉，恳祈双亲大人加衣珍重。') }}</p>
           </div>
           <div class="text-center border-t border-ink/5 pt-4">
-            <span class="text-xs text-ink/40 font-serif bg-amber-50 px-3 py-1 rounded-full">4-5. 结束语 + 祝颂语</span>
-            <p class="text-lg font-serif text-ink mt-1">专此奉禀，恭请福安。</p>
+            <span class="text-xs text-ink/40 font-serif bg-amber-50 px-3 py-1 rounded-full">{{ t('4-5. 结束语 + 祝颂语') }}</span>
+            <p class="text-lg font-serif text-ink mt-1">{{ t('专此奉禀，恭请福安。') }}</p>
           </div>
           <div class="text-right border-t border-ink/5 pt-4">
-            <span class="text-xs text-ink/40 font-serif bg-amber-50 px-3 py-1 rounded-full">6-7. 落款 + 日期</span>
-            <p class="text-lg font-serif text-ink mt-1">男 阿福 叩禀</p>
-            <p class="text-sm font-serif text-ink/50">乙巳年腊月初八</p>
+            <span class="text-xs text-ink/40 font-serif bg-amber-50 px-3 py-1 rounded-full">{{ t('6-7. 落款 + 日期') }}</span>
+            <p class="text-lg font-serif text-ink mt-1">{{ t('男 阿福 叩禀') }}</p>
+            <p class="text-sm font-serif text-ink/50">{{ t('乙巳年腊月初八') }}</p>
           </div>
         </div>
       </div>
@@ -110,17 +111,17 @@ const honorificTerms = [
     <!-- Terms Tab -->
     <section v-if="activeTab === 'terms'" class="space-y-4">
       <div class="vintage-paper rounded-xl p-6 md:p-10">
-        <h2 class="text-xl font-serif font-bold text-ink mb-6 text-center">常用敬语与礼节用词</h2>
+        <h2 class="text-xl font-serif font-bold text-ink mb-6 text-center">{{ t('常用敬语与礼节用词') }}</h2>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div
             v-for="item in honorificTerms"
             :key="item.term"
             class="vintage-paper rounded-lg p-4 border border-ink/5"
           >
-            <h3 class="text-lg font-serif font-bold text-red-seal">{{ item.term }}</h3>
-            <p class="text-xs text-ink/50 font-serif mt-1">{{ item.usage }}</p>
-            <p class="text-sm font-serif text-ink mt-2">{{ item.example }}</p>
-            <p class="text-xs text-ink/40 font-serif mt-1">💡 {{ item.note }}</p>
+            <h3 class="text-lg font-serif font-bold text-red-seal">{{ t(item.term) }}</h3>
+            <p class="text-xs text-ink/50 font-serif mt-1">{{ t(item.usage) }}</p>
+            <p class="text-sm font-serif text-ink mt-2">{{ t(item.example) }}</p>
+            <p class="text-xs text-ink/40 font-serif mt-1">💡 {{ t(item.note) }}</p>
           </div>
         </div>
       </div>
@@ -129,13 +130,13 @@ const honorificTerms = [
     <!-- Classic Tab -->
     <section v-if="activeTab === 'classic'" class="space-y-6">
       <article v-if="showFeatured" class="vintage-paper rounded-xl p-6 md:p-10">
-        <p class="mb-2 text-sm text-[#873e30]">档案原件 · {{ featured.credit }}</p>
-        <h2 class="mb-3 text-xl font-semibold">{{ featured.title }}</h2>
-        <p class="mb-4 leading-loose">{{ featured.guide }}</p>
-        <RouterLink :to="featured.to" class="inline-flex min-h-11 items-center text-[#873e30] underline underline-offset-4">对照原图与局部放大 →</RouterLink>
+        <p class="mb-2 text-sm text-[#873e30]">{{ t('档案原件 ·') }} {{ t(featured.credit) }}</p>
+        <h2 class="mb-3 text-xl font-semibold">{{ t(featured.title) }}</h2>
+        <p class="mb-4 leading-loose">{{ t(featured.guide) }}</p>
+        <RouterLink :to="featured.to" class="inline-flex min-h-11 items-center text-[#873e30] underline underline-offset-4">{{ t('对照原图与局部放大 →') }}</RouterLink>
       </article>
-      <p v-else-if="catalogState === 'error'" role="status">展品目录暂时不可用。<button class="underline" @click="retry">重新读取</button></p>
-      <p v-else role="status">{{ catalogState === 'loading' ? '正在读取展品…' : '暂无在展的赏析作品。' }}</p>
+      <p v-else-if="catalogState === 'error'" role="status">{{ t('展品目录暂时不可用。') }}<button class="underline" @click="retry">{{ t('重新读取') }}</button></p>
+      <p v-else role="status">{{ t(catalogState === 'loading' ? '正在读取展品…' : '暂无在展的赏析作品。') }}</p>
     </section>
   </div>
 </template>

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { t } from '@/i18n'
 import { computed, onMounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { publishedRecords } from '@/utils/practice'
@@ -15,29 +16,29 @@ watch(() => route.params.slug, () => window.scrollTo({ top: 0 }), { flush: 'post
 
 <template>
   <div class="practice-detail">
-    <RouterLink to="/practice" class="back-link">实践足迹 / 寻侨手记</RouterLink>
+    <RouterLink to="/practice" class="back-link">{{ t('实践足迹 / 寻侨手记') }}</RouterLink>
     <article v-if="record" :key="record.slug">
       <header>
-        <p class="detail-theme">{{ record.city }} · {{ record.theme || '实践记录' }}</p>
-        <h1>{{ record.title }}</h1>
-        <p class="detail-location"><time v-if="record.date" :datetime="record.date">{{ record.date }} · </time>{{ record.location }}</p>
+        <p class="detail-theme">{{ t(record.city) }} · {{ t(record.theme || '实践记录') }}</p>
+        <h1>{{ t(record.title) }}</h1>
+        <p class="detail-location"><time v-if="record.date" :datetime="record.date">{{ record.date }} · </time>{{ t(record.location) }}</p>
       </header>
-      <p class="detail-lead">{{ record.lead }}</p>
+      <p class="detail-lead">{{ t(record.lead) }}</p>
       <PracticePhoto v-if="record.photos[0]" :photo="record.photos[0]" priority :contain="record.slug === 'fuzhou-digital-creation'" />
-      <div class="detail-prose"><p v-for="(paragraph, i) in record.paragraphs" :key="i">{{ paragraph }}</p></div>
-      <section v-if="record.photos.length > 1" class="detail-gallery" aria-label="现场与成果影像">
+      <div class="detail-prose"><p v-for="(paragraph, i) in record.paragraphs" :key="i">{{ t(paragraph) }}</p></div>
+      <section v-if="record.photos.length > 1" class="detail-gallery" :aria-label="t('现场与成果影像')">
         <PracticePhoto v-for="photo in record.photos.slice(1)" :key="photo.src" :photo="photo" :contain="record.slug === 'fuzhou-digital-creation'" />
       </section>
       <div v-if="record.slug === 'fuzhou-digital-creation'" class="detail-actions">
-        <RouterLink to="/write">体验 AI 代书</RouterLink><RouterLink to="/media">观看实践影像与报道</RouterLink><RouterLink to="/exhibition?tab=ip">浏览侨燕文创</RouterLink>
+        <RouterLink to="/write">{{ t('体验 AI 代书') }}</RouterLink><RouterLink to="/media">{{ t('观看实践影像与报道') }}</RouterLink><RouterLink to="/exhibition?tab=ip">{{ t('浏览侨燕文创') }}</RouterLink>
       </div>
-      <nav class="adjacent-stops" aria-label="继续阅读实践足迹">
-        <RouterLink v-if="previous" :to="`/practice/${previous.slug}`"><span>上一站</span>{{ previous.station || previous.title }}</RouterLink>
-        <RouterLink v-if="next" :to="`/practice/${next.slug}`" class="next-stop"><span>下一站</span>{{ next.station || next.title }}</RouterLink>
+      <nav class="adjacent-stops" :aria-label="t('继续阅读实践足迹')">
+        <RouterLink v-if="previous" :to="`/practice/${previous.slug}`"><span>{{ t('上一站') }}</span>{{ t(previous.station || previous.title) }}</RouterLink>
+        <RouterLink v-if="next" :to="`/practice/${next.slug}`" class="next-stop"><span>{{ t('下一站') }}</span>{{ t(next.station || next.title) }}</RouterLink>
       </nav>
     </article>
-    <h1 v-else class="not-found">未找到这篇实践记录</h1>
-    <RouterLink to="/practice" class="back-link bottom-link">返回完整实践路线</RouterLink>
+    <h1 v-else class="not-found">{{ t('未找到这篇实践记录') }}</h1>
+    <RouterLink to="/practice" class="back-link bottom-link">{{ t('返回完整实践路线') }}</RouterLink>
   </div>
 </template>
 

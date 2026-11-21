@@ -252,6 +252,9 @@ body {
   line-height: 2.2;
 }
 
+html[lang="en"] .ink-button { letter-spacing: .025em; text-indent: 0; }
+html[lang="en"] .vintage-text { letter-spacing: normal; }
+
 /* ========== 成品信纸动画 ========== */
 /* 信纸从上方飘落 */
 @keyframes paper-drop {

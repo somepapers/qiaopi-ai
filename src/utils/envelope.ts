@@ -1,4 +1,6 @@
 import type { LetterInput, Relationship } from '@/types/letter'
+import { locale, t } from '@/i18n'
+import { RELATIONSHIP_LABELS } from './constants'
 
 // 侨批封题字工具：由信件输入生成红条封上的竖排题字
 // （中央红条称谓、右侧寄达地、左侧汇款金额与寄款人）
@@ -89,6 +91,16 @@ export interface EnvelopeText {
 export function buildEnvelopeText(input: Partial<LetterInput> | null | undefined): EnvelopeText {
   const rel = input?.relationship
   const recipientName = input?.recipient?.trim()
+  if (locale.value === 'en') {
+    const destination = input?.toLocation?.trim()
+    const origin = input?.fromLocation?.trim()
+    return {
+      title: recipientName || (rel && t(RELATIONSHIP_LABELS[rel])) || 'Family',
+      toText: 'To ' + (destination ? t(destination) : 'home'),
+      amountText: input?.remittanceAmount ? 'Enclosed: ' + input.remittanceAmount : '',
+      senderText: [input?.senderName?.trim(), origin ? t(origin) : 'Southeast Asia'].filter(Boolean).join(' · '),
+    }
+  }
   const title = recipientName
     ? `${recipientName}　${(rel && ENVELOPE_SUFFIX[rel]) || '台启'}`
     : (rel && ENVELOPE_TITLE[rel]) || '台启展'

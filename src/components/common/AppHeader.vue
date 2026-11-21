@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { locale, setLocale, t } from '@/i18n'
 import { ref, watch, onMounted, onBeforeUnmount } from 'vue'
 import { useRoute } from 'vue-router'
 
@@ -42,23 +43,32 @@ onBeforeUnmount(() => {
 
 <template>
   <header class="sticky top-0 z-50 border-b border-ink/15 bg-[#faf6f0]/95 backdrop-blur-sm">
-    <nav aria-label="主导航" class="mx-auto flex min-h-14 max-w-6xl items-center justify-between gap-1 px-3 lg:min-h-16 lg:px-8">
-      <RouterLink to="/" aria-label="首页 · 寻侨迹，传侨魂" class="brand">
-        <span aria-hidden="true" class="seal">侨</span>
-        <span class="lg:hidden">首页</span><span class="hidden text-xl font-bold lg:inline">寻侨迹，传侨魂</span>
+    <nav :aria-label="t('主导航')" class="mx-auto flex min-h-14 max-w-6xl items-center justify-between gap-1 px-3 lg:min-h-16 lg:px-8">
+      <RouterLink to="/" :aria-label="t('首页 · 寻侨迹，传侨魂')" class="brand">
+        <span aria-hidden="true" class="seal">{{ t('侨') }}</span>
+        <span class="xl:hidden">{{ t('首页') }}</span><span class="hidden text-xl font-bold xl:inline">{{ t('寻侨迹，传侨魂') }}</span>
       </RouterLink>
       <div class="flex items-center sm:gap-2">
-        <RouterLink v-for="item in primary" :key="item.path" :to="item.path" class="nav-link">{{ item.label }}</RouterLink>
+        <div class="hidden items-center sm:flex">
+          <RouterLink v-for="item in primary" :key="item.path" :to="item.path" class="nav-link">{{ t(item.label) }}</RouterLink>
+        </div>
         <div class="hidden items-center gap-2 lg:flex">
-          <RouterLink v-for="item in secondary" :key="item.path" :to="item.path" class="nav-link">{{ item.label }}</RouterLink>
+          <RouterLink v-for="item in secondary" :key="item.path" :to="item.path" class="nav-link">{{ t(item.label) }}</RouterLink>
         </div>
         <div ref="more" class="relative lg:hidden">
           <button ref="toggle" type="button" class="nav-link" :aria-expanded="open" aria-controls="more-links" @click="open = !open">
-            更多 <span aria-hidden="true">{{ open ? '▴' : '▾' }}</span>
+            {{ t('更多') }} <span aria-hidden="true">{{ open ? '▴' : '▾' }}</span>
           </button>
           <div id="more-links" v-show="open" class="absolute right-0 top-full grid min-w-32 border border-ink/20 bg-[#fffaf1] p-1 shadow-lg">
-            <RouterLink v-for="item in secondary" :key="item.path" :to="item.path" class="nav-link" @click="open = false">{{ item.label }}</RouterLink>
+            <div class="grid sm:hidden">
+              <RouterLink v-for="item in primary" :key="item.path" :to="item.path" class="nav-link" @click="open = false">{{ t(item.label) }}</RouterLink>
+            </div>
+            <RouterLink v-for="item in secondary" :key="item.path" :to="item.path" class="nav-link" @click="open = false">{{ t(item.label) }}</RouterLink>
           </div>
+        </div>
+        <div class="language-picker" role="group" :aria-label="t('语言')">
+          <button type="button" lang="zh-CN" :aria-pressed="locale === 'zh-CN'" @click="setLocale('zh-CN')">中文</button>
+          <button type="button" lang="en" :aria-pressed="locale === 'en'" @click="setLocale('en')">English</button>
         </div>
       </div>
     </nav>
@@ -75,6 +85,10 @@ onBeforeUnmount(() => {
   font-size: .9rem;
 }
 .nav-link { justify-content: center; padding-inline: clamp(.36rem, 1.2vw, .75rem); }
+.language-picker { display: flex; align-items: center; margin-inline-start: .4rem; border: 1px solid #87342970; border-radius: .35rem; }
+.language-picker button { min-height: 2.5rem; padding-inline: .55rem; font-size: .875rem; cursor: pointer; }
+.language-picker button[aria-pressed=true] { background: #873e30; color: #fffaf1; }
+.language-picker button:focus-visible { outline: 2px solid #873429; outline-offset: 2px; }
 .seal { background: #933f30; color: #fff4dc; border: 3px double #fff4dc; padding: 0 .2em; font-size: 1.2rem; }
 .nav-link:hover,.nav-link.router-link-active,.nav-link[aria-expanded=true] { color: #873429; background: #923f300d; }
 .brand:focus-visible,.nav-link:focus-visible { outline: 2px solid #873429; outline-offset: 1px; }

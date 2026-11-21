@@ -7,6 +7,7 @@ import type { Relationship } from '@/types/letter'
 export interface SharePayload {
   v: number
   content: string
+  locale?: 'zh-CN' | 'en'
   relationship?: Relationship
   recipient?: string
   toLocation?: string
@@ -21,6 +22,7 @@ const CURRENT_VERSION = 1
 interface CompactPayload {
   v: number
   c: string
+  l?: 'en'
   r?: Relationship
   n?: string
   t?: string
@@ -33,6 +35,7 @@ export function encodeLetter(payload: SharePayload): string {
   const compact: CompactPayload = {
     v: payload.v || CURRENT_VERSION,
     c: payload.content,
+    l: payload.locale === 'en' ? 'en' : undefined,
     r: payload.relationship,
     n: payload.recipient,
     t: payload.toLocation,
@@ -53,6 +56,7 @@ export function decodeLetter(code: string): SharePayload | null {
     return {
       v: c.v ?? CURRENT_VERSION,
       content: c.c,
+      locale: c.l === 'en' ? 'en' : 'zh-CN',
       relationship: c.r,
       recipient: c.n,
       toLocation: c.t,

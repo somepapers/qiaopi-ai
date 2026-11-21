@@ -1,6 +1,7 @@
 import { Router, type Request, type Response } from 'express'
 import rateLimit from 'express-rate-limit'
 import { buildSystemPrompt } from '../prompts/system-prompt.js'
+import { englishLetterMessages } from '../prompts/english-letter.js'
 
 export const generateRouter = Router()
 
@@ -19,8 +20,10 @@ generateRouter.post('/generate', limiter, async (req: Request, res: Response) =>
       return
     }
 
-    const systemPrompt = buildSystemPrompt(input)
-    const userMessage = buildUserMessage(input)
+    const messages = input.locale === 'en' ? englishLetterMessages(input) : [
+      { role: 'system', content: buildSystemPrompt(input) },
+      { role: 'user', content: buildUserMessage(input) },
+    ]
     const apiKey = process.env.CHATBOX_API_KEY
 
     if (!apiKey) {
@@ -41,10 +44,7 @@ generateRouter.post('/generate', limiter, async (req: Request, res: Response) =>
       },
       body: JSON.stringify({
         model,
-        messages: [
-          { role: 'system', content: systemPrompt },
-          { role: 'user', content: userMessage },
-        ],
+        messages,
         temperature: 0.5,
         max_tokens: 4096,
         stream: true,

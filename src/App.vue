@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { t } from '@/i18n'
 import { onMounted } from 'vue'
 import { RouterView } from 'vue-router'
 import AppHeader from '@/components/common/AppHeader.vue'
@@ -21,8 +22,8 @@ onMounted(() => {
       </RouterView>
     </main>
     <footer class="text-center py-6 px-4 sm:px-6 lg:px-8 text-ink/40 text-sm font-serif">
-      <p>闽江大学“寻侨迹，传侨魂”社会实践团队</p>
-      <p class="mt-1">侨批档案 · 联合国教科文组织世界记忆遗产</p>
+      <p>{{ t('闽江大学“寻侨迹，传侨魂”社会实践团队') }}</p>
+      <p class="mt-1">{{ t('侨批档案 · 联合国教科文组织世界记忆遗产') }}</p>
     </footer>
   </div>
 </template>

@@ -2,9 +2,11 @@ import { createApp } from 'vue'
 import { createPinia } from 'pinia'
 import router from './router'
 import App from './App.vue'
+import { initializeLocale } from './i18n'
 import { setupVersionCheck } from './utils/versionCheck'
 import './styles/main.css'
 
+initializeLocale()
 const app = createApp(App)
 app.use(createPinia())
 app.use(router)

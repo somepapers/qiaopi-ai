@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { t } from '@/i18n'
 import { computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useTemplateStore } from '@/stores/templates'
@@ -25,15 +26,15 @@ const template = computed(() => {
     <!-- Not Found -->
     <div v-if="!template" class="text-center py-20">
       <div class="text-4xl mb-4">📭</div>
-      <p class="text-ink/50 font-serif">未找到该模板</p>
-      <router-link to="/templates" class="btn-secondary mt-4 inline-block">返回范文库</router-link>
+      <p class="text-ink/50 font-serif">{{ t('未找到该模板') }}</p>
+      <router-link to="/templates" class="btn-secondary mt-4 inline-block">{{ t('返回范文库') }}</router-link>
     </div>
 
     <!-- Template Detail -->
     <template v-else>
       <div class="mb-6">
         <router-link to="/templates" class="text-sm text-ink/50 font-serif hover:text-red-seal transition-colors">
-          ← 返回范文库
+          {{ t('← 返回范文库') }}
         </router-link>
       </div>
 
@@ -41,25 +42,25 @@ const template = computed(() => {
         <div class="flex items-start justify-between mb-4">
           <div>
             <span class="text-3xl mr-3">{{ SCENARIO_METADATA[template.scenario]?.icon || '✉️' }}</span>
-            <h1 class="text-2xl font-serif font-bold text-ink inline">{{ template.title }}</h1>
+            <h1 class="text-2xl font-serif font-bold text-ink inline">{{ t(template.title) }}</h1>
           </div>
-          <span class="text-sm text-ink/40 font-serif">{{ RELATIONSHIP_LABELS[template.relationship] }}</span>
+          <span class="text-sm text-ink/40 font-serif">{{ t(RELATIONSHIP_LABELS[template.relationship]) }}</span>
         </div>
 
-        <p class="text-ink/60 font-serif mb-6">{{ template.description }}</p>
+        <p class="text-ink/60 font-serif mb-6">{{ t(template.description) }}</p>
 
         <!-- Example letter -->
         <div class="border-t border-ink/10 pt-6">
-          <h3 class="text-sm text-ink/50 font-serif mb-3">仿写示例</h3>
+          <h3 class="text-sm text-ink/50 font-serif mb-3">{{ t('仿写示例') }}</h3>
           <div class="vintage-text text-lg whitespace-pre-line leading-loose">
-            {{ template.example }}
+            {{ t(template.example) }}
           </div>
         </div>
       </div>
 
       <!-- Structure breakdown -->
       <div class="vintage-paper rounded-xl p-6 md:p-8 mb-6">
-        <h3 class="text-lg font-serif font-semibold text-ink mb-4">📋 书信结构解析</h3>
+        <h3 class="text-lg font-serif font-semibold text-ink mb-4">{{ t('📋 书信结构解析') }}</h3>
         <div class="space-y-3">
           <div
             v-for="(section, idx) in template.structure"
@@ -70,11 +71,11 @@ const template = computed(() => {
             <span class="text-xs px-2 py-0.5 rounded-full font-serif shrink-0 mt-0.5"
               :class="section.isVariable ? 'bg-amber-100 text-amber-700' : 'bg-green-100 text-green-700'"
             >
-              {{ section.isVariable ? '可修改' : '固定格式' }}
+              {{ t(section.isVariable ? '可修改' : '固定格式') }}
             </span>
             <div>
-              <p class="font-serif text-ink font-semibold text-sm">{{ section.label }}</p>
-              <p class="text-xs text-ink/50 font-serif mt-0.5">"{{ section.example.slice(0, 80) }}{{ section.example.length > 80 ? '...' : '' }}"</p>
+              <p class="font-serif text-ink font-semibold text-sm">{{ t(section.label) }}</p>
+              <p class="text-xs text-ink/50 font-serif mt-0.5">"{{ t(section.example).slice(0, 80) }}{{ t(section.example).length > 80 ? '...' : '' }}"</p>
             </div>
           </div>
         </div>
@@ -86,7 +87,7 @@ const template = computed(() => {
           :to="`/write?template=${template.id}`"
           class="btn-primary no-underline inline-block text-lg px-10"
         >
-          🖋️ 以此模板为基础写信
+          {{ t('🖋️ 以此模板为基础写信') }}
         </router-link>
       </div>
     </template>

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { t } from '@/i18n'
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useLetterStore } from '@/stores/letter'
 import { buildEnvelopeText } from '@/utils/envelope'
@@ -37,7 +38,7 @@ function close() {
   <Teleport to="body">
     <div class="qp-overlay" :class="{ 'qp-exiting': isExiting }" @click.self="close">
       <!-- 右上角关闭 -->
-      <button class="qp-close-x" aria-label="关闭" @click="close">&times;</button>
+      <button class="qp-close-x" :aria-label="t('关闭')" @click="close">&times;</button>
 
       <div class="qp-stage">
         <!-- 信纸：折叠后没入信封（在信封后方，被信封正面遮挡） -->
@@ -68,11 +69,11 @@ function close() {
 
       <!-- 提示 + 关闭按钮 -->
       <div class="qp-caption" :class="{ 'qp-show': textVisible }">
-        <p class="qp-caption-main">侨 批 已 封</p>
-        <p class="qp-caption-sub">点 击 空 白 处 或 「收 妥」关 闭</p>
+        <p class="qp-caption-main">{{ t('侨 批 已 封') }}</p>
+        <p class="qp-caption-sub">{{ t('点 击 空 白 处 或 「收 妥」关 闭') }}</p>
       </div>
       <button class="qp-done-btn" :class="{ 'qp-show': actionsVisible }" @click="close">
-        收 妥
+        {{ t('收 妥') }}
       </button>
     </div>
   </Teleport>

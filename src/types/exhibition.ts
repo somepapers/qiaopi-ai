@@ -1,11 +1,17 @@
 export type Gallery = 'qiaopi' | 'ip'
 
-export interface ExhibitionImage {
-  id: string
-  gallery: Gallery
+export interface ExhibitCaption {
   title: string
   credit: string
   desc?: string
+  titleEn?: string
+  creditEn?: string
+  descEn?: string
+}
+
+export interface ExhibitionImage extends ExhibitCaption {
+  id: string
+  gallery: Gallery
   thumb: string
   detail: string
 }

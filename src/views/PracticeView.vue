@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { t } from '@/i18n'
 import { onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { publishedRecords } from '@/utils/practice'
@@ -25,65 +26,65 @@ const creations = [
 <template>
   <div class="journey-page">
     <header class="journey-heading">
-      <p class="eyebrow">寻侨迹，传侨魂 <span>社会实践纪行</span></p>
-      <div class="heading-line"><h1>实践足迹</h1><p>循着一纸侨批<br />走进百年侨乡</p></div>
+      <p class="eyebrow">{{ t('寻侨迹，传侨魂') }} <span>{{ t('社会实践纪行') }}</span></p>
+      <div class="heading-line"><h1>{{ t('实践足迹') }}</h1><p>{{ t('循着一纸侨批') }}<br />{{ t('走进百年侨乡') }}</p></div>
     </header>
     <template v-if="publishedRecords.length">
       <section class="journey-intro" aria-labelledby="journey-intro-title">
         <div class="intro-copy">
-          <p class="section-label">从福州出发，再带着故事归来</p>
-          <h2 id="journey-intro-title">一程山海，<br />一纸情长。</h2>
-          <p class="intro-text">在档案中追溯历史，在侨乡里寻找记忆，在访谈中聆听人生。我们循着侨批的线索走过福建，再把一路所见所闻，写进属于青年的数字作品。</p>
-          <a href="#journey-route" class="journey-button">展开我们的旅程</a>
-          <p class="intro-note">闽江大学“寻侨迹，传侨魂”社会实践队</p>
+          <p class="section-label">{{ t('从福州出发，再带着故事归来') }}</p>
+          <h2 id="journey-intro-title">{{ t('一程山海，') }}<br />{{ t('一纸情长。') }}</h2>
+          <p class="intro-text">{{ t('在档案中追溯历史，在侨乡里寻找记忆，在访谈中聆听人生。我们循着侨批的线索走过福建，再把一路所见所闻，写进属于青年的数字作品。') }}</p>
+          <a href="#journey-route" class="journey-button">{{ t('展开我们的旅程') }}</a>
+          <p class="intro-note">{{ t('闽江大学“寻侨迹，传侨魂”社会实践队') }}</p>
         </div>
         <PracticePhoto v-if="openingPhoto" :photo="openingPhoto" priority />
       </section>
-      <nav id="journey-route" class="route-strip" aria-label="实践行程导航">
-        <div class="route-title"><span>寻访路线</span><small>沿着足迹，读懂侨批</small></div>
+      <nav id="journey-route" class="route-strip" :aria-label="t('实践行程导航')">
+        <div class="route-title"><span>{{ t('寻访路线') }}</span><small>{{ t('沿着足迹，读懂侨批') }}</small></div>
         <ol>
           <li v-for="(record, index) in publishedRecords" :key="record.slug">
-            <a :href="`#${record.slug}`"><span class="route-city"><span>{{ record.city || record.location }}</span><small>{{ stops[index] || '寻访' }}</small></span><span class="route-place">{{ record.station || record.title }}</span></a>
+            <a :href="`#${record.slug}`"><span class="route-city"><span>{{ t(record.city || record.location) }}</span><small>{{ t(stops[index] || '寻访') }}</small></span><span class="route-place">{{ t(record.station || record.title) }}</span></a>
           </li>
         </ol>
       </nav>
       <section class="field-notes" aria-labelledby="field-notes-title">
-        <div class="section-heading"><div><p class="section-label">在行走中认识历史</p><h2 id="field-notes-title">我们的寻侨手记</h2></div><span>从档案原件，到指尖传承</span></div>
+        <div class="section-heading"><div><p class="section-label">{{ t('在行走中认识历史') }}</p><h2 id="field-notes-title">{{ t('我们的寻侨手记') }}</h2></div><span>{{ t('从档案原件，到指尖传承') }}</span></div>
         <ol class="timeline">
           <li v-for="(record, index) in publishedRecords" :id="record.slug" :key="record.slug" class="journey-stop">
-            <div class="stop-marker"><span>{{ stops[index] || '寻访' }}</span></div>
+            <div class="stop-marker"><span>{{ t(stops[index] || '寻访') }}</span></div>
             <div class="stop-body">
               <div class="stop-copy">
-                <p class="stop-location">{{ record.city }}<span aria-hidden="true"> / </span>{{ record.theme }}</p>
-                <p class="stop-station">{{ record.station || record.location }}</p>
-                <h3>{{ record.title }}</h3>
-                <p class="stop-summary">{{ record.summary }}</p>
-                <ul v-if="record.tags?.length" class="tags" aria-label="本站关键词"><li v-for="tag in record.tags" :key="tag">{{ tag }}</li></ul>
-                <RouterLink :to="{ name: 'practice-detail', params: { slug: record.slug } }" class="story-link">阅读本站手记</RouterLink>
+                <p class="stop-location">{{ t(record.city) }}<span aria-hidden="true"> / </span>{{ t(record.theme) }}</p>
+                <p class="stop-station">{{ t(record.station || record.location) }}</p>
+                <h3>{{ t(record.title) }}</h3>
+                <p class="stop-summary">{{ t(record.summary) }}</p>
+                <ul v-if="record.tags?.length" class="tags" :aria-label="t('本站关键词')"><li v-for="tag in record.tags" :key="tag">{{ t(tag) }}</li></ul>
+                <RouterLink :to="{ name: 'practice-detail', params: { slug: record.slug } }" class="story-link">{{ t('阅读本站手记') }}</RouterLink>
               </div>
               <PracticePhoto v-if="record.photos[0]" :photo="record.photos[0]" :contain="record.slug === 'fuzhou-digital-creation'" />
-              <aside v-else class="reflection" aria-label="这一站的思考">
-                <span class="reflection-label">古城里的思考</span>
-                <p>如何让年轻人<br />停下来，<br /><em>读一封侨批？</em></p>
-                <span class="reflection-note">从静态展陈，走向可以参与的文化体验。</span>
+              <aside v-else class="reflection" :aria-label="t('这一站的思考')">
+                <span class="reflection-label">{{ t('古城里的思考') }}</span>
+                <p>{{ t('如何让年轻人') }}<br />{{ t('停下来，') }}<br /><em>{{ t('读一封侨批？') }}</em></p>
+                <span class="reflection-note">{{ t('从静态展陈，走向可以参与的文化体验。') }}</span>
               </aside>
             </div>
           </li>
         </ol>
       </section>
       <section class="creations" aria-labelledby="creations-title">
-        <div class="section-heading"><div><p class="section-label">旅程之后，故事继续</p><h2 id="creations-title">把调研带回，把侨情传开</h2></div></div>
+        <div class="section-heading"><div><p class="section-label">{{ t('旅程之后，故事继续') }}</p><h2 id="creations-title">{{ t('把调研带回，把侨情传开') }}</h2></div></div>
         <div class="creation-grid">
           <article v-for="item in creations" :key="item.to">
-            <RouterLink :to="item.to" :aria-label="item.action" class="creation-image"><img :src="item.image" :alt="item.alt" :class="{ contain: item.contain }" loading="lazy" decoding="async" /></RouterLink>
-            <p class="creation-label">{{ item.label }}</p><h3>{{ item.title }}</h3><p class="creation-description">{{ item.description }}</p>
-            <RouterLink :to="item.to" class="story-link">{{ item.action }}</RouterLink>
+            <RouterLink :to="item.to" :aria-label="t(item.action)" class="creation-image"><img :src="item.image" :alt="t(item.alt)" :class="{ contain: item.contain }" loading="lazy" decoding="async" /></RouterLink>
+            <p class="creation-label">{{ t(item.label) }}</p><h3>{{ t(item.title) }}</h3><p class="creation-description">{{ t(item.description) }}</p>
+            <RouterLink :to="item.to" class="story-link">{{ t(item.action) }}</RouterLink>
           </article>
         </div>
       </section>
-      <div class="journey-ending"><span class="ending-seal" aria-hidden="true">侨</span><p>让实践留下足迹，让侨批继续传情。</p><a href="#journey-route">重温寻访路线</a></div>
+      <div class="journey-ending"><span class="ending-seal" aria-hidden="true">{{ t('侨') }}</span><p>{{ t('让实践留下足迹，让侨批继续传情。') }}</p><a href="#journey-route">{{ t('重温寻访路线') }}</a></div>
     </template>
-    <p v-else class="empty-state">实践记录整理中</p>
+    <p v-else class="empty-state">{{ t('实践记录整理中') }}</p>
   </div>
 </template>
 
@@ -111,6 +112,12 @@ const creations = [
 .route-strip a:hover { background: #873e300a; }
 .route-city { display: flex; flex-wrap: wrap; align-items: center; gap: .3rem .6rem; font-size: 1.25rem; font-weight: 600; }
 .route-city > span { white-space: nowrap; }
+.route-city:lang(en) > span { white-space: normal; }
+.route-strip:lang(en) li { min-width: 0; overflow-wrap: break-word; }
+@media (max-width: 640px) {
+  .route-strip:lang(en) ol { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .heading-line:lang(en) { flex-wrap: wrap; }
+}
 .route-city small { font-size: .875rem; font-weight: 400; color: var(--accent); white-space: nowrap; }
 .route-place { display: block; font-size: .875rem; color: var(--muted); margin-top: .5rem; line-height: 1.6; }
 .field-notes { padding-top: 4.5rem; }

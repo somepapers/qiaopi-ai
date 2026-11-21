@@ -1,5 +1,6 @@
 import type { LetterInput } from '@/types/letter'
 import { CHATBOX_CONFIG } from '@/utils/constants'
+import { t } from '@/i18n'
 
 interface SSECallbacks {
   onMessage: (text: string) => void
@@ -35,7 +36,7 @@ export async function generateLetterStream(
         if (response.status === 429) {
           throw new Error('请求过于频繁，请稍后再试')
         }
-        throw new Error((errData as { message?: string }).message || `请求失败（${response.status}）`)
+        throw new Error((errData as { message?: string }).message || t('请求失败（{status}）', { status: response.status }))
       }
 
       if (!response.body) {

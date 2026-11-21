@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { t } from '@/i18n'
 import { ref, onMounted } from 'vue'
 import { useLetterStore } from '@/stores/letter'
 import type { PaperType, LetterLayout } from '@/types/letter'
@@ -50,13 +51,14 @@ function wrapHorizontal(ctx: CanvasRenderingContext2D, content: string, scale: n
       out.push({ text: '', red: false, gapAfter: gap })
       continue
     }
-    const words = [...line]
+    const words = line.match(/[A-Za-z0-9]+(?:['’-][A-Za-z0-9]+)*|./gu) ?? []
+    const units = words.flatMap(word => ctx.measureText(word).width > maxWidth ? [...word] : [word])
     let currentLine = ''
-    for (const char of words) {
-      const testLine = currentLine + char
+    for (const word of units) {
+      const testLine = currentLine + word
       if (ctx.measureText(testLine).width > maxWidth && currentLine.length > 0) {
         out.push({ text: currentLine, red, gapAfter: 0 })
-        currentLine = char
+        currentLine = word.trimStart()
       } else {
         currentLine = testLine
       }
@@ -230,7 +232,7 @@ function downloadImage() {
   const url = canvas.toDataURL('image/png', 1.0)
   const a = document.createElement('a')
   a.href = url
-  a.download = `侨批_${new Date().toISOString().slice(0, 10)}.png`
+  a.download = t('侨批.png').replace('.png', `_${new Date().toISOString().slice(0, 10)}.png`)
   a.click()
   store.triggerEnvelope()
   emit('close')
@@ -242,11 +244,11 @@ async function shareImage() {
   if (navigator.share) {
     canvas.toBlob(async (blob) => {
       if (!blob) return
-      const file = new File([blob], '侨批.png', { type: 'image/png' })
+      const file = new File([blob], t('侨批.png'), { type: 'image/png' })
       try {
         await navigator.share({
-          title: '侨批AI代书人',
-          text: '我用AI写了一封侨批家书',
+          title: t('侨批AI代书人'),
+          text: t('我用AI写了一封侨批家书'),
           files: [file],
         })
         store.triggerEnvelope()
@@ -268,13 +270,13 @@ onMounted(() => {
     <div class="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
       <div class="bg-[#faf6f0] rounded-xl p-6 w-full max-w-lg max-h-[90vh] overflow-y-auto">
         <div class="flex justify-between items-center mb-4">
-          <h3 class="text-lg font-serif font-semibold text-ink">导出书信图片</h3>
+          <h3 class="text-lg font-serif font-semibold text-ink">{{ t('导出书信图片') }}</h3>
           <button class="text-ink/40 hover:text-ink text-xl leading-none" @click="emit('close')">&times;</button>
         </div>
 
         <!-- Paper type selector -->
         <div class="space-y-3 mb-4">
-          <label class="block text-sm font-serif text-ink/70">纸张纹理</label>
+          <label class="block text-sm font-serif text-ink/70">{{ t('纸张纹理') }}</label>
           <div class="flex gap-2">
             <button
               v-for="pt in (['light', 'aged', 'worn'] as PaperType[])"
@@ -284,28 +286,28 @@ onMounted(() => {
               :class="paperType === pt ? 'border-red-seal bg-red-seal/5 text-red-seal' : 'border-ink/10 text-ink/60 hover:border-ink/20'"
               :style="{ backgroundColor: paperColors[pt] }"
             >
-              {{ { light: '素笺', aged: '旧纸', worn: '毛边' }[pt] }}
+              {{ t({ light: '素笺', aged: '旧纸', worn: '毛边' }[pt]) }}
             </button>
           </div>
         </div>
 
         <!-- Layout selector -->
         <div class="space-y-3 mb-4">
-          <label class="block text-sm font-serif text-ink/70">排版方向</label>
+          <label class="block text-sm font-serif text-ink/70">{{ t('排版方向') }}</label>
           <div class="flex gap-2">
             <button
               @click="layout = 'horizontal'; renderPreview()"
               class="flex-1 py-2 rounded-lg text-sm font-serif border transition-colors"
               :class="layout === 'horizontal' ? 'border-red-seal bg-red-seal/5 text-red-seal' : 'border-ink/10 text-ink/60'"
             >
-              横排（推荐）
+              {{ t('横排（推荐）') }}
             </button>
             <button
               @click="layout = 'vertical'; renderPreview()"
               class="flex-1 py-2 rounded-lg text-sm font-serif border transition-colors"
               :class="layout === 'vertical' ? 'border-red-seal bg-red-seal/5 text-red-seal' : 'border-ink/10 text-ink/60'"
             >
-              竖排（传统）
+              {{ t('竖排（传统）') }}
             </button>
           </div>
         </div>
@@ -316,21 +318,21 @@ onMounted(() => {
           <img
             v-if="previewUrl"
             :src="previewUrl"
-            alt="书信预览"
+            :alt="t('书信预览')"
             class="w-full"
           />
           <div v-else class="aspect-[1/1.4] flex items-center justify-center text-ink/30">
-            正在生成预览...
+            {{ t('正在生成预览...') }}
           </div>
         </div>
 
         <!-- Actions -->
         <div class="flex gap-3">
           <button class="btn-primary flex-1" @click="downloadImage">
-            💾 下载PNG
+            {{ t('💾 下载PNG') }}
           </button>
           <button class="btn-secondary flex-1" @click="shareImage">
-            📤 分享
+            {{ t('📤 分享') }}
           </button>
         </div>
       </div>

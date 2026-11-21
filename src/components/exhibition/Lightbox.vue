@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { t } from '@/i18n'
 import { onMounted, onBeforeUnmount, watch, ref } from 'vue'
 import type { ExhibitionImage } from '@/types/exhibition'
 import { featured } from '@/assets/exhibition/featured'
@@ -46,20 +47,20 @@ onBeforeUnmount(() => {
     <dialog ref="dialog" class="viewer" :aria-label="item.title" @cancel.prevent="emit('close')"
       @keydown.left.prevent="emit('move', -1)" @keydown.right.prevent="emit('move', 1)">
       <div class="viewer-inner" :class="{ 'with-reading': item.id === featured.id }" @click.self="emit('close')">
-        <button autofocus class="close" aria-label="关闭" @click="emit('close')">关闭 ×</button>
+        <button autofocus class="close" :aria-label="t('关闭')" @click="emit('close')">{{ t('关闭 ×') }}</button>
         <FeaturedReading v-if="item.id === featured.id" :src="ready || item.thumb" />
         <div v-else class="frame" @click.self="emit('close')">
           <img :src="ready || item.thumb" :alt="item.title" />
         </div>
         <div class="controls">
-          <button v-if="total > 1" aria-label="上一张" @click="emit('move', -1)">‹</button>
+          <button v-if="total > 1" :aria-label="t('上一张')" @click="emit('move', -1)">‹</button>
           <div aria-live="polite" class="info">
             <small>{{ index + 1 }} / {{ total }}</small><h2>{{ item.title }}</h2>
             <p v-if="item.credit">{{ item.credit }}</p><p v-if="item.desc">{{ item.desc }}</p>
-            <button v-if="failed" class="retry" @click="attempt++">详情图未加载 · 重试</button>
-            <small v-else-if="!ready">正在加载细节…</small>
+            <button v-if="failed" class="retry" @click="attempt++">{{ t('详情图未加载 · 重试') }}</button>
+            <small v-else-if="!ready">{{ t('正在加载细节…') }}</small>
           </div>
-          <button v-if="total > 1" aria-label="下一张" @click="emit('move', 1)">›</button>
+          <button v-if="total > 1" :aria-label="t('下一张')" @click="emit('move', 1)">›</button>
         </div>
       </div>
     </dialog>

@@ -88,6 +88,9 @@ async function publish(body: Record<string, unknown>) {
   const title = textField(body.title, 80)
   const credit = textField(body.credit, 120)
   const desc = textField(body.desc, 600, true)
+  const titleEn = textField(body.titleEn, 160, true)
+  const creditEn = textField(body.creditEn, 240, true)
+  const descEn = textField(body.descEn, 1800, true)
   const existing = await publishedItem(id)
   if (existing) return existing
   const source = await get(pathname, { access: 'public', useCache: false })
@@ -115,7 +118,7 @@ async function publish(body: Record<string, unknown>) {
   const options = { access: 'public', contentType: 'image/webp', addRandomSuffix: false, allowOverwrite: true, cacheControlMaxAge: 31536000 } as const
   const thumb = await put(base + '-thumb.webp', variants.thumb, options)
   const detail = await put(base + '-detail.webp', variants.detail, options)
-  const item: ExhibitionImage = { id, gallery, title, credit, desc, thumb: thumb.url, detail: detail.url }
+  const item: ExhibitionImage = { id, gallery, title, credit, desc, titleEn, creditEn, descEn, thumb: thumb.url, detail: detail.url }
   const result = await appendPublication(item)
   await del(pathname).catch(error => console.warn('展览馆原图清理未完成', error?.name))
   return result
