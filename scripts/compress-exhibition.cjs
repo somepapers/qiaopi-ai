@@ -7,6 +7,7 @@ async function main() {
   const { exhibitionVariants } = await import('../server/exhibition/images.mjs')
   const force = process.argv.includes('--force')
   const prune = !process.argv.includes('--no-prune')
+  const manifest = {}
   for (const [folder, gallery] of [['侨批展示库', 'qiaopi'], ['IP素材库', 'ip']]) {
     const output = path.join('src/assets/exhibition', gallery)
     const present = existsSync(folder)
@@ -32,6 +33,15 @@ async function main() {
         if (/\.(thumb|detail)\.webp$/.test(name) && !kept.has(name)) await fs.unlink(path.join(output, name))
       }
     }
+    manifest[gallery] = (await fs.readdir(output))
+      .filter(name => name.endsWith('.thumb.webp'))
+      .map(name => name.slice(0, -'.thumb.webp'.length))
+      .sort((a, b) => a.localeCompare(b, 'zh-CN', { numeric: true }))
+  }
+  const manifestPath = 'server/exhibition/files.json'
+  const content = JSON.stringify(manifest, null, 2) + '\n'
+  if (!existsSync(manifestPath) || (await fs.readFile(manifestPath, 'utf8')).replace(/\r\n/g, '\n') !== content) {
+    await fs.writeFile(manifestPath, content)
   }
 }
 main().catch(error => { console.error(error.message); process.exitCode = 1 })

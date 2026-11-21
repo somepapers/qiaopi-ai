@@ -2,12 +2,16 @@
 import { onMounted, onBeforeUnmount, ref, reactive } from 'vue'
 import { put } from '@vercel/blob/client'
 import type { Gallery, ExhibitionImage } from '@/types/exhibition'
+import GalleryManager from '@/components/exhibition/GalleryManager.vue'
 
 const session = ref<'checking' | 'login' | 'open' | 'unavailable'>('checking')
 const password = ref('')
 const error = ref('')
 const status = ref('')
 const busy = ref(false)
+const managing = ref(false)
+const manageGallery = ref<Gallery>('qiaopi')
+const refreshList = ref(0)
 const form = reactive({ gallery: 'qiaopi' as Gallery, title: '', credit: '', desc: '' })
 const chosen = ref<File>()
 const preview = ref('')
@@ -16,15 +20,22 @@ const picker = ref<HTMLInputElement>()
 const published = ref<ExhibitionImage>()
 const controller = new AbortController()
 
-async function request<T>(action: string, body?: object): Promise<T> {
-  const res = await fetch('/api/exhibition?action=' + action, {
+async function request<T>(action: string, body?: object, gallery?: Gallery): Promise<T> {
+  const query = new URLSearchParams({ action })
+  if (gallery) query.set('gallery', gallery)
+  const res = await fetch('/api/exhibition?' + query, {
     method: body ? 'POST' : 'GET', signal: controller.signal,
     headers: body ? { 'Content-Type': 'application/json', 'X-Exhibition-Request': '1' } : undefined,
     body: body ? JSON.stringify(body) : undefined,
   })
   const data = await res.json().catch(() => ({}))
   if (!res.ok) {
-    if (res.status === 401) session.value = 'login'
+    if (res.status === 401) {
+      session.value = 'login'
+      managing.value = false
+      published.value = undefined
+      error.value = data.message || '请重新登录团队后台'
+    }
     throw new Error(data.message || '无法连接团队后台，请稍后再试')
   }
   return data as T
@@ -116,6 +127,8 @@ async function publish() {
       status.value = '正在生成缩略图和详情图…'
       published.value = (await request<{ item: ExhibitionImage }>('publish', { ...identity, ...form })).item
     }
+    manageGallery.value = published.value.gallery
+    refreshList.value++
     clearFile()
   } catch (e) { report(e) }
   finally { busy.value = false; status.value = '' }
@@ -127,7 +140,7 @@ onBeforeUnmount(() => { controller.abort(); clearFile() })
 <template>
   <div class="studio">
     <RouterLink class="back" to="/exhibition">← 返回展览馆</RouterLink>
-    <header><small>寻侨迹，传侨魂 · 布展工作台</small><h1>团队展品管理</h1><p>为两个展厅上传影像、填写展签并发布作品。</p></header>
+    <header><small>寻侨迹，传侨魂 · 布展工作台</small><h1>团队展品管理</h1><p>为两个展厅发布作品、调整展示顺序，或恢复已撤下的展品。</p></header>
     <p v-if="error" class="error" role="alert">{{ error }}</p>
     <p v-if="session === 'checking'" role="status">正在检查管理会话…</p>
     <button v-else-if="session === 'unavailable'" class="secondary" @click="checkSession">重新连接后台</button>
@@ -137,7 +150,7 @@ onBeforeUnmount(() => { controller.abort(); clearFile() })
       <button class="primary" :disabled="busy">{{ busy ? '正在登录…' : '进入布展工作台' }}</button>
     </form>
     <template v-else>
-      <div class="bar"><span>团队管理会话已开启</span><button :disabled="busy" @click="logout">退出登录</button></div>
+      <div class="bar"><span>团队管理会话已开启</span><button :disabled="busy || managing" @click="logout">退出登录</button></div>
       <section v-if="published" class="panel success" role="status">
         <small>发布完成</small><h2>《{{ published.title }}》已上架</h2>
         <p>访客现在可以在{{ published.gallery === 'ip' ? '团队 IP 设计' : '侨批文化展示' }}展区看到这件作品。</p>
@@ -147,7 +160,7 @@ onBeforeUnmount(() => { controller.abort(); clearFile() })
         </div>
       </section>
       <form v-else class="panel" @submit.prevent="publish">
-        <fieldset :disabled="busy">
+        <fieldset :disabled="busy || managing">
           <legend>新展品</legend>
           <div class="fields">
             <div>
@@ -169,6 +182,8 @@ onBeforeUnmount(() => { controller.abort(); clearFile() })
         </fieldset>
         <p v-if="status" role="status" class="hint">{{ status }}</p>
       </form>
+      <GalleryManager v-model="manageGallery" :refresh="refreshList" :disabled="busy" :request="request"
+        @saving="managing = $event" @trashed="id => { if (published?.id === id) reset() }" />
     </template>
   </div>
 </template>

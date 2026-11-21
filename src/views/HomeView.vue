@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { featured } from '@/assets/exhibition/featured'
+import { useFeaturedExhibit } from '@/composables/useExhibitionCatalog'
 import { onMounted } from 'vue'
 import { publishedRecords } from '@/utils/practice'
 
@@ -7,6 +8,7 @@ const journeyCover = publishedRecords.find(record => record.photos.length)
 import { useVisitCount } from '@/composables/useVisitCount'
 
 const { visitCount, recordVisit } = useVisitCount()
+const { visible: showFeatured } = useFeaturedExhibit()
 
 onMounted(async () => {
   // 与 App.vue 共享同一次计数请求，拿到本次访问 +1 后的最新值
@@ -42,7 +44,7 @@ onMounted(async () => {
         </p>
         <RouterLink to="/write" class="ink-button primary-action mt-4 min-h-11">用 AI 写家书</RouterLink>
       </div>
-      <figure class="border border-ink/15 bg-[#fffaf1] p-3 shadow-sm lg:p-4">
+      <figure v-if="showFeatured" class="border border-ink/15 bg-[#fffaf1] p-3 shadow-sm lg:p-4">
         <RouterLink :to="featured.to" :aria-label="'读这件侨批 · ' + featured.title" class="block">
           <img :src="featured.photo" alt="木桌上的侨批，纸面上有红色长框和墨字" width="1920" height="1440" fetchpriority="high" class="w-full h-auto" />
         </RouterLink>
@@ -83,10 +85,10 @@ onMounted(async () => {
 .primary-action:hover { background: #683023; }
 @media (min-width: 768px) {
   .hero {
-    grid-template-columns: 1fr 1.1fr;
     align-items: center;
     column-gap: clamp(2rem,4vw,4rem);
     padding-block: clamp(2rem,4.5vw,4.5rem);
   }
+  .hero:has(figure) { grid-template-columns: 1fr 1.1fr; }
 }
 </style>

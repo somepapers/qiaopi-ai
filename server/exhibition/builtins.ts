@@ -1,4 +1,5 @@
-import type { ExhibitionImageMeta } from '@/types/exhibition'
+import type { ExhibitionImageMeta, Gallery } from '../../src/types/exhibition.js'
+import files from './files.json' with { type: 'json' }
 
 export const QIAOPI_META: Record<string, ExhibitionImageMeta> = {
   '侨批1.jpg': { title: '侨批原件展示（一）', credit: '福建省档案馆' },
@@ -12,4 +13,10 @@ export const QIAOPI_META: Record<string, ExhibitionImageMeta> = {
 export const IP_META: Record<string, ExhibitionImageMeta> = {
   '侨燕.jpg': { title: '团队吉祥物“侨燕”', credit: '闽江大学“寻侨迹，传侨魂”社会实践团队', sort: -2 },
   '侨燕马克杯.jpg': { title: '“侨燕”主题马克杯', credit: '闽江大学“寻侨迹，传侨魂”社会实践团队', sort: -1 },
+}
+
+export function builtInFiles(gallery: Gallery) {
+  const meta = gallery === 'ip' ? IP_META : QIAOPI_META
+  return [...files[gallery]].sort((a, b) =>
+    (meta[a]?.sort ?? 0) - (meta[b]?.sort ?? 0) || a.localeCompare(b, 'zh-CN', { numeric: true }))
 }

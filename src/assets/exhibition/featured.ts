@@ -1,5 +1,5 @@
 import photo from './qiaopi/侨批4.jpg.detail.webp'
-import { QIAOPI_META } from '@/utils/exhibitionMeta'
+import { QIAOPI_META } from '../../../server/exhibition/builtins.js'
 
 const filename = '侨批4.jpg'
 const id = 'qiaopi-' + filename

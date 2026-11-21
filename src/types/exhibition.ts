@@ -16,3 +16,15 @@ export interface ExhibitionImageMeta {
   desc?: string
   sort?: number
 }
+
+export interface ExhibitionCatalog {
+  order: string[]
+  items: ExhibitionImage[]
+}
+
+export interface ManagedCatalog extends ExhibitionCatalog {
+  revision: number
+  trash: ExhibitionCatalog
+}
+
+export type CatalogAction = 'move' | 'trash' | 'restore'

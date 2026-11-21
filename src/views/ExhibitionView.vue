@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
+import { computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { ipImages, qiaopiImages } from '@/assets/exhibition'
-import type { ExhibitionImage, Gallery } from '@/types/exhibition'
+import { useExhibitionCatalog } from '@/composables/useExhibitionCatalog'
+import type { Gallery } from '@/types/exhibition'
 import PhotoGrid from '@/components/exhibition/PhotoGrid.vue'
 import Lightbox from '@/components/exhibition/Lightbox.vue'
 
@@ -14,10 +14,7 @@ const tabs = [
 ] as const
 const gallery = computed<Gallery>(() => route.query.tab === 'ip' ? 'ip' : 'qiaopi')
 const isDesign = computed(() => gallery.value === 'ip')
-const online = ref<ExhibitionImage[]>([])
-const unavailable = ref(false)
-const revision = ref(0)
-const items = computed(() => [...(isDesign.value ? ipImages : qiaopiImages), ...online.value])
+const { items, state, retry } = useExhibitionCatalog(gallery)
 const index = computed(() => items.value.findIndex(item => item.id === route.query.work))
 const current = computed(() => items.value[index.value])
 function select(key: Gallery, work?: string) {
@@ -26,21 +23,6 @@ function select(key: Gallery, work?: string) {
 function move(direction: number) {
   select(gallery.value, items.value[(index.value + direction + items.value.length) % items.value.length]?.id)
 }
-watch([gallery, revision], async ([key], _, onCleanup) => {
-  const controller = new AbortController()
-  onCleanup(() => controller.abort())
-  online.value = []
-  unavailable.value = false
-  try {
-    const response = await fetch('/api/exhibition?gallery=' + key, { signal: controller.signal })
-    if (!response.ok) throw new Error()
-    const data = await response.json()
-    if (!Array.isArray(data.items)) throw new Error()
-    if (!controller.signal.aborted) online.value = data.items
-  } catch {
-    if (!controller.signal.aborted) unavailable.value = true
-  }
-}, { immediate: true })
 </script>
 
 <template>
@@ -61,10 +43,15 @@ watch([gallery, revision], async ([key], _, onCleanup) => {
       <header class="section-head">
         <div class="eyebrow">{{ isDesign ? '第二展厅 · 设计作品' : '第一展厅 · 历史档案' }}</div>
         <h2>{{ isDesign ? '团队 IP 设计' : '侨批文化展示' }}</h2>
-        <p>{{ isDesign ? '戴着斗笠、挎着邮包的侨燕，是团队的吉祥物。点开作品，细看它的形象设计与马克杯上的图案。' : '侨批将家书与汇款连在一起。点开影像，细看信封上的字迹与邮戳。' }}</p>
+        <p>{{ isDesign ? '这里展出团队围绕侨批文化创作的 IP 作品。点开图片，细看设计与署名。' : '侨批将家书与汇款连在一起。点开影像，细看信封上的字迹与邮戳。' }}</p>
       </header>
-      <PhotoGrid :key="gallery" :images="items" :design="isDesign" @open="select(gallery, $event)" />
-      <p v-if="unavailable" role="status" class="catalog-note">正在展示内置馆藏，在线目录暂时不可用。<button @click="revision++">重新读取</button></p>
+      <p v-if="state === 'loading'" role="status" class="catalog-note">正在读取展品…</p>
+      <p v-else-if="state === 'error'" role="status" class="catalog-note">展品目录暂时不可用。<button @click="retry">重新读取</button></p>
+      <template v-else>
+        <p v-if="route.query.work && !current" role="status" class="catalog-note">该作品已下架或链接无效。</p>
+        <PhotoGrid v-if="items.length" :key="gallery" :images="items" :design="isDesign" @open="select(gallery, $event)" />
+        <p v-else class="catalog-note">这个展区暂无在展作品。</p>
+      </template>
     </section>
     <footer class="museum-foot"><span>寻侨迹，传侨魂 · 社会实践团队</span></footer>
     <Lightbox v-if="current" :item="current" :index="index" :total="items.length" @move="move" @close="select(gallery)" />

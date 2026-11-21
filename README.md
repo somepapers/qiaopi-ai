@@ -20,7 +20,11 @@
 
 登录后选择展区和单帧 JPG、PNG 或 WebP，填写展签并发布。单张上限 20 MiB、5000 万像素。成功页面的「查看展品」链接可以直接分享。后台会话有效期为 8 小时，连续 5 次口令错误后需等 15 分钟。上传中断时在当前表单重试会沿用相同的作品编号。
 
-侨批档案与团队 IP 作品随站点提供。原图放入 `侨批展示库/` 或 `IP素材库/` 后运行 `npm run compress:exhibition` 更新内置版本，并将生成的 WebP 文件和展签一同提交。网页后台发布的作品直接写入存储，刷新即可查看。
+后台的「展品管理」按展区列出全部作品。上移或下移会立即保存，新发布的作品排在末尾。移入回收站后，图片和展签长期保留，点击「恢复」即可在原位置重新展出。首页和文化页的精选推荐随展品撤下或恢复。若其他管理员刚调整了目录，点击「刷新列表」即可按最新顺序继续操作。
+
+侨批档案与团队 IP 作品随站点提供。原图放入 `侨批展示库/` 或 `IP素材库/` 后运行 `npm run compress:exhibition` 更新内置版本。展签在 `server/exhibition/builtins.ts` 填写，与生成的 WebP 和 `server/exhibition/files.json` 一同提交。首次管理时会自动沿用旧版目录里的上传记录。
+
+本机服务未配置 KV 时，公开展厅展示默认馆藏。只部署静态文件的网站可在构建时设置 `VITE_EXHIBITION_STATIC=true`，直接使用随站点发布的图片。使用在线管理功能的站点应采用默认设置，由服务端提供展品顺序和展示状态。
 
 This template should help get you started developing with Vue 3 and TypeScript in Vite. The template uses Vue 3 `<script setup>` SFCs, check out the [script setup docs](https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup) to learn more.
 

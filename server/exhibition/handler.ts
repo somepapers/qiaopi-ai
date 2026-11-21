@@ -4,6 +4,7 @@ import { kv } from '@vercel/kv'
 import { BlobNotFoundError, del, get, head, put } from '@vercel/blob'
 import { generateClientTokenFromReadWriteToken } from '@vercel/blob/client'
 import { exhibitionVariants, MAX_BYTES } from './images.mjs'
+import { appendPublication, catalogPage, editCatalog, initialCatalog, managedCatalog, prefix, Problem, publishedItem, readCatalog } from './catalog.js'
 import type { ExhibitionImage, Gallery } from '../../src/types/exhibition.js'
 
 type Request = Pick<IncomingMessage, 'headers' | 'socket' | 'method'> & {
@@ -16,15 +17,10 @@ interface ResponseWriter {
   json(data: unknown): unknown
 }
 
-const prefix = 'qiaopi:exhibition:'
 const cookieName = 'exhibition_session'
 const sessionAge = 8 * 3600
 const extensions = new Map([['image/jpeg', 'jpg'], ['image/png', 'png'], ['image/webp', 'webp']])
 const digest = (text: string) => createHash('sha256').update(text).digest()
-class Problem extends Error {
-  status: number
-  constructor(status: number, message: string) { super(message); this.status = status }
-}
 function galleryOf(value: unknown): Gallery {
   if (value === 'qiaopi' || value === 'ip') return value
   throw new Problem(400, '请选择有效的展区')
@@ -72,7 +68,7 @@ async function authorize(body: Record<string, unknown>) {
   const { pathname, mime, id } = uploadInfo(body)
   if (!Number.isSafeInteger(body.size) || Number(body.size) <= 0 || Number(body.size) > MAX_BYTES) throw new Problem(413, '单张图片须在 20 MB 以内')
   // A lost response after a successful PUT or publication must be safe to retry.
-  const published = await kv.get<ExhibitionImage>(prefix + id)
+  const published = await publishedItem(id)
   if (published) return { published }
   try {
     await head(pathname)
@@ -92,11 +88,11 @@ async function publish(body: Record<string, unknown>) {
   const title = textField(body.title, 80)
   const credit = textField(body.credit, 120)
   const desc = textField(body.desc, 600, true)
-  const existing = await kv.get<ExhibitionImage>(prefix + id)
+  const existing = await publishedItem(id)
   if (existing) return existing
   const source = await get(pathname, { access: 'public', useCache: false })
   if (!source || source.statusCode !== 200) {
-    const concurrent = await kv.get<ExhibitionImage>(prefix + id)
+    const concurrent = await publishedItem(id)
     if (concurrent) return concurrent
     throw new Problem(409, '原图尚未传完，请重试发布')
   }
@@ -120,16 +116,7 @@ async function publish(body: Record<string, unknown>) {
   const thumb = await put(base + '-thumb.webp', variants.thumb, options)
   const detail = await put(base + '-detail.webp', variants.detail, options)
   const item: ExhibitionImage = { id, gallery, title, credit, desc, thumb: thumb.url, detail: detail.url }
-  // One atomic commit across galleries and concurrent requests. Only finished pairs are public.
-  const result = await kv.eval<[string, number], ExhibitionImage>(
-    `local existing = redis.call('GET', KEYS[1])
-     if existing then return existing end
-     redis.call('SET', KEYS[1], ARGV[1])
-     redis.call('ZADD', KEYS[2], ARGV[2], ARGV[1])
-     return ARGV[1]`,
-    [prefix + id, prefix + 'gallery:' + gallery],
-    [JSON.stringify(item), Date.now()],
-  )
+  const result = await appendPublication(item)
   await del(pathname).catch(error => console.warn('展览馆原图清理未完成', error?.name))
   return result
 }
@@ -142,7 +129,7 @@ export default async function exhibition(req: Request, res: ResponseWriter) {
     if (req.method === 'GET' && !action) {
       const gallery = galleryOf(req.query.gallery)
       const builtInOnly = !process.env.KV_REST_API_URL && !process.env.KV_REST_API_TOKEN
-      result = { items: builtInOnly ? [] : await kv.zrange<ExhibitionImage[]>(prefix + 'gallery:' + gallery, 0, -1, { rev: true }) }
+      result = catalogPage(builtInOnly ? initialCatalog(gallery) : await readCatalog(gallery))
     } else {
       const password = process.env.EXHIBITION_ADMIN_PASSWORD
       if (!password || !process.env.KV_REST_API_URL || !process.env.KV_REST_API_TOKEN || !process.env.BLOB_READ_WRITE_TOKEN) {
@@ -152,6 +139,9 @@ export default async function exhibition(req: Request, res: ResponseWriter) {
       const key = token && /^[a-f0-9]{64}$/.test(token) ? sessionKey(token, password) : null
       if (req.method === 'GET' && action === 'session') {
         result = { authenticated: Boolean(key && await kv.get(key)) }
+      } else if (req.method === 'GET' && action === 'manage') {
+        if (!key || !await kv.get(key)) throw new Problem(401, '请先登录团队后台')
+        result = managedCatalog(await readCatalog(galleryOf(req.query.gallery)))
       } else {
         if (req.method !== 'POST') throw new Problem(405, '请求方式不正确')
         if (req.headers['x-exhibition-request'] !== '1' || !req.headers['content-type']?.startsWith('application/json')) {
@@ -166,6 +156,9 @@ export default async function exhibition(req: Request, res: ResponseWriter) {
             result = { authenticated: false }
           } else if (action === 'authorize') result = await authorize(req.body ?? {})
           else if (action === 'publish') result = { item: await publish(req.body ?? {}) }
+          else if (action === 'move' || action === 'trash' || action === 'restore') {
+            result = await editCatalog(galleryOf(req.body?.gallery), action, req.body ?? {})
+          }
           else throw new Problem(404, '操作不存在')
         }
       }

@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { featured } from '@/assets/exhibition/featured'
+import { useFeaturedExhibit } from '@/composables/useExhibitionCatalog'
 
 const activeTab = ref<'history' | 'format' | 'terms' | 'classic'>('history')
+const { visible: showFeatured, state: catalogState, retry } = useFeaturedExhibit()
 
 const tabs = [
   { key: 'history' as const, label: '侨批历史', icon: '📜' },
@@ -126,12 +128,14 @@ const honorificTerms = [
 
     <!-- Classic Tab -->
     <section v-if="activeTab === 'classic'" class="space-y-6">
-      <article class="vintage-paper rounded-xl p-6 md:p-10">
+      <article v-if="showFeatured" class="vintage-paper rounded-xl p-6 md:p-10">
         <p class="mb-2 text-sm text-[#873e30]">档案原件 · {{ featured.credit }}</p>
         <h2 class="mb-3 text-xl font-semibold">{{ featured.title }}</h2>
         <p class="mb-4 leading-loose">{{ featured.guide }}</p>
         <RouterLink :to="featured.to" class="inline-flex min-h-11 items-center text-[#873e30] underline underline-offset-4">对照原图与局部放大 →</RouterLink>
       </article>
+      <p v-else-if="catalogState === 'error'" role="status">展品目录暂时不可用。<button class="underline" @click="retry">重新读取</button></p>
+      <p v-else role="status">{{ catalogState === 'loading' ? '正在读取展品…' : '暂无在展的赏析作品。' }}</p>
     </section>
   </div>
 </template>
