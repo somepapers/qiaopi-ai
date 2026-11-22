@@ -65,10 +65,6 @@ const titleFontSize = computed(() => {
 </template>
 
 <style scoped>
-.qp-envelope:lang(en) .qp-v { writing-mode: horizontal-tb; white-space: normal; overflow-wrap: anywhere; font-family: Georgia, serif; letter-spacing: normal; }
-.qp-stripe:lang(en) { top: 32%; left: 0; right: 0; width: 100%; height: auto; min-height: 20%; padding: .75rem; align-items: center; text-align: center; }
-.qp-col-right:lang(en) { left: 1rem; right: 1rem; }
-.qp-col-left:lang(en) { left: 1rem; right: 1rem; bottom: 22%; flex-direction: column; }
 .qp-envelope {
   position: relative;
   width: 220px;
@@ -215,6 +211,51 @@ const titleFontSize = computed(() => {
   opacity: 0.9;
   transform: rotate(-7deg) scale(1);
   transition-delay: 1s;
+}
+
+/* 英文横排：地址、红条、落款和印章依次占一行，换行时自动分配留白。 */
+.qp-envelope:lang(en) {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: 1fr auto 1fr auto;
+  row-gap: 8px;
+  padding-block: 22px 16px;
+}
+
+.qp-envelope:lang(en) .qp-v {
+  writing-mode: horizontal-tb;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  font-family: Georgia, serif;
+  letter-spacing: normal;
+  line-height: 1.35;
+}
+
+.qp-col:lang(en) {
+  position: static;
+  margin-inline: 1rem;
+}
+
+.qp-stripe:lang(en) {
+  position: relative;
+  inset: auto;
+  transform: none;
+  width: auto;
+  min-height: 74px;
+  padding: 8px 12px;
+  align-items: center;
+  text-align: center;
+}
+
+.qp-col-left:lang(en) {
+  flex-direction: column;
+  align-self: end;
+}
+
+.qp-seal:lang(en) {
+  position: static;
+  justify-self: end;
+  margin-right: 5px;
 }
 
 @media (prefers-reduced-motion: reduce) {
