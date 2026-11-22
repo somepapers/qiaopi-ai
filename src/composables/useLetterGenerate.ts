@@ -1,6 +1,6 @@
 import { ref } from 'vue'
 import { useLetterStore } from '@/stores/letter'
-import { generateLetterStream } from '@/api/chatbox'
+import { generateLetterStream } from '@/api/letter'
 import type { LetterInput } from '@/types/letter'
 
 export function useLetterGenerate() {

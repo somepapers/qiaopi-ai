@@ -1,5 +1,4 @@
 import type { LetterInput } from '@/types/letter'
-import { CHATBOX_CONFIG } from '@/utils/constants'
 import { t } from '@/i18n'
 
 interface SSECallbacks {
@@ -10,8 +9,7 @@ interface SSECallbacks {
 
 export async function generateLetterStream(
   input: LetterInput,
-  callbacks: SSECallbacks,
-  model?: string
+  callbacks: SSECallbacks
 ): Promise<void> {
   const { onMessage, onError, onDone } = callbacks
   const abortController = new AbortController()
@@ -24,10 +22,7 @@ export async function generateLetterStream(
       const response = await fetch('/api/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          input,
-          model: model || CHATBOX_CONFIG.defaultModel,
-        }),
+        body: JSON.stringify({ input }),
         signal: abortController.signal,
       })
 

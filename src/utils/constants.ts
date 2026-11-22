@@ -182,11 +182,3 @@ export const SCENARIO_METADATA: Record<Scenario, ScenarioInfo> = {
     description: '其他需要传达的家书内容',
   },
 }
-
-export const CHATBOX_CONFIG = {
-  apiBaseUrl: 'https://ai.chatboxai.app/v1',
-  defaultModel: 'deepseek-v3.2',
-  fallbackModel: 'deepseek-chat',
-  maxTokens: 4096,
-  temperature: 0.5,
-}

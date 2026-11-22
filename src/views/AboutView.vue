@@ -34,7 +34,7 @@ import { t } from '@/i18n'
         <div class="vintage-paper rounded-lg px-6 py-3 text-center">
           <div class="text-2xl mb-1">🤖</div>
           <p class="text-xs font-serif text-ink/50">{{ t('AI驱动') }}</p>
-          <p class="text-xs font-serif text-ink/40">Chatbox AI</p>
+          <p class="text-xs font-serif text-ink/40">DeepSeek</p>
         </div>
         <div class="vintage-paper rounded-lg px-6 py-3 text-center">
           <div class="text-2xl mb-1">📖</div>

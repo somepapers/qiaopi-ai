@@ -23,7 +23,7 @@ npx vue-tsc -b --noEmit
 # 展览馆图片压缩：素材库原图 → src/assets/exhibition/（幂等，--force 强制重压）
 npm run compress:exhibition
 
-# 本地后端开发（端口 3001，从 .env 读取 CHATBOX_API_KEY）
+# 本地后端开发（端口 3001，从 .env 读取 DEEPSEEK_API_KEY）
 cd server && npx tsx index.ts
 
 # 部署：推送到 master 分支 → Vercel 自动部署
@@ -37,13 +37,13 @@ git push
                    │ POST /api/generate（SSE 流式传输）
                    ▼
            api/generate.ts（Vercel Serverless 函数）
-                   │ 携带 CHATBOX_API_KEY 请求
+                   │ 携带 DEEPSEEK_API_KEY 请求
                    ▼
-          Chatbox AI API (ai.chatboxai.app/v1，兼容 OpenAI 接口)
+          DeepSeek API (api.deepseek.com，兼容 OpenAI 接口)
 ```
 
 **关键架构决策：**
-- **生产环境无需独立后端服务器**：Express 服务器（`server/`）仅供本地开发使用。生产环境使用 `api/generate.ts`，一个代理到 Chatbox AI 的 Vercel Serverless 函数，支持 SSE 流式传输。
+- **生产环境无需独立后端服务器**：Express 服务器（`server/`）仅供本地开发使用。生产环境使用 `api/generate.ts`，一个代理到 DeepSeek 的 Vercel Serverless 函数，支持 SSE 流式传输。
 - **字体**：通过 jsDelivr CDN 加载「鸿雷板书简体」毛笔书法字体，在 `src/styles/main.css` 中定义为 `--font-calligraphy` 变量。仅应用于 `.vintage-text` 元素（书信内容），不影响通用 UI。
 - **Vite 开发代理**：`vite.config.ts` 中将 `/api/*` 转发到 `localhost:3001`，用于本地开发。
 
@@ -51,10 +51,10 @@ git push
 
 | 文件 | 用途 |
 |------|------|
-| `api/generate.ts` | **生产环境 AI 后端** — 系统提示词 + 用户消息构建 + SSE 代理转发到 Chatbox AI。包含按关系分类的敬语指南和侨批格式系统提示词。 |
+| `api/generate.ts` | **生产环境 AI 后端** — 系统提示词 + 用户消息构建 + SSE 代理转发到 DeepSeek。包含按关系分类的敬语指南和侨批格式系统提示词。 |
 | `api/stats.ts` | **网站使用次数统计** — GET 读取 / POST 进入网站 +1，Vercel KV key `qiaopi:visits`，首次访问自动初始化基线 10032。前端由 `App.vue` 挂载时计数、首页展示。 |
 | `server/prompts/system-prompt.ts` | **仅开发环境**使用的系统提示词版本（供 Express 服务器使用）。必须与 `api/generate.ts` 保持同步。 |
-| `src/utils/constants.ts` | `HONORIFIC_MAP`（16 种关系 → 称谓/祝颂/落款映射）、`SCENARIO_METADATA`（场景分类）、`RELATIONSHIP_LABELS`（关系标签）、`CHATBOX_CONFIG`（API 配置） |
+| `src/utils/constants.ts` | `HONORIFIC_MAP`（16 种关系 → 称谓/祝颂/落款映射）、`SCENARIO_METADATA`（场景分类）、`RELATIONSHIP_LABELS`（关系标签） |
 | `src/utils/templateData.ts` | 12 篇预制侨批范文模板，含结构解析（标注哪些部分是固定格式、哪些可变） |
 | `src/components/letter/LetterExport.vue` | 基于 Canvas 的图片导出 — 在复古纸张纹理上渲染侨批文字，支持横排/竖排，包含墨色和做旧效果 |
 | `src/stores/letter.ts` | Pinia 状态管理，控制书信生成全生命周期：输入 → 流式生成 → 编辑 → 导出，数据持久化到 localStorage |
@@ -67,7 +67,7 @@ AI 生成质量高度依赖 `api/generate.ts` 中的系统提示词设计。核�
 - **内容保真度优先**：提示词必须明确要求 AI 忠实复现用户输入，而非仅遵循格式规则。缺少此项会导致 AI 生成千篇一律的模板内容。
 - **用户消息结构很重要**：将用户的 `plainSpeech`（口语内容）放在用户消息的**最顶部**，用视觉标记（`===`）包裹，而不是埋在元数据字段后面。
 - **系统提示词保持精简**：约 500 字的效果远好于约 1700 字。过长的格式指令会压倒用户内容，占据模型注意力。
-- 模型：通过 Chatbox AI 调用 `deepseek-v3.2`（兼容 OpenAI 接口）。Temperature 设为 0.5。
+- 模型：通过 DeepSeek 调用 `deepseek-flash`（兼容 OpenAI 接口）。Temperature 设为 0.5。
 
 ## 图片导出
 

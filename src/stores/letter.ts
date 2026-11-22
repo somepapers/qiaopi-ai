@@ -55,7 +55,7 @@ export const useLetterStore = defineStore('letter', () => {
         content,
         sections: [],
         createdAt: new Date().toISOString(),
-        modelVersion: 'chatbox-ai',
+        modelVersion: 'deepseek-flash',
       }
       history.value.unshift(letter)
       saveHistory()

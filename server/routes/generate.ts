@@ -1,3 +1,4 @@
+import { requestLetter } from '../deepseek.js'
 import { Router, type Request, type Response } from 'express'
 import rateLimit from 'express-rate-limit'
 import { buildSystemPrompt } from '../prompts/system-prompt.js'
@@ -24,36 +25,17 @@ generateRouter.post('/generate', limiter, async (req: Request, res: Response) =>
       { role: 'system', content: buildSystemPrompt(input) },
       { role: 'user', content: buildUserMessage(input) },
     ]
-    const apiKey = process.env.CHATBOX_API_KEY
+    const apiKey = process.env.DEEPSEEK_API_KEY
 
     if (!apiKey) {
       res.status(500).json({ code: 'NO_API_KEY', message: '服务器未配置API密钥' })
       return
     }
 
-    const model = req.body.model || 'deepseek-v3.2'
-
-    console.log(`🖋️  生成侨批 → 收信人: ${input.recipient}(${input.relationship}), 模型: ${model}`)
-
-    // Call Chatbox AI API (OpenAI-compatible)
-    const response = await fetch('https://ai.chatboxai.app/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${apiKey}`,
-      },
-      body: JSON.stringify({
-        model,
-        messages,
-        temperature: 0.5,
-        max_tokens: 4096,
-        stream: true,
-      }),
-    })
+    const response = await requestLetter(apiKey, messages)
 
     if (!response.ok) {
-      const errText = await response.text()
-      console.error('Chatbox AI API error:', response.status, errText)
+      console.error('DeepSeek API error:', response.status)
 
       if (response.status === 429) {
         res.status(429).json({ code: 'RATE_LIMITED', message: 'AI服务繁忙，请稍后再试' })

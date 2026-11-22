@@ -1,3 +1,4 @@
+import { requestLetter } from '../server/deepseek.js'
 import type { VercelRequest, VercelResponse } from '@vercel/node'
 import { lunar } from 'lunar-ts'
 import { englishLetterMessages } from '../server/prompts/english-letter.js'
@@ -179,14 +180,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   try {
-    const { input, model } = req.body
+    const { input } = req.body
 
     if (!input || !input.plainSpeech || !input.recipient) {
       res.status(400).json({ code: 'INVALID_INPUT', message: '请填写收信人信息和你想说的话' })
       return
     }
 
-    const apiKey = process.env.CHATBOX_API_KEY
+    const apiKey = process.env.DEEPSEEK_API_KEY
     if (!apiKey) {
       res.status(500).json({ code: 'NO_API_KEY', message: '服务器未配置API密钥' })
       return
@@ -196,27 +197,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       { role: 'system', content: buildSystemPrompt(input) },
       { role: 'user', content: buildUserMessage(input) },
     ]
-    const selectedModel = model || 'deepseek-v3.2'
-
-    console.log(`🖋️ 生成侨批 → 收信人: ${input.recipient}, 模型: ${selectedModel}`)
-
-    const response = await fetch('https://ai.chatboxai.app/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${apiKey}`,
-      },
-      body: JSON.stringify({
-        model: selectedModel,
-        messages,
-        temperature: 0.5,
-        max_tokens: 4096,
-        stream: true,
-      }),
-    })
+    const response = await requestLetter(apiKey, messages)
 
     if (!response.ok) {
-      console.error('Chatbox AI error:', response.status)
+      console.error('DeepSeek error:', response.status)
       if (response.status === 429) {
         res.status(429).json({ code: 'RATE_LIMITED', message: 'AI服务繁忙，请稍后再试' })
         return
