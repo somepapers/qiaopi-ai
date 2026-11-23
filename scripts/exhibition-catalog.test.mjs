@@ -1,5 +1,7 @@
 import assert from 'node:assert/strict'
-import { readdir } from 'node:fs/promises'
+import { readdir, readFile } from 'node:fs/promises'
+import { createRequire } from 'node:module'
+import { Writable } from 'node:stream'
 import test from 'node:test'
 import { catalogPage, changeCatalog, initialCatalog, managedCatalog } from '../server/exhibition/catalog.ts'
 import exhibition from '../server/exhibition/handler.ts'
@@ -75,4 +77,72 @@ test('公开目录仅含在展作品，回收站和写操作需要登录', async
     const response = await call('POST', { action }, { 'content-type': 'application/json', 'x-exhibition-request': '1' })
     assert.equal(response.code, 401)
   }
+})
+
+test('旧版上传记录通过同源链接返回两种图片，接口只读取已生成的展品图片路径', async t => {
+  const originalToken = process.env.BLOB_READ_WRITE_TOKEN
+  process.env.BLOB_READ_WRITE_TOKEN = 'vercel_blob_rw_teststore_testtoken'
+  t.after(() => {
+    if (originalToken === undefined) delete process.env.BLOB_READ_WRITE_TOKEN
+    else process.env.BLOB_READ_WRITE_TOKEN = originalToken
+  })
+
+  const id = '85774d95-3b68-452c-855b-165a5a5c407b'
+  const base = `exhibition/works/${id}/abcd0123456789ef`
+  const origin = 'https://teststore.public.blob.vercel-storage.com'
+  const work = { ...upload, id, thumb: origin + '/' + base + '-thumb.webp', detail: origin + '/' + base + '-detail.webp' }
+  const state = initialCatalog('qiaopi', [work])
+  const [listed] = catalogPage(state).items
+  const [trashed] = managedCatalog(edit(state, 'trash', id)).trash.items
+  assert.deepEqual(listed, trashed)
+  const requireBlob = createRequire(import.meta.resolve('@vercel/blob'))
+  const { MockAgent, getGlobalDispatcher, setGlobalDispatcher } = requireBlob('undici')
+  const previousDispatcher = getGlobalDispatcher()
+  const agent = new MockAgent()
+  agent.disableNetConnect()
+  setGlobalDispatcher(agent)
+  t.after(async () => {
+    setGlobalDispatcher(previousDispatcher)
+    await agent.close()
+  })
+  const store = agent.get(origin)
+  const images = new Map()
+  for (const variant of ['thumb', 'detail']) {
+    const file = await readFile(new URL(`../src/assets/exhibition/qiaopi/侨批1.jpg.${variant}.webp`, import.meta.url))
+    images.set(variant, file)
+    store.intercept({ method: 'GET', path: '/' + base + '-' + variant + '.webp' })
+      .reply(200, file, { headers: { 'Content-Type': 'image/webp' } })
+  }
+  const missingPath = `exhibition/works/${id}/0000000000000000-thumb.webp`
+  store.intercept({ method: 'GET', path: '/' + missingPath }).reply(404)
+
+  async function call(query) {
+    const chunks = []
+    const headers = new Map()
+    const response = Object.assign(new Writable({ write(chunk, _encoding, done) { chunks.push(chunk); done() } }), {
+      code: 200,
+      setHeader(name, value) { headers.set(name, value) },
+      status(code) { this.code = code; return this },
+      json() {},
+    })
+    await exhibition({ method: 'GET', query, headers: {}, socket: {} }, response)
+    return { status: response.code, headers, body: Buffer.concat(chunks) }
+  }
+
+  for (const variant of ['thumb', 'detail']) {
+    const url = new URL(listed[variant], 'https://museum.example')
+    assert.equal(url.origin, 'https://museum.example')
+    assert.equal(url.pathname, '/api/exhibition')
+    const result = await call(Object.fromEntries(url.searchParams))
+    assert.equal(result.status, 200)
+    assert.equal(result.headers.get('Content-Type'), 'image/webp')
+    assert.match(result.headers.get('Cache-Control'), /immutable/)
+    assert.deepEqual(result.body, images.get(variant))
+  }
+  const rejected = await call({ action: 'image', path: `exhibition/incoming/${id}.png` })
+  assert.equal(rejected.status, 404)
+  const missing = await call({ action: 'image', path: missingPath })
+  assert.equal(missing.status, 404)
+  assert.equal(missing.headers.get('Cache-Control'), 'no-store')
+  agent.assertNoPendingInterceptors()
 })

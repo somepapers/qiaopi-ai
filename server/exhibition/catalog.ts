@@ -1,5 +1,6 @@
 import { kv } from '@vercel/kv'
 import { builtInFiles } from './builtins.js'
+import { withImageDelivery } from './image-delivery.js'
 import type { CatalogAction, ExhibitionCatalog, ExhibitionImage, Gallery } from '../../src/types/exhibition.js'
 
 export const prefix = 'qiaopi:exhibition:'
@@ -44,7 +45,7 @@ export function catalogPage(state: CatalogState, hidden = false): ExhibitionCata
   const entries = state.entries.filter(entry => Boolean(entry.hidden) === hidden)
   return {
     order: entries.map(idOf),
-    items: entries.flatMap(({ work }) => typeof work === 'string' ? [] : [work]),
+    items: entries.flatMap(({ work }) => typeof work === 'string' ? [] : [withImageDelivery(work)]),
   }
 }
 export function managedCatalog(state: CatalogState) {

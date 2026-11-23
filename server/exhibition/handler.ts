@@ -1,9 +1,10 @@
 import { createHash, randomBytes, timingSafeEqual } from 'node:crypto'
-import type { IncomingMessage } from 'node:http'
+import type { IncomingMessage, ServerResponse } from 'node:http'
 import { kv } from '@vercel/kv'
 import { BlobNotFoundError, del, get, head, put } from '@vercel/blob'
 import { generateClientTokenFromReadWriteToken } from '@vercel/blob/client'
 import { exhibitionVariants, MAX_BYTES } from './images.mjs'
+import { sendWorkImage, withImageDelivery } from './image-delivery.js'
 import { appendPublication, catalogPage, editCatalog, initialCatalog, managedCatalog, prefix, Problem, publishedItem, readCatalog } from './catalog.js'
 import type { ExhibitionImage, Gallery } from '../../src/types/exhibition.js'
 
@@ -11,8 +12,7 @@ type Request = Pick<IncomingMessage, 'headers' | 'socket' | 'method'> & {
   query: Record<string, unknown>
   body?: Record<string, unknown>
 }
-interface ResponseWriter {
-  setHeader(name: string, value: string): unknown
+interface ResponseWriter extends ServerResponse {
   status(code: number): ResponseWriter
   json(data: unknown): unknown
 }
@@ -69,7 +69,7 @@ async function authorize(body: Record<string, unknown>) {
   if (!Number.isSafeInteger(body.size) || Number(body.size) <= 0 || Number(body.size) > MAX_BYTES) throw new Problem(413, '单张图片须在 20 MB 以内')
   // A lost response after a successful PUT or publication must be safe to retry.
   const published = await publishedItem(id)
-  if (published) return { published }
+  if (published) return { published: withImageDelivery(published) }
   try {
     await head(pathname)
     return { uploaded: true }
@@ -129,7 +129,11 @@ export default async function exhibition(req: Request, res: ResponseWriter) {
   try {
     const action = req.query.action
     let result: unknown
-    if (req.method === 'GET' && !action) {
+    if (action === 'image') {
+      if (req.method !== 'GET') throw new Problem(405, '请求方式不正确')
+      if (!await sendWorkImage(req.query.path, res)) throw new Problem(404, '展品图片不存在')
+      return
+    } else if (req.method === 'GET' && !action) {
       const gallery = galleryOf(req.query.gallery)
       const builtInOnly = !process.env.KV_REST_API_URL && !process.env.KV_REST_API_TOKEN
       result = catalogPage(builtInOnly ? initialCatalog(gallery) : await readCatalog(gallery))
@@ -158,7 +162,7 @@ export default async function exhibition(req: Request, res: ResponseWriter) {
             res.setHeader('Set-Cookie', cookie('', 0))
             result = { authenticated: false }
           } else if (action === 'authorize') result = await authorize(req.body ?? {})
-          else if (action === 'publish') result = { item: await publish(req.body ?? {}) }
+          else if (action === 'publish') result = { item: withImageDelivery(await publish(req.body ?? {})) }
           else if (action === 'move' || action === 'trash' || action === 'restore') {
             result = await editCatalog(galleryOf(req.body?.gallery), action, req.body ?? {})
           }
@@ -169,6 +173,7 @@ export default async function exhibition(req: Request, res: ResponseWriter) {
     res.status(200).json(result)
   } catch (error) {
     if (!(error instanceof Problem)) console.warn('展览馆存储暂不可用', (error as Error)?.name)
+    if (res.headersSent || res.destroyed) return
     res.status(error instanceof Problem ? error.status : 503).json({
       message: error instanceof Problem ? error.message : '在线展品服务暂时不可用，请稍后重试',
     })
